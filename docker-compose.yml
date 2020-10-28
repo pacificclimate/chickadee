@@ -1,0 +1,13 @@
+version: '3'
+services:
+  wps:
+    build: .
+    image: nikola-rados/chickadee
+    ports:
+      - "5004:5004"
+
+
+# docker-compose build
+# docker-compose up
+# docker-compose down
+# docker-compose rm
