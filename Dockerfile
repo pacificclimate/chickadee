@@ -9,7 +9,12 @@ WORKDIR /code
 
 COPY requirements.txt ./
 
-RUN pip3 install -r requirements.txt --ignore-installed && \
+RUN apt-get update && \
+    apt-get install -y \
+      build-essential \
+      gcc \
+      python3-dev && \
+    pip3 install -r requirements.txt --ignore-installed && \
     pip3 install gunicorn
 
 COPY . .
