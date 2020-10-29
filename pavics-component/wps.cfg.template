@@ -1,0 +1,10 @@
+[server]
+outputurl = https://${PAVICS_FQDN_PUBLIC}/wpsoutputs
+outputpath = /data/wpsoutputs
+maxrequestsize = 65gb
+
+[logging]
+level = INFO
+db_echo = false
+
+${EXTRA_PYWPS_CONFIG}

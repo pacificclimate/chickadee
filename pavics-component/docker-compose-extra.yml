@@ -1,0 +1,23 @@
+version: '2.1'
+services:
+  chickadee:
+    image: ${CHICKADEE_IMAGE}
+    container_name: chickadee
+    environment:
+      - PYWPS_CFG=/wps.cfg
+    ports:
+      - "8102:5004"
+    volumes:
+      - ../../chickadee/pavics-component/wps.cfg:/wps.cfg
+      - wps_outputs:/data/wpsoutputs
+      - /tmp
+    restart: always
+
+  magpie:
+    volumes:
+    - ../../chickadee/pavics-component/chickadee-magpie-permission.cfg:/opt/local/src/magpie/config/permissions/chickadee-magpie-permission.cfg:ro
+    - ../../chickadee/pavics-component/chickadee-magpie-provider.cfg:/opt/local/src/magpie/config/providers/chickadee-magpie-provider.cfg:ro
+
+  proxy:
+    volumes:
+      - ../../chickadee/pavics-component/chickadee_canarie_api_monitoring.py:${CANARIE_MONITORING_EXTRA_CONF_DIR}/chickadee_canarie_api_monitoring.py:ro

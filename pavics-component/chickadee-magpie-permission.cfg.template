@@ -1,0 +1,15 @@
+permissions:
+  - service: chickadee
+    permission: getcapabilities
+    group: anonymous
+    action: create
+
+  - service: chickadee
+    permission: describeprocess
+    group: anonymous
+    action: create
+
+  - service: chickadee
+    permission: execute
+    group: anonymous
+    action: create

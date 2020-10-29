@@ -1,0 +1,8 @@
+providers:
+  chickadee:
+    url: http://${PAVICS_FQDN}:8102/wps
+    title: Chickadee
+    public: true
+    c4i: false
+    type: wps
+    sync_type: wps
