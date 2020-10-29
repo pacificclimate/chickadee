@@ -29,3 +29,5 @@ jobs:
       if: github.ref != 'refs/heads/master'
       run: |
         py.test -m "not online and not slow" -v
+    - name: Code Quality
+      run: black . --check
