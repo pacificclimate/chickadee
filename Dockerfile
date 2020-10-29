@@ -1,33 +1,24 @@
-# vim:set ft=dockerfile:
-FROM continuumio/miniconda3
-MAINTAINER https://github.com/nikola-rados/chickadee
+FROM python:3.7-slim
+
+MAINTAINER https://github.com/pacificclimate/chickadee
 LABEL Description="chickadee WPS" Vendor="Birdhouse" Version="0.1.0"
 
-# Update Debian system
-RUN apt-get update && apt-get install -y \
- build-essential \
-&& rm -rf /var/lib/apt/lists/*
+ENV PIP_INDEX_URL="https://pypi.pacificclimate.org/simple/"
 
-# Update conda
-RUN conda update -n base conda
+WORKDIR /code
 
-# Copy WPS project
-COPY . /opt/wps
+COPY requirements.txt ./
 
-WORKDIR /opt/wps
+RUN pip3 install -r requirements.txt --ignore-installed && \
+    pip3 install gunicorn
 
-# Create conda environment with PyWPS
-RUN ["conda", "env", "create", "-n", "wps", "-f", "environment.yml"]
+COPY . .
 
-# Install WPS
-RUN ["/bin/bash", "-c", "source activate wps && pip install -e ."]
-
-# Start WPS service on port 5004 on 0.0.0.0
 EXPOSE 5004
-ENTRYPOINT ["/bin/bash", "-c"]
-CMD ["source activate wps && exec chickadee start -b 0.0.0.0 -c /opt/wps/etc/demo.cfg"]
 
-# docker build -t nikola-rados/chickadee .
-# docker run -p 5004:5004 nikola-rados/chickadee
+CMD ["gunicorn", "--bind=0.0.0.0:5004", "chickadee.wsgi:application"]
+
+# docker build -t pacificclimate/chickadee .
+# docker run -p 8102:5004 pacificclimate/chickadee
 # http://localhost:5004/wps?request=GetCapabilities&service=WPS
 # http://localhost:5004/wps?request=DescribeProcess&service=WPS&identifier=all&version=1.0.0

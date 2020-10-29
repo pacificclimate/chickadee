@@ -2,9 +2,9 @@ version: '3'
 services:
   wps:
     build: .
-    image: nikola-rados/chickadee
+    image: pcic/chickadee
     ports:
-      - "5004:5004"
+      - "8102:5004"
 
 
 # docker-compose build
