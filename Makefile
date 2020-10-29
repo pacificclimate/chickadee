@@ -1,22 +1,24 @@
 # Configuration
 APP_ROOT := $(abspath $(lastword $(MAKEFILE_LIST))/..)
 APP_NAME := chickadee
+VENV?=/tmp/chickadee-venv
+PYTHON=${VENV}/bin/python3
+PIP=${VENV}/bin/pip
+export PIP_INDEX_URL=https://pypi.pacificclimate.org/simple
 
-WPS_URL = http://localhost:5004
+# Notebook targets
+LOCAL_URL = http://localhost:5004
+DEV_PORT ?= $(shell bash -c 'read -ep "Target port: " port; echo $$port')
 
 # Used in target refresh-notebooks to make it looks like the notebooks have
 # been refreshed from the production server below instead of from the local dev
 # instance so the notebooks can also be used as tutorial notebooks.
-OUTPUT_URL = https://pavics.ouranos.ca/wpsoutputs
-
+OUTPUT_URL = https://docker-dev03.pcic.uvic.ca/wpsoutputs
 SANITIZE_FILE := https://github.com/Ouranosinc/PAVICS-e2e-workflow-tests/raw/master/notebooks/output-sanitize.cfg
 
-# end of configuration
-
-.DEFAULT_GOAL := help
 
 .PHONY: all
-all: help
+all: develop test clean-test test-notebooks-online
 
 .PHONY: help
 help:
@@ -32,9 +34,7 @@ help:
 	@echo "\nTesting targets:"
 	@echo "  test              to run tests (but skip long running tests)."
 	@echo "  test-all          to run all tests (including long running tests)."
-	@echo "  test-notebooks    to verify Jupyter Notebook test outputs are valid."
 	@echo "  lint              to run code style checks with flake8."
-	@echo "  refresh-notebooks to verify Jupyter Notebook test outputs are valid."
 	@echo "\nSphinx targets:"
 	@echo "  docs              to generate HTML documentation with Sphinx."
 	@echo "\nDeployment targets:"
@@ -43,41 +43,47 @@ help:
 ## Build targets
 
 .PHONY: install
-install:
+install: venv
 	@echo "Installing application ..."
-	@-bash -c 'pip install -e .'
-	@echo "\nStart service with \`make start'"
+	@-bash -c '${PIP} install -e .'
+	@echo "\nStart service with \`chickadee start'"
 
-.PHONY: develop
-develop:
-	@echo "Installing development requirements for tests and docs ..."
+.PHONY: install-ci
+install-ci:
+	@echo "Installing ci requirements"
+	@-bash -c 'pip install -r requirements.txt'
 	@-bash -c 'pip install -e ".[dev]"'
 
+.PHONY: develop
+develop: venv
+	@echo "Installing development requirements for tests and docs ..."
+	@-bash -c '${PIP} install -e ".[dev]"'
+
 .PHONY: start
-start:
+start: venv
 	@echo "Starting application ..."
-	@-bash -c "$(APP_NAME) start -d"
+	@-bash -c "${VENV}/bin/$(APP_NAME) start -d"
 
 .PHONY: stop
-stop:
+stop: venv
 	@echo "Stopping application ..."
-	@-bash -c "$(APP_NAME) stop"
+	@-bash -c "${VENV}/bin/$(APP_NAME) stop"
 
 .PHONY: restart
-restart: stop start
+restart: venv stop start
 	@echo "Restarting application ..."
 
 .PHONY: status
-status:
-	@echo "Showing status ..."
-	@-bash -c "$(APP_NAME) status"
+status: venv
+	@echo "Show status ..."
+	@-bash -c "${VENV}/bin/$(APP_NAME) status"
 
 .PHONY: clean
 clean: clean-build clean-pyc clean-test ## remove all build, test, coverage and Python artifacts
 
 .PHONY: clean-build
 clean-build:
-	@echo "Removing build artifacts ..."
+	@echo "Remove build artifacts ..."
 	@-rm -fr build/
 	@-rm -fr dist/
 	@-rm -fr .eggs/
@@ -88,7 +94,7 @@ clean-build:
 
 .PHONY: clean-pyc
 clean-pyc:
-	@echo "Removing Python file artifacts ..."
+	@echo "Remove Python file artifacts ..."
 	@-find . -name '*.pyc' -exec rm -f {} +
 	@-find . -name '*.pyo' -exec rm -f {} +
 	@-find . -name '*~' -exec rm -f {} +
@@ -96,7 +102,7 @@ clean-pyc:
 
 .PHONY: clean-test
 clean-test:
-	@echo "Removing test artifacts ..."
+	@echo "Remove test artifacts ..."
 	@-rm -fr .pytest_cache
 
 .PHONY: clean-dist
@@ -106,17 +112,21 @@ clean-dist: clean
 	## do not use git clean -e/--exclude here, add them to .gitignore instead
 	@-git clean -dfx
 
+.PHONY: venv
+venv:
+	test -d $(VENV) || python3 -m venv $(VENV)
+
 ## Test targets
 
 .PHONY: test
-test:
+test: venv
 	@echo "Running tests (skip slow and online tests) ..."
-	@bash -c 'pytest -v -m "not slow and not online" tests/'
+	@bash -c '${PYTHON} -m pytest -v -m "not slow and not online" tests/'
 
 .PHONY: test-all
-test-all:
+test-all: venv
 	@echo "Running all tests (including slow and online tests) ..."
-	@bash -c 'pytest -v tests/'
+	@bash -c '${PYTHON} -m pytest -v tests/'
 
 .PHONY: notebook-sanitizer
 notebook-sanitizer:
@@ -126,17 +136,24 @@ notebook-sanitizer:
 .PHONY: test-notebooks
 test-notebooks: notebook-sanitizer
 	@echo "Running notebook-based tests"
-	@bash -c "env WPS_URL=$(WPS_URL) pytest --nbval --verbose $(CURDIR)/docs/source/notebooks/ --sanitize-with $(CURDIR)/docs/source/output-sanitize.cfg --ignore $(CURDIR)/docs/source/notebooks/.ipynb_checkpoints"
+	@bash -c "source $(VENV)/bin/activate && env LOCAL_URL=$(LOCAL_URL) pytest --nbval --verbose $(CURDIR)/docs/source/notebooks/ --sanitize-with $(CURDIR)/docs/source/output-sanitize.cfg --ignore $(CURDIR)/docs/source/notebooks/.ipynb_checkpoints"
+
+
+.PHONY: test-notebooks-online
+test-notebooks-online: notebook-sanitizer
+	@echo "Running notebook-based tests against online instance of chickadee"
+	@bash -c "source $(VENV)/bin/activate && pytest --nbval --verbose $(CURDIR)/docs/source/notebooks/ --sanitize-with $(CURDIR)/docs/source/output-sanitize.cfg --ignore $(CURDIR)/docs/source/notebooks/.ipynb_checkpoints"
+
+.PHONY: test-notebooks-custom
+test-notebooks-custom: notebook-sanitizer
+	@echo "Running notebook-based tests against custom docker instance of chickadee"
+	@bash -c "source $(VENV)/bin/activate && env DEV_URL=http://docker-dev03.pcic.uvic.ca:$(DEV_PORT)/wps pytest --nbval --verbose $(CURDIR)/docs/source/notebooks/ --sanitize-with $(CURDIR)/docs/source/output-sanitize.cfg --ignore $(CURDIR)/docs/source/notebooks/.ipynb_checkpoints"
+
 
 .PHONY: lint
-lint:
-	@echo "Running flake8 code style checks ..."
-	@bash -c 'flake8'
-
-.PHONY: refresh-notebooks
-refresh-notebooks:
-	@echo "Refresh all notebook outputs under docs/source/notebooks"
-	@bash -c 'for nb in $(CURDIR)/docs/source/notebooks/*.ipynb; do WPS_URL="$(WPS_URL)" jupyter nbconvert --to notebook --execute --ExecutePreprocessor.timeout=60 --output "$$nb" "$$nb"; sed -i "s@$(WPS_URL)/outputs/@$(OUTPUT_URL)/@g" "$$nb"; done; cd $(APP_ROOT)'
+lint: venv
+	@echo "Running black code style checks ..."
+	@bash -c '${PYTHON} -m black . --check'
 
 ## Sphinx targets
 
@@ -152,7 +169,7 @@ docs:
 
 .PHONY: dist
 dist: clean
-	@echo "Building source and wheel package ..."
-	@-python setup.py sdist
-	@-python setup.py bdist_wheel
-	@-bash -c 'ls -l dist/'
+	@echo "Builds source and wheel package ..."
+	@-python3 setup.py sdist
+	@-python3 setup.py bdist_wheel
+	ls -l dist
