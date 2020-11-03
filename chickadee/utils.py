@@ -11,12 +11,15 @@ handler = logging.StreamHandler()
 handler.setFormatter(formatter)
 logger.addHandler(handler)
 
+
 def set_r_options():
-    robjects.r("""
+    robjects.r(
+        """
     set_end_date <-function(end_date){
         options(
             calibration.end=as.POSIXct(end_date, tz='GMT')
         )
     }
-    """)
-    return robjects.r['set_end_date']
+    """
+    )
+    return robjects.r["set_end_date"]
