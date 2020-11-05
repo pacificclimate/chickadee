@@ -1,10 +1,9 @@
 from pywps import Process, ComplexInput, ComplexOutput, LiteralInput, FORMATS
 from pywps.app.Common import Metadata
-from rpy2.robjects.packages import isinstalled, importr
 
 from wps_tools.utils import log_handler
 from wps_tools.io import log_level
-from chickadee.utils import logger
+from chickadee.utils import logger, get_ClimDown
 
 
 class CI(Process):
@@ -94,8 +93,4 @@ class CI(Process):
             process_step="start",
         )
 
-        # Install and import R packages
-        if not isinstalled("ClimDown"):
-            utils = importr("utils")
-            utils.install_packages("ClimDown")
-        climdown = importr("ClimDown")
+        climdown = get_ClimDown()

@@ -1,4 +1,6 @@
 import logging
+from rpy2.robjects.packages import isinstalled, importr
+
 
 logger = logging.getLogger("PYWPS")
 logger.setLevel(logging.NOTSET)
@@ -9,3 +11,11 @@ formatter = logging.Formatter(
 handler = logging.StreamHandler()
 handler.setFormatter(formatter)
 logger.addHandler(handler)
+
+
+def get_ClimDown():
+    # Install and import R packages
+    if not isinstalled("ClimDown"):
+        utils = importr("utils")
+        utils.install_packages("ClimDown")
+    return importr("ClimDown")
