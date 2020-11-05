@@ -11,7 +11,12 @@ from chickadee.utils import logger, set_r_options
 if not isinstalled("ClimDown"):
     utils = importr("utils")
     utils.install_packages("ClimDown")
+if not isinstalled("doParallel"):
+    utils = importr("utils")
+    utils.install_packages("doParallel")
+
 climdown = importr("ClimDown")
+doPar = importr("doParallel")
 
 
 class BCCAQ(Process):
@@ -115,9 +120,18 @@ class BCCAQ(Process):
             process_step="process",
         )
 
+        # Set R options
         set_end = set_r_options()
         set_end(end_date)
+
+        # Set parallelization
+        doPar.registerDoParallel(cores=4)
+
+        # Run ClimDown
         climdown.bccaq_netcdf_wrapper(gcm_file, obs_file, out_file, var)
+
+        # stop parallelization
+        doPar.stopImplicitCluster()
 
         log_handler(
             self,
