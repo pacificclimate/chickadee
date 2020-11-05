@@ -6,12 +6,6 @@ from wps_tools.utils import log_handler
 from wps_tools.io import log_level
 from chickadee.utils import logger
 
-# Install and import R packages
-if not isinstalled("ClimDown"):
-    utils = importr("utils")
-    utils.install_packages("ClimDown")
-climdown = importr("ClimDown")
-
 
 class CI(Process):
     def __init__(self):
@@ -48,7 +42,7 @@ class CI(Process):
                 data_type="string",
             ),
             LiteralInput(
-                "out_file",
+                "out_file_create",
                 "Output NetCDF File",
                 abstract="Filename to create with the climate imprint outputs",
                 min_occurs=0,
@@ -56,7 +50,7 @@ class CI(Process):
                 data_type="string",
             ),
             ComplexInput(
-                "out_file",
+                "out_file_overwrite",
                 "Output NetCDF File",
                 abstract="Filename to overwrite with the climate imprint outputs",
                 min_occurs=0,
@@ -99,3 +93,9 @@ class CI(Process):
             log_level=loglevel,
             process_step="start",
         )
+
+        # Install and import R packages
+        if not isinstalled("ClimDown"):
+            utils = importr("utils")
+            utils.install_packages("ClimDown")
+        climdown = importr("ClimDown")
