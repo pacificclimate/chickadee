@@ -16,21 +16,21 @@ class CI(Process):
         }
         inputs = [
             log_level,
-            LiteralInput(
+            ComplexInput(
                 "gcm_file",
                 "GCM NetCDF file",
                 abstract="Filename of GCM simulations",
                 min_occurs=1,
                 max_occurs=1,
-                data_type="string",
+                supported_formats=[FORMATS.NETCDF],
             ),
-            LiteralInput(
+            ComplexInput(
                 "obs_file",
                 "Observations NetCDF file",
                 abstract="Filename of high-res gridded historical observations",
                 min_occurs=1,
                 max_occurs=1,
-                data_type="string",
+                supported_formats=[FORMATS.NETCDF],
             ),
             LiteralInput(
                 "varname",
