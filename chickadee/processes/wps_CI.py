@@ -1,5 +1,6 @@
 from pywps import Process, ComplexInput, ComplexOutput, LiteralInput, FORMATS
 from pywps.app.Common import Metadata
+from pywps.app.exceptions import ProcessError
 
 from wps_tools.utils import log_handler
 from wps_tools.io import log_level
@@ -82,6 +83,19 @@ class CI(Process):
             status_supported=True,
         )
 
+    def collect_args(self, request):
+        gcm_file = request.inputs["gcm_file"][0].file
+        obs_file = request.inputs["obs_file"][0].file
+        varname = request.inputs["varname"][0].data
+        if "out_file_create" in request.inputs.keys():
+            output_file = request.inputs["out_file_create"][0].data
+        elif "out_file_overwrite" in request.inputs.keys():
+            output_file = request.inputs["out_file_overwrite"][0].file
+        else:
+            ProcessError("out_file argument not provided")
+
+        return gcm_file, obs_file, varname, output_file
+
     def _handler(self, request, response):
         loglevel = request.inputs["loglevel"][0].data
         log_handler(
@@ -93,16 +107,9 @@ class CI(Process):
             process_step="start",
         )
 
-        gcm_file = request.inputs["gcm_file"][0].file
-        obs_file = request.inputs["obs_file"][0].file
-        varname = request.inputs["varname"][0].data
+        gcm_file, obs_file, varname, output_file = self.collect_args(request)
 
         climdown = get_ClimDown()
-
-        if "out_file_create" in request.inputs.keys():
-            output_file = request.inputs["out_file_create"][0].data
-        elif "out_file_overwrite" in request.inputs.keys():
-            output_file = request.inputs["out_file_overwrite"][0].file
 
         climdown.ci_netcdf_wrapper(gcm_file, obs_file, output_file, varname)
 
