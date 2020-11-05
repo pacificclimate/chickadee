@@ -84,6 +84,7 @@ class CI(Process):
         )
 
     def collect_args(self, request):
+        loglevel = request.inputs["loglevel"][0].data
         gcm_file = request.inputs["gcm_file"][0].file
         obs_file = request.inputs["obs_file"][0].file
         varname = request.inputs["varname"][0].data
@@ -94,10 +95,10 @@ class CI(Process):
         else:
             ProcessError("out_file argument not provided")
 
-        return gcm_file, obs_file, varname, output_file
+        return loglevel, gcm_file, obs_file, varname, output_file
 
     def _handler(self, request, response):
-        loglevel = request.inputs["loglevel"][0].data
+        loglevel, gcm_file, obs_file, varname, output_file = self.collect_args(request)
         log_handler(
             self,
             response,
@@ -107,12 +108,37 @@ class CI(Process):
             process_step="start",
         )
 
-        gcm_file, obs_file, varname, output_file = self.collect_args(request)
-
         climdown = get_ClimDown()
+
+        log_handler(
+            self,
+            response,
+            "Processing CI downscaling",
+            logger,
+            log_level=loglevel,
+            process_step="process",
+        )
 
         climdown.ci_netcdf_wrapper(gcm_file, obs_file, output_file, varname)
 
+        log_handler(
+            self,
+            response,
+            "Building final output",
+            logger,
+            log_level=loglevel,
+            process_step="build_output",
+        )
+
         response.outputs["output"].file = output_file
+
+        log_handler(
+            self,
+            response,
+            "Process Complete",
+            logger,
+            log_level=loglevel,
+            process_step="complete",
+        )
 
         return response
