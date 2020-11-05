@@ -1,4 +1,4 @@
-from pywps import Process, ComplexInput, ComplexOutput, LiteralInput, FORMATS
+from pywps import Process, ComplexOutput, LiteralInput, FORMATS
 from pywps.app.Common import Metadata
 from netCDF4 import Dataset
 from rpy2.robjects.packages import isinstalled, importr
@@ -53,13 +53,11 @@ class BCCAQ(Process):
                 default="2005-12-31",
                 data_type="string",
             ),
-            ComplexInput(
+            LiteralInput(
                 "out_file",
                 "Output File Name",
                 abstract="Path to output file",
-                min_occurs=1,
-                max_occurs=1,
-                supported_formats=[FORMATS.NETCDF],
+                data_type="string",
             ),
             log_level,
         ]
@@ -106,7 +104,7 @@ class BCCAQ(Process):
         obs_file = request.inputs["obs_file"][0].data
         var = request.inputs["var"][0].data
         end_date = request.inputs["end_date"][0].data
-        out_file = request.inputs["out_file"][0].file
+        out_file = request.inputs["out_file"][0].data
 
         log_handler(
             self,
