@@ -2,6 +2,7 @@ from pywps import Process, ComplexOutput, LiteralInput, FORMATS
 from pywps.app.Common import Metadata
 from netCDF4 import Dataset
 from rpy2.robjects.packages import isinstalled, importr
+import os
 
 from wps_tools.utils import log_handler
 from wps_tools.io import log_level
@@ -110,6 +111,7 @@ class BCCAQ(Process):
         var = request.inputs["var"][0].data
         end_date = request.inputs["end_date"][0].data
         out_file = request.inputs["out_file"][0].data
+        os.path.join(self.workdir, out_file)
 
         log_handler(
             self,
