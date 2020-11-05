@@ -93,4 +93,19 @@ class CI(Process):
             process_step="start",
         )
 
+        gcm_file = request.inputs["gcm_file"][0].file
+        obs_file = request.inputs["obs_file"][0].file
+        varname = request.inputs["varname"][0].data
+
         climdown = get_ClimDown()
+
+        if "out_file_create" in request.inputs.keys():
+            output_file = request.inputs["out_file_create"][0].data
+        elif "out_file_overwrite" in request.inputs.keys():
+            output_file = request.inputs["out_file_overwrite"][0].file
+
+        climdown.ci_netcdf_wrapper(gcm_file, obs_file, output_file, varname)
+
+        response.outputs["output"].file = output_file
+
+        return response
