@@ -16,7 +16,6 @@ class CI(Process):
             "complete": 100,
         }
         inputs = [
-            log_level,
             ComplexInput(
                 "gcm_file",
                 "GCM NetCDF file",
@@ -57,6 +56,7 @@ class CI(Process):
                 max_occurs=1,
                 supported_formats=[FORMATS.NETCDF],
             ),
+            log_level,
         ]
 
         outputs = [
