@@ -3,5 +3,5 @@ jinja2
 click
 psutil
 wps-tools==0.2.0
-nchelpers
-rpy2
+nchelpers==5.5.7
+rpy2==3.3.6
