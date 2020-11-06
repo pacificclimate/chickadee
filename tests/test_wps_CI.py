@@ -7,22 +7,23 @@ from chickadee.processes.wps_CI import CI
 
 
 @pytest.mark.parametrize(
-    ("gcm_file", "obs_file", "varname", "out_file"),
+    ("gcm_file", "obs_file", "varname"),
     [
         (
             f"file://{resource_filename(__name__, 'data/tiny_gcm.nc')}",
             f"file://{resource_filename(__name__, 'data/tiny_obs.nc')}",
             "tasmax",
-            NamedTemporaryFile(suffix=".nc", prefix="output_", dir="/tmp", delete=True),
         ),
     ],
 )
-def test_wps_CI(gcm_file, obs_file, varname, out_file):
-    datainputs = (
-        f"gcm_file=@xlink:href={gcm_file};"
-        f"obs_file=@xlink:href={obs_file};"
-        f"varname={varname};"
-        f"out_file_create={out_file.name};"
-    )
-    run_wps_process(CI(), datainputs)
-    out_file.close()
+def test_wps_CI(gcm_file, obs_file, varname):
+    with NamedTemporaryFile(
+        suffix=".nc", prefix="output_", dir="/tmp", delete=True
+    ) as out_file:
+        datainputs = (
+            f"gcm_file=@xlink:href={gcm_file};"
+            f"obs_file=@xlink:href={obs_file};"
+            f"varname={varname};"
+            f"out_file_create={out_file.name};"
+        )
+        run_wps_process(CI(), datainputs)
