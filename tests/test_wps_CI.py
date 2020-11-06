@@ -24,6 +24,6 @@ def test_wps_CI(gcm_file, obs_file, varname):
             f"gcm_file=@xlink:href={gcm_file};"
             f"obs_file=@xlink:href={obs_file};"
             f"varname={varname};"
-            f"out_file_create={out_file.name};"
+            f"out_file={out_file.name};"
         )
         run_wps_process(CI(), datainputs)

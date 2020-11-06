@@ -41,20 +41,12 @@ class CI(Process):
                 data_type="string",
             ),
             LiteralInput(
-                "out_file_create",
+                "out_file",
                 "Output NetCDF File",
                 abstract="Filename to create with the climate imprint outputs",
                 min_occurs=0,
                 max_occurs=1,
                 data_type="string",
-            ),
-            ComplexInput(
-                "out_file_overwrite",
-                "Output NetCDF File",
-                abstract="Filename to overwrite with the climate imprint outputs",
-                min_occurs=0,
-                max_occurs=1,
-                supported_formats=[FORMATS.NETCDF],
             ),
             log_level,
         ]
@@ -88,12 +80,7 @@ class CI(Process):
         gcm_file = request.inputs["gcm_file"][0].file
         obs_file = request.inputs["obs_file"][0].file
         varname = request.inputs["varname"][0].data
-        if "out_file_create" in request.inputs.keys():
-            output_file = request.inputs["out_file_create"][0].data
-        elif "out_file_overwrite" in request.inputs.keys():
-            output_file = request.inputs["out_file_overwrite"][0].file
-        else:
-            ProcessError("out_file argument not provided")
+        output_file = request.inputs["out_file"][0].data
 
         return loglevel, gcm_file, obs_file, varname, output_file
 
