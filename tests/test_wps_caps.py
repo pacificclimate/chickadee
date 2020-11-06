@@ -12,5 +12,4 @@ def test_wps_caps():
     )
     assert sorted(names.split()) == [
         "ci",
-        "hello",
     ]
