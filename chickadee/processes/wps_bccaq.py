@@ -110,13 +110,13 @@ class BCCAQ(Process):
             process_step="process",
         )
 
-        # Set R options
-        set_end = set_r_options()
-        set_end(end_date)
-
         # Set parallelization
         doPar = get_doParallel()
         doPar.registerDoParallel(cores=4)
+
+        # Set R options
+        set_end = set_r_options()
+        set_end(end_date)
 
         # Run ClimDown
         climdown = get_ClimDown()

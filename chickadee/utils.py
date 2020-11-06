@@ -19,7 +19,7 @@ def get_ClimDown():
         utils = importr("utils")
         utils.install_packages("ClimDown")
 
-    climdown = importr("ClimDown")
+    return importr("ClimDown")
 
 
 def get_doParallel():
@@ -27,7 +27,7 @@ def get_doParallel():
         utils = importr("utils")
         utils.install_packages("doParallel")
 
-    doPar = importr("doParallel")
+    return importr("doParallel")
 
 
 def set_r_options():
