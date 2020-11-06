@@ -22,7 +22,7 @@ class CI(Process):
                 abstract="Filename of GCM simulations",
                 min_occurs=1,
                 max_occurs=1,
-                supported_formats=[FORMATS.NETCDF],
+                supported_formats=[FORMATS.NETCDF, FORMATS.DODS],
             ),
             ComplexInput(
                 "obs_file",
@@ -30,7 +30,7 @@ class CI(Process):
                 abstract="Filename of high-res gridded historical observations",
                 min_occurs=1,
                 max_occurs=1,
-                supported_formats=[FORMATS.NETCDF],
+                supported_formats=[FORMATS.NETCDF, FORMATS.DODS],
             ),
             LiteralInput(
                 "varname",
