@@ -21,12 +21,14 @@ def get_ClimDown():
 
     climdown = importr("ClimDown")
 
+
 def get_doParallel():
     if not isinstalled("doParallel"):
         utils = importr("utils")
         utils.install_packages("doParallel")
 
     doPar = importr("doParallel")
+
 
 def set_r_options():
     robjects.r(
