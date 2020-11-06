@@ -13,6 +13,10 @@ RUN apt-get update && \
     apt-get install -y \
       build-essential \
       gcc \
+      r-base \
+      r-base-dev \
+      libudunits2-dev \
+      libnetcdf-dev \
       python3-dev && \
     pip3 install -r requirements.txt --ignore-installed && \
     pip3 install gunicorn
@@ -21,7 +25,7 @@ COPY . .
 
 EXPOSE 5004
 
-CMD ["gunicorn", "--bind=0.0.0.0:5004", "chickadee.wsgi:application"]
+CMD gunicorn --bind=0.0.0.0:5004 --timeout 90 chickadee.wsgi:application
 
 # docker build -t pacificclimate/chickadee .
 # docker run -p 8102:5004 pacificclimate/chickadee
