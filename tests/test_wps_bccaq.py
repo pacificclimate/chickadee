@@ -6,7 +6,7 @@ from wps_tools.testing import run_wps_process
 from chickadee.processes.wps_bccaq import BCCAQ
 
 
-@pytest.mark.online
+@pytest.mark.slow
 @pytest.mark.parametrize(
     ("gcm_file", "obs_file", "var", "end_date", "out_file"),
     [
