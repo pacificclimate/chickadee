@@ -19,3 +19,11 @@ def get_ClimDown():
         utils = importr("utils")
         utils.install_packages("ClimDown")
     return importr("ClimDown")
+
+
+def get_doParallel():
+    if not isinstalled("doParallel"):
+        utils = importr("utils")
+        utils.install_packages("doParallel")
+
+    return importr("doParallel")

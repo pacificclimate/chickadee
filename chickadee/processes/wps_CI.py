@@ -4,7 +4,7 @@ from pywps.app.exceptions import ProcessError
 
 from wps_tools.utils import log_handler
 from wps_tools.io import log_level
-from chickadee.utils import logger, get_ClimDown
+from chickadee.utils import logger, get_ClimDown, get_doParallel
 
 
 class CI(Process):
@@ -106,7 +106,14 @@ class CI(Process):
             process_step="process",
         )
 
+        # Set parallelization
+        doPar = get_doParallel()
+        doPar.registerDoParallel(cores=4)
+
         climdown.ci_netcdf_wrapper(gcm_file, obs_file, output_file, varname)
+
+        # stop parallelization
+        doPar.stopImplicitCluster()
 
         log_handler(
             self,
