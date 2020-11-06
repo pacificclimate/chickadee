@@ -1,4 +1,4 @@
-from pywps import Process, ComplexOutput, LiteralInput, FORMATS
+from pywps import Process, ComplexOutput, ComplexInput, LiteralInput, FORMATS
 from pywps.app.Common import Metadata
 from netCDF4 import Dataset
 import os
@@ -22,22 +22,27 @@ class BCCAQ(Process):
         }
 
         inputs = [
-            LiteralInput(
+            ComplexInput(
                 "gcm_file",
                 "GCM NetCDF file",
-                abstract="GCM simulations in NetCDF format",
-                data_type="string",
+                abstract="Filename of GCM simulations",
+                min_occurs=1,
+                max_occurs=1,
+                supported_formats=[FORMATS.NETCDF, FORMATS.DODS],
             ),
-            LiteralInput(
+            ComplexInput(
                 "obs_file",
                 "Observations NetCDF file",
-                abstract="high-res gridded historical observations",
-                data_type="string",
+                abstract="Filename of high-res gridded historical observations",
+                min_occurs=1,
+                max_occurs=1,
+                supported_formats=[FORMATS.NETCDF, FORMATS.DODS],
             ),
             LiteralInput(
                 "var",
                 "Variable to Downscale",
                 abstract="Name of the NetCDF variable to downscale",
+                allowed_values=["tasmax","tasmin","pr"],
                 data_type="string",
             ),
             LiteralInput(
@@ -52,6 +57,14 @@ class BCCAQ(Process):
                 "Output File Name",
                 abstract="Path to output file",
                 data_type="string",
+            ),
+            LiteralInput(
+                "num_cores",
+                "Number of Cores",
+                abstract="The number of cores to use for parallel execution",
+                default=4,
+                allowed_values=[1,2,3,4],
+                data_type="positiveInteger",
             ),
             log_level,
         ]
@@ -94,8 +107,10 @@ class BCCAQ(Process):
             process_step="start",
         )
 
-        gcm_file = request.inputs["gcm_file"][0].data
-        obs_file = request.inputs["obs_file"][0].data
+        gcm_file = request.inputs["gcm_file"][0].file
+        obs_file = request.inputs["obs_file"][0].file
+
+        num_cores = request.inputs["num_cores"][0].data
         var = request.inputs["var"][0].data
         end_date = request.inputs["end_date"][0].data
         out_file = request.inputs["out_file"][0].data
@@ -112,7 +127,7 @@ class BCCAQ(Process):
 
         # Set parallelization
         doPar = get_doParallel()
-        doPar.registerDoParallel(cores=4)
+        doPar.registerDoParallel(cores=num_cores)
 
         # Set R options
         set_end = set_r_options()
