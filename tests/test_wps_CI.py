@@ -6,7 +6,6 @@ from wps_tools.testing import run_wps_process
 from chickadee.processes.wps_CI import CI
 
 
-@pytest.mark.online
 @pytest.mark.parametrize(
     ("gcm_file", "obs_file", "varname", "out_file"),
     [
