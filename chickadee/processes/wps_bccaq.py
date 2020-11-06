@@ -1,23 +1,11 @@
 from pywps import Process, ComplexOutput, LiteralInput, FORMATS
 from pywps.app.Common import Metadata
 from netCDF4 import Dataset
-from rpy2.robjects.packages import isinstalled, importr
 import os
 
 from wps_tools.utils import log_handler
 from wps_tools.io import log_level
-from chickadee.utils import logger, set_r_options
-
-# Install and import R packages
-if not isinstalled("ClimDown"):
-    utils = importr("utils")
-    utils.install_packages("ClimDown")
-if not isinstalled("doParallel"):
-    utils = importr("utils")
-    utils.install_packages("doParallel")
-
-climdown = importr("ClimDown")
-doPar = importr("doParallel")
+from chickadee.utils import logger, set_r_options, get_ClimDown, get_doParallel
 
 
 class BCCAQ(Process):
@@ -127,9 +115,11 @@ class BCCAQ(Process):
         set_end(end_date)
 
         # Set parallelization
+        doPar = get_doParallel()
         doPar.registerDoParallel(cores=4)
 
         # Run ClimDown
+        climdown = get_ClimDown()
         climdown.bccaq_netcdf_wrapper(gcm_file, obs_file, out_file, var)
 
         # stop parallelization
