@@ -96,6 +96,18 @@ class BCCAQ(Process):
             status_supported=True,
         )
 
+
+    def collect_args(self, request):
+        gcm_file = request.inputs["gcm_file"][0].file
+        obs_file = request.inputs["obs_file"][0].file
+        num_cores = request.inputs["num_cores"][0].data
+        var = request.inputs["var"][0].data
+        end_date = request.inputs["end_date"][0].data
+        out_file = request.inputs["out_file"][0].data
+
+        return gcm_file, obs_file, num_cores, var, end_date
+
+
     def _handler(self, request, response):
         loglevel = request.inputs["loglevel"][0].data
         log_handler(
@@ -107,13 +119,7 @@ class BCCAQ(Process):
             process_step="start",
         )
 
-        gcm_file = request.inputs["gcm_file"][0].file
-        obs_file = request.inputs["obs_file"][0].file
-
-        num_cores = request.inputs["num_cores"][0].data
-        var = request.inputs["var"][0].data
-        end_date = request.inputs["end_date"][0].data
-        out_file = request.inputs["out_file"][0].data
+        gcm_file, obs_file, num_cores, var, end_date, out_file = self.collect_args(request)
         os.path.join(self.workdir, out_file)
 
         log_handler(
@@ -137,7 +143,7 @@ class BCCAQ(Process):
         climdown = get_ClimDown()
         climdown.bccaq_netcdf_wrapper(gcm_file, obs_file, out_file, var)
 
-        # stop parallelization
+        # Stop parallelization
         doPar.stopImplicitCluster()
 
         log_handler(
