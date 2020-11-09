@@ -1,6 +1,5 @@
 from pywps import Process, ComplexInput, ComplexOutput, LiteralInput, FORMATS
 from pywps.app.Common import Metadata
-from pywps.app.exceptions import ProcessError
 
 from wps_tools.utils import log_handler
 from wps_tools.io import log_level

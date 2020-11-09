@@ -1,12 +1,13 @@
 import logging
-from rpy2.robjects.packages import isinstalled, importr
+from rpy2.robjects.packages import isinstalled, importr, PackageNotInstalledError
+from pywps.app.exceptions import ProcessError
 
 
 logger = logging.getLogger("PYWPS")
 logger.setLevel(logging.NOTSET)
 
 formatter = logging.Formatter(
-    "%(asctime)s %(levelname)s: osprey: %(message)s", "%Y-%m-%d %H:%M:%S"
+    "%(asctime)s %(levelname)s: chickadee: %(message)s", "%Y-%m-%d %H:%M:%S"
 )
 handler = logging.StreamHandler()
 handler.setFormatter(formatter)
@@ -19,7 +20,11 @@ def get_ClimDown():
         utils = importr("utils")
         utils.chooseCRANmirror(ind=1)
         utils.install_packages("ClimDown")
-    return importr("ClimDown")
+
+    try:
+        return importr("ClimDown")
+    except PackageNotInstalledError:
+        raise ProcessError("ClimDown isntallation has failed")
 
 
 def get_doParallel():
