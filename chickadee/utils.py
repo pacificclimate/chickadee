@@ -24,7 +24,7 @@ def get_ClimDown():
     try:
         return importr("ClimDown")
     except PackageNotInstalledError:
-        raise ProcessError("ClimDown isntallation has failed")
+        raise ProcessError("ClimDown installation has failed")
 
 
 def get_doParallel():
