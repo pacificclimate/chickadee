@@ -94,7 +94,7 @@ class CI(Process):
             process_step="start",
         )
 
-        climdown = get_ClimDown()
+        climdown = get_ClimDown("ClimDown", "1.0.2")
 
         log_handler(
             self,

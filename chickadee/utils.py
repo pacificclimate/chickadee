@@ -1,5 +1,6 @@
 import logging
 from rpy2.robjects.packages import isinstalled, importr, PackageNotInstalledError
+from rpy2.robjects.vectors import StrVector
 from pywps.app.exceptions import ProcessError
 
 
@@ -14,12 +15,14 @@ handler.setFormatter(formatter)
 logger.addHandler(handler)
 
 
-def get_ClimDown():
+def get_ClimDown(package, version):
     # Install and import R packages
     if not isinstalled("ClimDown"):
         utils = importr("utils")
         utils.chooseCRANmirror(ind=1)
-        utils.install_packages("ClimDown")
+        utils.install_packages(
+            f"https://cloud.r-project.org/src/contrib/{package}_{version}.tar.gz"
+        )
 
     try:
         return importr("ClimDown")
