@@ -1,6 +1,7 @@
 import logging
 from rpy2 import robjects
 from rpy2.robjects.packages import isinstalled, importr
+from pywps.app.exceptions import ProcessError
 
 logger = logging.getLogger("PYWPS")
 logger.setLevel(logging.NOTSET)
@@ -22,8 +23,10 @@ def get_R_package(package_name, version):
             f"https://cloud.r-project.org/src/contrib/{package_name}_{version}.tar.gz"
         )
 
-    return importr(package_name)
-
+    try:
+        return importr(package_name)
+    except PackageNotInstalledError:
+        raise ProcessError(f"{package_name} installation has failed")
 
 def set_r_options():
     robjects.r(

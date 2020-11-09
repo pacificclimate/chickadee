@@ -4,7 +4,6 @@ from datetime import date
 from pywps import Process, ComplexOutput, ComplexInput, LiteralInput, FORMATS
 from pywps.app.Common import Metadata
 from netCDF4 import Dataset
-from pywps.app.exceptions import ProcessError
 
 from wps_tools.utils import log_handler
 from wps_tools.io import log_level
