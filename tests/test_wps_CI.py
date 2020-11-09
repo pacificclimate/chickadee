@@ -28,5 +28,5 @@ def test_wps_CI(gcm_file, obs_file, varname):
             f"varname={varname};"
             f"out_file={out_file.name};"
         )
-        with mock.patch.object(builtins, 'input', lambda _: 'y'):
+        with mock.patch.object(builtins, "input", lambda _: "y"):
             run_wps_process(CI(), datainputs)
