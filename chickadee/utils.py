@@ -1,6 +1,11 @@
 import logging
 from rpy2 import robjects
-from rpy2.robjects.packages import isinstalled, importr, PackageNotInstalledError, InstalledPackages
+from rpy2.robjects.packages import (
+    isinstalled,
+    importr,
+    PackageNotInstalledError,
+    InstalledPackages,
+)
 from pywps.app.exceptions import ProcessError
 
 logger = logging.getLogger("PYWPS")
