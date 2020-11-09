@@ -19,9 +19,10 @@ def get_ClimDown(package, version):
     # Install and import R packages
     if not isinstalled("ClimDown"):
         utils = importr("utils")
-        utils.chooseCRANmirror(ind=1)
+        base = importr("base")
         utils.install_packages(
-            f"https://cloud.r-project.org/src/contrib/{package}_{version}.tar.gz"
+            f"https://cloud.r-project.org/src/contrib/{package}_{version}.tar.gz",
+            lib=base._libPaths()[0],
         )
 
     try:
