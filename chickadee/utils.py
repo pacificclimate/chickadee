@@ -28,6 +28,7 @@ def get_R_package(package_name, version):
     except PackageNotInstalledError:
         raise ProcessError(f"{package_name} installation has failed")
 
+
 def set_r_options():
     robjects.r(
         """
