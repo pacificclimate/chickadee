@@ -5,3 +5,4 @@ psutil
 wps-tools==0.2.0
 nchelpers==5.5.7
 rpy2==3.3.6
+mock==4.0.2
