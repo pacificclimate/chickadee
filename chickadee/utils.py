@@ -13,12 +13,14 @@ handler.setFormatter(formatter)
 logger.addHandler(handler)
 
 
-def get_R_package(package_name):
+def get_R_package(package_name, version):
     # Install and import an R package
     if not isinstalled(package_name):
         utils = importr("utils")
         utils.chooseCRANmirror(ind=1)
-        utils.install_packages(package_name)
+        utils.install_packages(
+            f"https://cloud.r-project.org/src/contrib/{package_name}_{version}.tar.gz"
+        )
 
     return importr(package_name)
 
