@@ -13,21 +13,14 @@ handler.setFormatter(formatter)
 logger.addHandler(handler)
 
 
-def get_ClimDown():
-    # Install and import R packages
-    if not isinstalled("ClimDown"):
+def get_R_package(package_name):
+    # Install and import an R package
+    if not isinstalled(package_name):
         utils = importr("utils")
-        utils.install_packages("ClimDown")
+        utils.chooseCRANmirror(ind=1)
+        utils.install_packages(package_name)
 
-    return importr("ClimDown")
-
-
-def get_doParallel():
-    if not isinstalled("doParallel"):
-        utils = importr("utils")
-        utils.install_packages("doParallel")
-
-    return importr("doParallel")
+    return importr(package_name)
 
 
 def set_r_options():

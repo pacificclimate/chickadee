@@ -5,7 +5,7 @@ import os
 
 from wps_tools.utils import log_handler
 from wps_tools.io import log_level
-from chickadee.utils import logger, set_r_options, get_ClimDown, get_doParallel
+from chickadee.utils import logger, set_r_options, get_R_package
 
 
 class BCCAQ(Process):
@@ -105,7 +105,7 @@ class BCCAQ(Process):
         end_date = request.inputs["end_date"][0].data
         out_file = request.inputs["out_file"][0].data
 
-        return gcm_file, obs_file, num_cores, var, end_date
+        return gcm_file, obs_file, num_cores, var, end_date, out_file
 
 
     def _handler(self, request, response):
@@ -132,7 +132,7 @@ class BCCAQ(Process):
         )
 
         # Set parallelization
-        doPar = get_doParallel()
+        doPar = get_R_package("doParallel")
         doPar.registerDoParallel(cores=num_cores)
 
         # Set R options
@@ -140,7 +140,7 @@ class BCCAQ(Process):
         set_end(end_date)
 
         # Run ClimDown
-        climdown = get_ClimDown()
+        climdown = get_R_package("ClimDown")
         climdown.bccaq_netcdf_wrapper(gcm_file, obs_file, out_file, var)
 
         # Stop parallelization
