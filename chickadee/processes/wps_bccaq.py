@@ -1,7 +1,10 @@
+import os
+import re
+from datetime import date
 from pywps import Process, ComplexOutput, ComplexInput, LiteralInput, FORMATS
 from pywps.app.Common import Metadata
 from netCDF4 import Dataset
-import os
+from pywps.app.exceptions import ProcessError
 
 from wps_tools.utils import log_handler
 from wps_tools.io import log_level
@@ -49,8 +52,8 @@ class BCCAQ(Process):
                 "end_date",
                 "End Date",
                 abstract="Defines the end of the calibration period",
-                default="2005-12-31",
-                data_type="string",
+                default=date(2005, 12, 31),
+                data_type="date",
             ),
             LiteralInput(
                 "out_file",
@@ -101,9 +104,9 @@ class BCCAQ(Process):
         gcm_file = request.inputs["gcm_file"][0].file
         obs_file = request.inputs["obs_file"][0].file
         num_cores = request.inputs["num_cores"][0].data
-        var = request.inputs["var"][0].data
-        end_date = request.inputs["end_date"][0].data
         out_file = request.inputs["out_file"][0].data
+        var = request.inputs["var"][0].data
+        end_date = str(request.inputs["end_date"][0].data)
 
         return gcm_file, obs_file, num_cores, var, end_date, out_file
 

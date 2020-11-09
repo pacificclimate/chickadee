@@ -25,7 +25,7 @@ def get_R_package(package_name):
 
 def set_r_options():
     robjects.r(
-        """
+    """
     set_end_date <-function(end_date){
         options(
             calibration.end=as.POSIXct(end_date, tz='GMT')
