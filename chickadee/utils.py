@@ -17,6 +17,7 @@ def get_ClimDown():
     # Install and import R packages
     if not isinstalled("ClimDown"):
         utils = importr("utils")
+        utils.chooseCRANmirror(ind=1)
         utils.install_packages("ClimDown")
     return importr("ClimDown")
 
