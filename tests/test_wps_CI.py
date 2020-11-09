@@ -1,4 +1,6 @@
 import pytest
+import mock
+import builtins
 from pkg_resources import resource_filename
 from tempfile import NamedTemporaryFile
 
@@ -26,4 +28,5 @@ def test_wps_CI(gcm_file, obs_file, varname):
             f"varname={varname};"
             f"out_file={out_file.name};"
         )
-        run_wps_process(CI(), datainputs)
+        with mock.patch.object(builtins, 'input', lambda _: 'y'):
+            run_wps_process(CI(), datainputs)
