@@ -134,7 +134,7 @@ class BCCAQ(Process):
         )
 
         # Set parallelization
-        doPar = get_R_package("doParallel", "1.0.16")
+        doPar = get_R_package("cran", "doParallel", "1.0.16")
         doPar.registerDoParallel(cores=num_cores)
 
         # Set R options
@@ -142,7 +142,7 @@ class BCCAQ(Process):
         set_end(end_date)
 
         # Run ClimDown
-        climdown = get_R_package("ClimDown", "1.0.2")
+        climdown = get_R_package("pacificclimate", "ClimDown", "1.0.2")
         climdown.bccaq_netcdf_wrapper(gcm_file, obs_file, out_file, var)
 
         # Stop parallelization

@@ -1,6 +1,6 @@
 import logging
 from rpy2 import robjects
-from rpy2.robjects.packages import isinstalled, importr
+from rpy2.robjects.packages import isinstalled, importr, PackageNotInstalledError, InstalledPackages
 from pywps.app.exceptions import ProcessError
 
 logger = logging.getLogger("PYWPS")
@@ -14,19 +14,22 @@ handler.setFormatter(formatter)
 logger.addHandler(handler)
 
 
-def get_R_package(package_name, version):
+def get_R_package(repo, package_name, version):
     # Install and import an R package
     if not isinstalled(package_name):
         utils = importr("utils")
         utils.chooseCRANmirror(ind=1)
-        utils.install_packages(
-            f"https://cloud.r-project.org/src/contrib/{package_name}_{version}.tar.gz"
-        )
+
+        if not isinstalled("devtools"):
+            utils.install_packages("devtools")
+
+        devtools = importr("devtools")
+        devtools.install_github(f"{repo}/{package_name}", ref=version)
 
     try:
         return importr(package_name)
     except PackageNotInstalledError:
-        raise ProcessError(f"{package_name} installation has failed")
+        raise ProcessError(f"{package_name} not installed")
 
 
 def set_r_options():
