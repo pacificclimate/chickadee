@@ -1,4 +1,5 @@
 import pytest
+import io
 from pkg_resources import resource_filename
 from tempfile import NamedTemporaryFile
 
@@ -16,7 +17,7 @@ from chickadee.processes.wps_CI import CI
         ),
     ],
 )
-def test_wps_CI(gcm_file, obs_file, varname):
+def test_wps_CI(gcm_file, obs_file, varname, monkeypatch):
     with NamedTemporaryFile(
         suffix=".nc", prefix="output_", dir="/tmp", delete=True
     ) as out_file:
@@ -26,4 +27,5 @@ def test_wps_CI(gcm_file, obs_file, varname):
             f"varname={varname};"
             f"out_file={out_file.name};"
         )
+        monkeypatch.setattr("sys.stdin", io.StringIO("No"))
         run_wps_process(CI(), datainputs)
