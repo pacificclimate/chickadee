@@ -45,7 +45,7 @@ class BCCAQ(Process):
                 "var",
                 "Variable to Downscale",
                 abstract="Name of the NetCDF variable to downscale",
-                allowed_values=["tasmax","tasmin","pr"],
+                allowed_values=["tasmax", "tasmin", "pr"],
                 data_type="string",
             ),
             LiteralInput(
@@ -66,7 +66,7 @@ class BCCAQ(Process):
                 "Number of Cores",
                 abstract="The number of cores to use for parallel execution",
                 default=4,
-                allowed_values=[1,2,3,4],
+                allowed_values=[1, 2, 3, 4],
                 data_type="positiveInteger",
             ),
             log_level,
@@ -99,7 +99,6 @@ class BCCAQ(Process):
             status_supported=True,
         )
 
-
     def collect_args(self, request):
         gcm_file = request.inputs["gcm_file"][0].file
         obs_file = request.inputs["obs_file"][0].file
@@ -109,7 +108,6 @@ class BCCAQ(Process):
         end_date = str(request.inputs["end_date"][0].data)
 
         return gcm_file, obs_file, num_cores, var, end_date, out_file
-
 
     def _handler(self, request, response):
         loglevel = request.inputs["loglevel"][0].data
@@ -122,7 +120,9 @@ class BCCAQ(Process):
             process_step="start",
         )
 
-        gcm_file, obs_file, num_cores, var, end_date, out_file = self.collect_args(request)
+        gcm_file, obs_file, num_cores, var, end_date, out_file = self.collect_args(
+            request
+        )
         os.path.join(self.workdir, out_file)
 
         log_handler(
