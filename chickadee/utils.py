@@ -1,11 +1,6 @@
 import logging
 from rpy2 import robjects
-from rpy2.robjects.packages import (
-    isinstalled,
-    importr,
-    PackageNotInstalledError,
-    InstalledPackages,
-)
+from rpy2.robjects.packages import isinstalled, importr, PackageNotInstalledError
 from pywps.app.exceptions import ProcessError
 
 logger = logging.getLogger("PYWPS")
@@ -19,23 +14,37 @@ handler.setFormatter(formatter)
 logger.addHandler(handler)
 
 
-def get_R_package(repo, package_name, version):
-    # Install and import an R package
-    if not isinstalled(package_name):
+def install_R_package(package, version):
+    if not isinstalled(package):
         utils = importr("utils")
         utils.chooseCRANmirror(ind=1)
+        utils.install_packages(f"https://cloud.r-project.org/src/contrib/{package}_{version}.tar.gz",)
 
-        if not isinstalled("devtools"):
-            utils.install_packages("devtools")
-
-        devtools = importr("devtools")
-        devtools.install_github(f"{repo}/{package_name}", ref=version)
-
+def get_R_package(package, version):
     try:
-        return importr(package_name)
+        return importr(package)
     except PackageNotInstalledError:
-        raise ProcessError(f"{package_name} not installed")
+        raise ProcessError(f"{package} not installed")
 
+
+def get_doParallel():
+    required_packages = [
+        ("iterators", "1.0.13"),
+        ("foreach", "1.5.1"),
+        ("doParallel", "1.0.16")
+    ]
+
+    for package, version in required_packages:
+        get_R_package(package, version)
+
+    return get_R_package("doParallel", "1.0.16")
+
+def get_climdown():
+    package = "ClimDown"
+    version = "1.0.7"
+    
+    install_R_package(package, version)
+    return get_R_package(package, version)
 
 def set_r_options():
     robjects.r(
