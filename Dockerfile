@@ -20,7 +20,7 @@ RUN apt-get update && \
       python3-dev && \
     pip3 install -r requirements.txt --ignore-installed && \
     pip3 install gunicorn
-    ./install_R_packages.sh
+    chmod +x /install_R_packages.sh && /install_R_packages.sh
 
 COPY . .
 
