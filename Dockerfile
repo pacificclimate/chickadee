@@ -19,8 +19,9 @@ RUN apt-get update && \
       libnetcdf-dev \
       python3-dev && \
     pip3 install -r requirements.txt --ignore-installed && \
-    pip3 install gunicorn
-    chmod +x /install_R_packages.sh && /install_R_packages.sh
+    pip3 install gunicorn &&\
+    chmod +x /install_R_packages.sh && \
+    /install_R_packages.sh
 
 COPY . .
 
