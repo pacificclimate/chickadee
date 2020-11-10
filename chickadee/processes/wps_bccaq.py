@@ -7,7 +7,7 @@ from netCDF4 import Dataset
 
 from wps_tools.utils import log_handler
 from wps_tools.io import log_level
-from chickadee.utils import logger, set_r_options, get_doParallel, get_climdown
+from chickadee.utils import logger, set_r_options, get_R_package
 
 
 class BCCAQ(Process):
@@ -134,7 +134,7 @@ class BCCAQ(Process):
         )
 
         # Set parallelization
-        doPar = get_doParallel()
+        doPar = get_R_package("doParallel")
         doPar.registerDoParallel(cores=num_cores)
 
         # Set R options
@@ -142,7 +142,7 @@ class BCCAQ(Process):
         set_end(end_date)
 
         # Run ClimDown
-        climdown = get_climdown()
+        climdown = get_R_package("ClimDown")
         climdown.bccaq_netcdf_wrapper(gcm_file, obs_file, out_file, var)
 
         # Stop parallelization

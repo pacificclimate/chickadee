@@ -1,12 +1,12 @@
 import pytest
 from pkg_resources import resource_filename
 from tempfile import NamedTemporaryFile
+from datetime import date
 
 from wps_tools.testing import run_wps_process
 from chickadee.processes.wps_bccaq import BCCAQ
 
 
-@pytest.mark.slow
 @pytest.mark.parametrize(
     ("gcm_file", "obs_file", "var", "end_date", "num_cores"),
     [
@@ -14,7 +14,7 @@ from chickadee.processes.wps_bccaq import BCCAQ
             f"file://{resource_filename(__name__, 'data/tiny_gcm.nc')}",
             f"file://{resource_filename(__name__, 'data/tiny_obs.nc')}",
             "tasmax",
-            "1972-12-31",
+            date(1972, 12, 31),
             4,
         ),
     ],
