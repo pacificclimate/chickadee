@@ -18,7 +18,7 @@ SANITIZE_FILE := https://github.com/Ouranosinc/PAVICS-e2e-workflow-tests/raw/mas
 
 
 .PHONY: all
-all: develop test clean-test test-notebooks-online
+all: develop install-R-requirements test clean-test test-notebooks-online
 
 .PHONY: help
 help:
@@ -53,6 +53,12 @@ install-ci:
 	@echo "Installing ci requirements"
 	@-bash -c 'pip install -r requirements.txt'
 	@-bash -c 'pip install -e ".[dev]"'
+
+.PHONY: install-R-requirements
+install-R-requirements:
+	@echo "Installing R requirements"
+	@-bash -c 'mkdir -p /tmp/r-library'
+	@-bash -c 'Rscript install.R /tmp/r-library'
 
 .PHONY: develop
 develop: venv

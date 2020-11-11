@@ -1,6 +1,7 @@
 import os
 import re
 from datetime import date
+from rpy2.robjects.packages import importr
 from pywps import Process, ComplexOutput, ComplexInput, LiteralInput, FORMATS
 from pywps.app.Common import Metadata
 from netCDF4 import Dataset
@@ -134,7 +135,7 @@ class BCCAQ(Process):
         )
 
         # Set parallelization
-        doPar = get_R_package("doParallel")
+        doPar = importr("doParallel")
         doPar.registerDoParallel(cores=num_cores)
 
         # Set R options
@@ -142,7 +143,7 @@ class BCCAQ(Process):
         set_end(end_date)
 
         # Run ClimDown
-        climdown = get_R_package("ClimDown")
+        climdown = importr("ClimDown")
         climdown.bccaq_netcdf_wrapper(gcm_file, obs_file, out_file, var)
 
         # Stop parallelization
