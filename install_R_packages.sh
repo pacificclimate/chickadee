@@ -7,13 +7,13 @@ install.packages('covr');
 install.packages('httr');
 install.packages('rversions');
 install.packages('devtools');
-install.packages('PCICt');
-install.packages('udunits2');
-install.packages('ncdf4');
-install.packages('fields');
-install.packages('foreach');
-install.packages('seas');
-install.packages('abind');
-install.packages('https://cloud.r-project.org/src/contrib/ClimDown_1.0.2.tar.gz', dependencies=c('PCICt', 'udunits2', 'ncdf4', 'fields', 'foreach', 'seas', 'abind'))
+devtools::install_version('PCICt', version = '0.5.4.1');
+devtools::install_version('udunits2', version = '0.13');
+devtools::install_version('ncdf4', version = '1.17');
+devtools::install_version('fields', version = '11.6');
+devtools::install_version('foreach', version = '1.5.1');
+devtools::install_version('seas', version = '0.5.2');
+devtools::install_version('abind', version = '1.4.5');
+devtools::install_version('ClimDown', version = '1.0.2')
 "
 
