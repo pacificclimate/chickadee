@@ -15,8 +15,15 @@ install.packages('devtools');
 cat r_requirements.txt | while read line || [[ -n $line ]]; do
     IFS='=='
     read -ra pkg_ver_pair <<< "$line"
-    R -e "
-    .libPaths(Sys.getenv('R_LIBS_USER'));
-    devtools::install_version('${pkg_ver_pair[0]}', version = '${pkg_ver_pair[2]}');
-    "
+    if [[ "${pkg_ver_pair[2]}" == "" ]]; then
+        R -e "
+        .libPaths(Sys.getenv('R_LIBS_USER'));
+        devtools::install_version('${pkg_ver_pair[0]}');
+        "
+    else
+        R -e "
+        .libPaths(Sys.getenv('R_LIBS_USER'));
+        devtools::install_version('${pkg_ver_pair[0]}', version = '${pkg_ver_pair[2]}');
+        "
+    fi
 done
