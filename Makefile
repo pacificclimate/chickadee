@@ -18,7 +18,7 @@ SANITIZE_FILE := https://github.com/Ouranosinc/PAVICS-e2e-workflow-tests/raw/mas
 
 
 .PHONY: all
-all: develop test clean-test test-notebooks-online
+all: apt install-r-pkg develop test clean-test test-notebooks-online
 
 .PHONY: help
 help:
@@ -41,6 +41,15 @@ help:
 	@echo "  dist              to build source and wheel package."
 
 ## Build targets
+
+.PHONY: apt
+apt:
+	@echo "Installing libudunits2-dev and libnetcdf-dev ..."
+	@-bash -c "sudo apt-get install libudunits2-dev libnetcdf-dev"
+
+install-r-pkg:
+	@echo "Installing R packages ..."
+	@-bash -c './r_install.sh'
 
 .PHONY: install
 install: venv
