@@ -21,6 +21,8 @@ jobs:
       env:
         PIP_INDEX_URL: https://pypi.pacificclimate.org/simple
       run: |
+        sudo apt-get install libudunits2-dev
+        sudo apt-get install r-cran-ncdf4
         pip install -r requirements.txt
         pip install -e .[dev]
         ./install_R_packages.sh
