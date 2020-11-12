@@ -16,7 +16,7 @@ logger.addHandler(handler)
 
 
 def get_package(package):
-    if isinstalled("ClimDown"):
-        return importr("ClimDown")
+    if isinstalled(package):
+        return importr(package)
     else:
         raise ProcessError(f"R package, {package}, is not installed")
