@@ -2,6 +2,11 @@
 R -e "
 dir.create(Sys.getenv('R_LIBS_USER'), recursive = TRUE);
 .libPaths(Sys.getenv('R_LIBS_USER'));
+install.packages('usethis');
+install.packages('covr');
+install.packages('httr');
+install.packages('rversions');
+install.packages('devtools');
 install.packages('PCICt');
 install.packages('udunits2');
 install.packages('ncdf4');
