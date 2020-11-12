@@ -3,7 +3,7 @@ from pywps.app.Common import Metadata
 
 from wps_tools.utils import log_handler
 from wps_tools.io import log_level
-from chickadee.utils import logger, get_ClimDown, get_doParallel
+from chickadee.utils import logger, get_package, get_doParallel
 
 
 class CI(Process):
@@ -94,7 +94,7 @@ class CI(Process):
             process_step="start",
         )
 
-        climdown = get_ClimDown("ClimDown", "1.0.2")
+        climdown = get_package("ClimDown")
 
         log_handler(
             self,

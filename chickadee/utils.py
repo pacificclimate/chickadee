@@ -1,5 +1,5 @@
 import logging
-from rpy2.robjects.packages import isinstalled, importr, PackageNotInstalledError
+from rpy2.robjects.packages import isinstalled, importr
 from rpy2.robjects.vectors import StrVector
 from pywps.app.exceptions import ProcessError
 
@@ -15,20 +15,11 @@ handler.setFormatter(formatter)
 logger.addHandler(handler)
 
 
-def get_ClimDown(package, version):
-    # Install and import R packages
-    if not isinstalled("ClimDown"):
-        utils = importr("utils")
-        utils.install_packages(
-            StrVector(
-                f"https://cloud.r-project.org/src/contrib/{package}_{version}.tar.gz",
-            ),
-        )
-
-    try:
+def get_package(package):
+    if isinstalled("ClimDown"):
         return importr("ClimDown")
-    except PackageNotInstalledError:
-        raise ProcessError("ClimDown installation has failed")
+    else:
+        raise ProcessError(f"R package, {package}, is not installed")
 
 
 def get_doParallel():
