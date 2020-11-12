@@ -7,7 +7,7 @@ ENV PIP_INDEX_URL="https://pypi.pacificclimate.org/simple/"
 
 WORKDIR /code
 
-COPY requirements.txt install_R_packages.sh ./
+COPY requirements.txt r_requirements.txt r_install.sh ./
 
 RUN apt-get update && \
     apt-get install -y \
@@ -20,7 +20,7 @@ RUN apt-get update && \
       python3-dev && \
     pip3 install -r requirements.txt --ignore-installed && \
     pip3 install gunicorn &&\
-    ./install_R_packages.sh
+    ./r_install.sh
 
 COPY . .
 

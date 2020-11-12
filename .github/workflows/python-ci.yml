@@ -25,7 +25,7 @@ jobs:
         sudo apt-get install libnetcdf-dev
         pip install -r requirements.txt
         pip install -e .[dev]
-        ./install_R_packages.sh
+        ./r_install.sh
     - name: Test with pytest (full)
       if: github.ref == 'refs/heads/master'
       run: |
