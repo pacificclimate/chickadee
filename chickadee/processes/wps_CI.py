@@ -3,7 +3,7 @@ from pywps.app.Common import Metadata
 
 from wps_tools.utils import log_handler
 from wps_tools.io import log_level
-from chickadee.utils import logger, get_package, get_doParallel
+from chickadee.utils import logger, get_package
 
 
 class CI(Process):
@@ -106,7 +106,7 @@ class CI(Process):
         )
 
         # Set parallelization
-        doPar = get_doParallel()
+        doPar = get_package("doParallel")
         doPar.registerDoParallel(cores=4)
 
         climdown.ci_netcdf_wrapper(gcm_file, obs_file, output_file, varname)

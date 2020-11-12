@@ -20,11 +20,3 @@ def get_package(package):
         return importr("ClimDown")
     else:
         raise ProcessError(f"R package, {package}, is not installed")
-
-
-def get_doParallel():
-    if not isinstalled("doParallel"):
-        utils = importr("utils")
-        utils.install_packages("doParallel")
-
-    return importr("doParallel")
