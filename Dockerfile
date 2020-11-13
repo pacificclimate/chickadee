@@ -7,7 +7,7 @@ ENV PIP_INDEX_URL="https://pypi.pacificclimate.org/simple/"
 
 WORKDIR /code
 
-COPY requirements.txt ./
+COPY requirements.txt r_requirements.txt install_pkgs.R ./
 
 RUN apt-get update && \
     apt-get install -y \
@@ -15,19 +15,12 @@ RUN apt-get update && \
       gcc \
       r-base \
       r-base-dev \
+      libudunits2-dev \
+      libnetcdf-dev \
       python3-dev && \
+    Rscript install_pkgs.R && \
     pip3 install -r requirements.txt --ignore-installed && \
     pip3 install gunicorn
-
-FROM rocker/r-ver:4.0.3
-
-COPY r_requirements.txt r_install.sh ./
-
-RUN apt-get update && \
-    apt-get install -y \
-      libudunits2-dev \
-      libnetcdf-dev && \
-      ./r_install.sh
 
 COPY . .
 
