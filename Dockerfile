@@ -1,3 +1,15 @@
+FROM rocker/r-ver:4.0.3
+
+WORKDIR /code
+
+COPY r_requirements.txt r_install.sh ./
+
+RUN apt-get update && \
+    apt-get install -y \
+      libudunits2-dev \
+      libnetcdf-dev && \
+      ./r_install.sh
+
 FROM python:3.7-slim
 
 MAINTAINER https://github.com/pacificclimate/chickadee
@@ -7,7 +19,7 @@ ENV PIP_INDEX_URL="https://pypi.pacificclimate.org/simple/"
 
 WORKDIR /code
 
-COPY requirements.txt r_requirements.txt r_install.sh ./
+COPY requirements.txt ./
 
 RUN apt-get update && \
     apt-get install -y \
@@ -15,12 +27,9 @@ RUN apt-get update && \
       gcc \
       r-base \
       r-base-dev \
-      libudunits2-dev \
-      libnetcdf-dev \
       python3-dev && \
     pip3 install -r requirements.txt --ignore-installed && \
-    pip3 install gunicorn &&\
-    ./r_install.sh
+    pip3 install gunicorn
 
 COPY . .
 
