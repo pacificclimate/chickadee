@@ -1,4 +1,4 @@
-FROM python:3.7-slim
+FROM rocker/r-ver:4.0.3
 
 MAINTAINER https://github.com/pacificclimate/chickadee
 LABEL Description="chickadee WPS" Vendor="Birdhouse" Version="0.1.0"
@@ -9,14 +9,14 @@ WORKDIR /code
 
 COPY requirements.txt r_requirements.txt install_pkgs.R ./
 
+# install python
+RUN apt-get update && apt-get install -y --no-install-recommends build-essential libpq-dev python3.8 python3-pip python3-setuptools python3-dev
+RUN pip3 install --upgrade pip
+
 RUN apt-get update && \
     apt-get install -y \
       build-essential \
       gcc \
-      r-base \
-      r-base-dev \
-      libudunits2-dev \
-      libnetcdf-dev \
       python3-dev && \
     Rscript install_pkgs.R && \
     pip3 install -r requirements.txt --ignore-installed && \
