@@ -19,6 +19,8 @@ RUN apt-get update && \
       python3-pip \
       python3-setuptools \
       python3-dev \
+      libssl-dev \
+      libxml2-dev \
       libudunits2-dev \
       libnetcdf-dev && \
     pip3 install --upgrade pip && \
