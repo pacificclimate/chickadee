@@ -9,7 +9,7 @@ WORKDIR /code
 
 COPY requirements.txt r_requirements.txt install_pkgs.R ./
 
-# install python
+# Install python and R packages
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
       build-essential \
