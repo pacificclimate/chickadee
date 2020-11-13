@@ -1,4 +1,4 @@
-FROM rocker/r-ver:4.0.3
+FROM r-base:4.0.3
 
 MAINTAINER https://github.com/pacificclimate/chickadee
 LABEL Description="chickadee WPS" Vendor="Birdhouse" Version="0.1.0"
@@ -18,7 +18,9 @@ RUN apt-get update && \
       python3.8 \
       python3-pip \
       python3-setuptools \
-      python3-dev && \
+      python3-dev \
+      libudunits2-dev \
+      libnetcdf-dev && \
     pip3 install --upgrade pip && \
     pip3 install -r requirements.txt --ignore-installed && \
     pip3 install gunicorn && \
