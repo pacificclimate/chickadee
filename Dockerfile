@@ -10,17 +10,19 @@ WORKDIR /code
 COPY requirements.txt r_requirements.txt install_pkgs.R ./
 
 # install python
-RUN apt-get update && apt-get install -y --no-install-recommends build-essential libpq-dev python3.8 python3-pip python3-setuptools python3-dev
-RUN pip3 install --upgrade pip
-
 RUN apt-get update && \
-    apt-get install -y \
+    apt-get install -y --no-install-recommends \
       build-essential \
       gcc \
+      libpq-dev \
+      python3.8 \
+      python3-pip \
+      python3-setuptools \
       python3-dev && \
-    Rscript install_pkgs.R && \
+    pip3 install --upgrade pip && \
     pip3 install -r requirements.txt --ignore-installed && \
-    pip3 install gunicorn
+    pip3 install gunicorn && \
+    Rscript install_pkgs.R 
 
 COPY . .
 
