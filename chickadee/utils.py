@@ -1,5 +1,4 @@
 import logging
-import os
 from rpy2.robjects.packages import isinstalled, importr
 from rpy2.robjects.vectors import StrVector
 from pywps.app.exceptions import ProcessError
