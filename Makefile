@@ -47,6 +47,7 @@ apt:
 	@echo "Installing libudunits2-dev and libnetcdf-dev ..."
 	@-bash -c "sudo apt-get install libudunits2-dev libnetcdf-dev"
 
+.PHONY: install-r-pkg
 install-r-pkg:
 	@echo "Installing R packages ..."
 	@-bash -c 'Rscript install_pkgs.R r_requirements.txt'
