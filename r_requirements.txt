@@ -1,0 +1,9 @@
+PCICt==0.5.4.1
+udunits2==0.13
+ncdf4==1.17
+fields==11.6
+foreach==1.5.1
+seas==0.5.2
+abind==1.4.5
+ClimDown==1.0.2
+doParallel==1.0.16

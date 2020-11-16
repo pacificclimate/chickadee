@@ -20,7 +20,7 @@ def get_package(package):
     else:
         raise ProcessError(f"R package, {package}, is not installed")
 
-    
+
 def set_r_options():
     robjects.r(
         """
