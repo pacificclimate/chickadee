@@ -38,3 +38,12 @@ out_file = LiteralInput(
     max_occurs=1,
     data_type="string",
 )
+
+num_cores = LiteralInput(
+    "num_cores",
+    "Number of Cores",
+    abstract="The number of cores to use for parallel execution",
+    default=4,
+    allowed_values=[1, 2, 3, 4],
+    data_type="positiveInteger",
+)

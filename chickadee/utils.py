@@ -24,10 +24,11 @@ def get_package(package):
 
 
 def collect_common_args(request):
-    loglevel = request.inputs["loglevel"][0].data
     gcm_file = request.inputs["gcm_file"][0].file
     obs_file = request.inputs["obs_file"][0].file
     varname = request.inputs["varname"][0].data
     output_file = request.inputs["out_file"][0].data
+    num_cores = request.inputs["num_cores"][0].data
+    loglevel = request.inputs["loglevel"][0].data
 
-    return gcm_file, obs_file, varname, output_file, loglevel
+    return gcm_file, obs_file, varname, output_file, num_cores, loglevel
