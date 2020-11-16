@@ -49,7 +49,7 @@ apt:
 
 install-r-pkg:
 	@echo "Installing R packages ..."
-	@-bash -c './r_install.sh'
+	@-bash -c 'Rscript install_pkgs.R'
 
 .PHONY: install
 install: venv
