@@ -3,7 +3,7 @@ from pywps.app.Common import Metadata
 
 from wps_tools.utils import log_handler
 from wps_tools.io import log_level, nc_output
-from chickadee.utils import logger, get_package, collect_args
+from chickadee.utils import logger, get_package, collect_common_args
 from chickadee.io import gcm_file, obs_file, varname, out_file
 
 
@@ -41,7 +41,9 @@ class CI(Process):
         )
 
     def _handler(self, request, response):
-        gcm_file, obs_file, varname, output_file, loglevel = collect_args(request)
+        gcm_file, obs_file, varname, output_file, loglevel = collect_common_args(
+            request
+        )
         log_handler(
             self,
             response,

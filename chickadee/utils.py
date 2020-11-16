@@ -23,17 +23,11 @@ def get_package(package):
         raise ProcessError(f"R package, {package}, is not installed")
 
 
-def collect_args(request):
-    args = OrderedDict()
-    for k in request.inputs.keys():
-        if "data_type" in vars(request.inputs[k][0]).keys():
-            # LiteralData
-            args[request.inputs[k][0].identifier] = request.inputs[k][0].data
-        elif vars(request.inputs[k][0])["_url"] != None:
-            # OPeNDAP
-            args[request.inputs[k][0].identifier] = request.inputs[k][0].url
-        elif vars(request.inputs[k][0])["_file"] != None:
-            # Local files
-            args[request.inputs[k][0].identifier] = request.inputs[k][0].file
+def collect_common_args(request):
+    loglevel = request.inputs["loglevel"][0].data
+    gcm_file = request.inputs["gcm_file"][0].file
+    obs_file = request.inputs["obs_file"][0].file
+    varname = request.inputs["varname"][0].data
+    output_file = request.inputs["out_file"][0].data
 
-    return tuple(args.values())
+    return gcm_file, obs_file, varname, output_file, loglevel
