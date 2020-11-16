@@ -2,8 +2,9 @@ from pywps import Process, ComplexInput, ComplexOutput, LiteralInput, FORMATS
 from pywps.app.Common import Metadata
 
 from wps_tools.utils import log_handler
-from wps_tools.io import log_level
+from wps_tools.io import log_level, nc_output
 from chickadee.utils import logger, get_package, collect_args
+from chickadee.io import gcm_file, obs_file, varname, out_file
 
 
 class CI(Process):
@@ -15,49 +16,14 @@ class CI(Process):
             "complete": 100,
         }
         inputs = [
-            ComplexInput(
-                "gcm_file",
-                "GCM NetCDF file",
-                abstract="Filename of GCM simulations",
-                min_occurs=1,
-                max_occurs=1,
-                supported_formats=[FORMATS.NETCDF, FORMATS.DODS],
-            ),
-            ComplexInput(
-                "obs_file",
-                "Observations NetCDF file",
-                abstract="Filename of high-res gridded historical observations",
-                min_occurs=1,
-                max_occurs=1,
-                supported_formats=[FORMATS.NETCDF, FORMATS.DODS],
-            ),
-            LiteralInput(
-                "varname",
-                "Variable to Downscale",
-                abstract="Name of the NetCDF variable to downscale (e.g. 'tasmax')",
-                min_occurs=1,
-                max_occurs=1,
-                data_type="string",
-            ),
-            LiteralInput(
-                "out_file",
-                "Output NetCDF File",
-                abstract="Filename to create with the climate imprint outputs",
-                min_occurs=0,
-                max_occurs=1,
-                data_type="string",
-            ),
+            gcm_file,
+            obs_file,
+            varname,
+            out_file,
             log_level,
         ]
 
-        outputs = [
-            ComplexOutput(
-                "output",
-                "Output",
-                abstract="output netCDF file",
-                supported_formats=[FORMATS.NETCDF],
-            ),
-        ]
+        outputs = [nc_output]
 
         super(CI, self).__init__(
             self._handler,
