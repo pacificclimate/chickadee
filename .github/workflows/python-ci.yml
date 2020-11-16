@@ -21,8 +21,10 @@ jobs:
       env:
         PIP_INDEX_URL: https://pypi.pacificclimate.org/simple
       run: |
+        sudo apt-get install libudunits2-dev libnetcdf-dev
         pip install -r requirements.txt
         pip install -e .[dev]
+        Rscript install_pkgs.R
     - name: Test with pytest (full)
       if: github.ref == 'refs/heads/master'
       run: |

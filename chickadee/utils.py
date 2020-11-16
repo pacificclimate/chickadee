@@ -14,18 +14,13 @@ handler.setFormatter(formatter)
 logger.addHandler(handler)
 
 
-def get_R_package(package):
-    if not isinstalled(package):
-        utils = importr("utils")
-        utils.chooseCRANmirror(ind=1)
-        utils.install_packages(package)
-
-    try:
+def get_package(package):
+    if isinstalled(package):
         return importr(package)
-    except PackageNotInstalledError:
-        raise ProcessError(f"{package} not installed")
+    else:
+        raise ProcessError(f"R package, {package}, is not installed")
 
-
+    
 def set_r_options():
     robjects.r(
         """
