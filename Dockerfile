@@ -26,7 +26,7 @@ RUN apt-get update && \
     pip3 install --upgrade pip && \
     pip3 install -r requirements.txt --ignore-installed && \
     pip3 install gunicorn && \
-    Rscript install_pkgs.R 
+    Rscript install_pkgs.R r_requirements.txt
 
 COPY . .
 

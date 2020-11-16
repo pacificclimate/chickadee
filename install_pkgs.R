@@ -10,7 +10,9 @@ install.packages('rversions');
 install.packages('devtools');
 
 # Install packages from requirements list
-requirements_file <- file("r_requirements.txt",open="r")
+args <- commandArgs(trailingOnly = TRUE)
+req_filename <- args[1]
+requirements_file <- file(req_filename,open="r")
 data <-readLines(requirements_file)
 for (i in 1:length(data)){
     pkg_ver_pair <- unlist(stringr::str_split(data[i], "=="))
