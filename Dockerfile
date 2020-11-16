@@ -32,7 +32,7 @@ COPY . .
 
 EXPOSE 5004
 
-CMD gunicorn --bind=0.0.0.0:5004 --timeout 90 chickadee.wsgi:application
+CMD gunicorn --bind=0.0.0.0:5004 --timeout 120 chickadee.wsgi:application
 
 # docker build -t pacificclimate/chickadee .
 # docker run -p 8102:5004 pacificclimate/chickadee
