@@ -1,13 +1,13 @@
+# Usage:
+# Rscript install_pgks.R r_requirements.txt
+# r_requirements delimited by '==' as in python requirements.txt
+
 # Create user library and install devtools package
 dir.create(Sys.getenv('R_LIBS_USER'), recursive = TRUE);
 .libPaths(Sys.getenv('R_LIBS_USER'));
 
 # Install devtools and its dependencies
-install.packages('usethis');
-install.packages('covr');
-install.packages('httr');
-install.packages('rversions');
-install.packages('devtools');
+install.packages('devtools', dependencies=TRUE);
 
 # Install packages from requirements list
 args <- commandArgs(trailingOnly = TRUE)
