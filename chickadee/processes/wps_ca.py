@@ -25,6 +25,7 @@ class CA(Process):
         self.status_percentage_steps = {
             "start": 0,
             "process": 10,
+            "write_files": 80,
             "build_output": 95,
             "complete": 100,
         }
@@ -42,8 +43,8 @@ class CA(Process):
                 supported_formats=[FORMATS.TEXT],
             ),
             ComplexInput(
-                "weight_file",
-                "Weight File",
+                "weights_file",
+                "Weights File",
                 abstract="File to store weights of analogues",
                 supported_formats=[FORMATS.TEXT],
             ),
@@ -87,15 +88,15 @@ class CA(Process):
         gcm_file = request.inputs["gcm_file"][0].file
         obs_file = request.inputs["obs_file"][0].file
         num_cores = request.inputs["num_cores"][0].data
-        var = request.inputs["var"][0].data
+        varname = request.inputs["varname"][0].data
         end_date = str(request.inputs["end_date"][0].data)
-        indices_file = request.inputs["indices_file"][0].data
-        weights_file = request.inputs["weights_file"][0].data
+        indices_file = request.inputs["indices_file"][0].file
+        weights_file = request.inputs["weights_file"][0].file
 
-        return gcm_file, obs_file, num_cores, var, end_date, indices_file, weights_file
+        return gcm_file, obs_file, num_cores, varname, end_date, indices_file, weights_file
 
     def write_list_to_file(self, list_, filename):
-        with open(filename, "r") as file_:
+        with open(filename, "w") as file_:
             for line in list_:
                 for item in line:
                     file_.write(f"{item}\n")
@@ -115,7 +116,7 @@ class CA(Process):
             gcm_file,
             obs_file,
             num_cores,
-            var,
+            varname,
             end_date,
             indices_file,
             weights_file,
@@ -124,7 +125,7 @@ class CA(Process):
         log_handler(
             self,
             response,
-            "Downscaling GCM",
+            "Calculating weights",
             logger,
             log_level=loglevel,
             process_step="process",
@@ -140,14 +141,22 @@ class CA(Process):
 
         # Run Constructed Analogue Step (CA)
         climdown = get_package("ClimDown")
-        analogues = climdown.ca_netcdf_wrapper(gcm_file, obs_file, var)
+        analogues = climdown.ca_netcdf_wrapper(gcm_file, obs_file, varname)
 
         # Stop parallelization
         doPar.stopImplicitCluster()
 
-        # Write indices and weights to files
-        self.write_list_to_file(analogues[0], indices_file.name)
-        self.write_list_to_file(analogues[1], weights_file.name)
+        log_handler(
+            self,
+            response,
+            "Writing indices and weights lists to files",
+            logger,
+            log_level=loglevel,
+            process_step="write_files",
+        )
+
+        self.write_list_to_file(analogues[0], indices_file)
+        self.write_list_to_file(analogues[1], weights_file)
 
         log_handler(
             self,
@@ -158,8 +167,8 @@ class CA(Process):
             process_step="build_output",
         )
 
-        response.outputs["indices"].file = indices_file.name
-        response.outputs["weights"].file = weights_file.name
+        response.outputs["indices"].file = indices_file
+        response.outputs["weights"].file = weights_file
 
         log_handler(
             self,
