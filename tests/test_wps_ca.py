@@ -8,7 +8,15 @@ from chickadee.processes.wps_ca import CA
 
 
 @pytest.mark.parametrize(
-    ("gcm_file", "obs_file", "var", "end_date", "num_cores", "indices_file", "weights_file"),
+    (
+        "gcm_file",
+        "obs_file",
+        "var",
+        "end_date",
+        "num_cores",
+        "indices_file",
+        "weights_file",
+    ),
     [
         (
             f"file://{resource_filename(__name__, 'data/tiny_gcm.nc')}",
@@ -21,7 +29,9 @@ from chickadee.processes.wps_ca import CA
         ),
     ],
 )
-def test_wps_ca(gcm_file, obs_file, var, end_date, num_cores, indices_file, weights_file):
+def test_wps_ca(
+    gcm_file, obs_file, var, end_date, num_cores, indices_file, weights_file
+):
     datainputs = (
         f"gcm_file=@xlink:href={gcm_file};"
         f"obs_file=@xlink:href={obs_file};"

@@ -1,5 +1,4 @@
 import os
-import re
 from pywps import Process, ComplexOutput, ComplexInput, LiteralInput, FORMATS
 from pywps.app.Common import Metadata
 from netCDF4 import Dataset
@@ -84,16 +83,11 @@ class CA(Process):
             status_supported=True,
         )
 
-    def collect_args(self, request):
-        gcm_file = request.inputs["gcm_file"][0].file
-        obs_file = request.inputs["obs_file"][0].file
-        num_cores = request.inputs["num_cores"][0].data
-        varname = request.inputs["varname"][0].data
-        end_date = str(request.inputs["end_date"][0].data)
-        indices_file = request.inputs["indices_file"][0].file
-        weights_file = request.inputs["weights_file"][0].file
-
-        return gcm_file, obs_file, num_cores, varname, end_date, indices_file, weights_file
+    def get_input_type(self, input_name, request):
+        if "file" in input_name:
+            return request.inputs[input_name][0].file
+        else:
+            return str(request.inputs[input_name][0].data)
 
     def write_list_to_file(self, list_, filename):
         with open(filename, "w") as file_:
@@ -115,12 +109,13 @@ class CA(Process):
         (
             gcm_file,
             obs_file,
-            num_cores,
             varname,
+            num_cores,
             end_date,
             indices_file,
             weights_file,
-        ) = self.collect_args(request)
+            log_level,
+        ) = [self.get_input_type(input_name, request) for input_name in request.inputs]
 
         log_handler(
             self,
