@@ -1,10 +1,20 @@
-version: '3'
+version: '3.0'
 services:
-  wps:
-    build: .
-    image: pcic/chickadee
+  chickadee-dev:
+    image: pcic/chickadee:latest
+    container_name: chickadee-dev
+    environment:
+      - PYWPS_CFG=/wps.cfg
     ports:
-      - "8102:5004"
+      - "30102:5004"
+    volumes:
+      - ./dev-component/wps.cfg:/wps.cfg
+    restart: always
+
+networks:
+  default:
+    external:
+      name: pcicbr0
 
 
 # docker-compose build
