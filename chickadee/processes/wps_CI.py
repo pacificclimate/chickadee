@@ -1,4 +1,4 @@
-from pywps import Process, ComplexInput, ComplexOutput, LiteralInput, FORMATS
+from pywps import Process
 from pywps.app.Common import Metadata
 
 from wps_tools.utils import log_handler
