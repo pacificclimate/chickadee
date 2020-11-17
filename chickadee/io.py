@@ -47,3 +47,13 @@ num_cores = LiteralInput(
     allowed_values=[1, 2, 3, 4],
     data_type="positiveInteger",
 )
+
+end_date = (
+    LiteralInput(
+        "end_date",
+        "End Date",
+        abstract="Defines the end of the calibration period",
+        default=date(2005, 12, 31),
+        data_type="date",
+    ),
+)
