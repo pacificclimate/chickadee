@@ -91,7 +91,7 @@ class QDM(Process):
         set_end = set_r_options()
         set_end(end_date)
 
-        climdown.qdm_netcdf_wrapper(gcm_file, obs_file, output_file, varname)
+        climdown.qdm_netcdf_wrapper(obs_file, gcm_file, output_file, varname)
 
         # stop parallelization
         doPar.stopImplicitCluster()
