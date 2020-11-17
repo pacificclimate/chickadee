@@ -48,10 +48,6 @@ class QDM(Process):
             status_supported=True,
         )
 
-    def collect_args(self, request):
-        end_date = str(request.inputs["end_date"][0].data)
-        return end_date
-
     def _handler(self, request, response):
         (
             gcm_file,
@@ -59,9 +55,9 @@ class QDM(Process):
             varname,
             output_file,
             num_cores,
+            end_date,
             loglevel,
         ) = collect_common_args(request)
-        end_date = self.collect_args(request)
 
         log_handler(
             self,

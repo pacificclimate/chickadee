@@ -60,10 +60,6 @@ class BCCAQ(Process):
             status_supported=True,
         )
 
-    def collect_args(self, request):
-        end_date = str(request.inputs["end_date"][0].data)
-        return end_date
-
     def _handler(self, request, response):
         loglevel = request.inputs["loglevel"][0].data
         log_handler(
@@ -81,9 +77,9 @@ class BCCAQ(Process):
             varname,
             out_file,
             num_cores,
+            end_date,
             loglevel,
         ) = collect_common_args(request)
-        end_date = self.collect_args(request)
         os.path.join(self.workdir, out_file)
 
         log_handler(

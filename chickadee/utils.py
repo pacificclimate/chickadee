@@ -24,14 +24,19 @@ def get_package(package):
 
 
 def collect_common_args(request):
-    gcm_file = request.inputs["gcm_file"][0].file
-    obs_file = request.inputs["obs_file"][0].file
-    varname = request.inputs["varname"][0].data
-    output_file = request.inputs["out_file"][0].data
-    num_cores = request.inputs["num_cores"][0].data
-    loglevel = request.inputs["loglevel"][0].data
+    return_args = [
+        request.inputs["gcm_file"][0].file,
+        request.inputs["obs_file"][0].file,
+        request.inputs["varname"][0].data,
+        request.inputs["out_file"][0].data,
+        request.inputs["num_cores"][0].data,
+    ]
+    if "end_date" in request.inputs.keys():
+        return_args.append(str(request.inputs["end_date"][0].data))
+    return_args.append(request.inputs["loglevel"][0].data)
 
-    return gcm_file, obs_file, varname, output_file, num_cores, loglevel
+    print(return_args)
+    return tuple(return_args)
 
 
 def set_r_options():
