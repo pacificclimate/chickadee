@@ -16,7 +16,7 @@ from chickadee.io import gcm_file, obs_file, varname, out_file, num_cores, end_d
 class QDM(Process):
     def __init__(self):
         self.status_percentage_steps = common_status_percentage.update(
-            {"parallelization": 5, "set_end_date": 10, "process": 15}
+            {"get_ClimDown": 5, "parallelization": 10, "set_end_date": 15}
         )
         inputs = [
             gcm_file,
@@ -65,6 +65,15 @@ class QDM(Process):
             process_step="start",
         )
 
+        # Get ClimDown
+        log_handler(
+            self,
+            response,
+            "Importing R package 'ClimDown'",
+            logger,
+            log_level=loglevel,
+            process_step="get_ClimDown",
+        )
         climdown = get_package("ClimDown")
 
         # Set parallelization
@@ -88,7 +97,6 @@ class QDM(Process):
             log_level=loglevel,
             process_step="set_end_date",
         )
-
         set_end = set_r_options()
         set_end(end_date)
 
@@ -100,7 +108,6 @@ class QDM(Process):
             log_level=loglevel,
             process_step="process",
         )
-
         climdown.qdm_netcdf_wrapper(obs_file, gcm_file, output_file, varname)
 
         # stop parallelization
@@ -114,7 +121,6 @@ class QDM(Process):
             log_level=loglevel,
             process_step="build_output",
         )
-
         response.outputs["output"].file = output_file
 
         log_handler(
@@ -125,5 +131,4 @@ class QDM(Process):
             log_level=loglevel,
             process_step="complete",
         )
-
         return response
