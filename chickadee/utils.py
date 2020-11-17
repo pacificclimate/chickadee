@@ -1,9 +1,9 @@
 import logging
+from rpy2 import robjects
 from rpy2.robjects.packages import isinstalled, importr
 from rpy2.robjects.vectors import StrVector
 from pywps.app.exceptions import ProcessError
 from collections import OrderedDict
-
 
 logger = logging.getLogger("PYWPS")
 logger.setLevel(logging.NOTSET)
@@ -32,3 +32,16 @@ def collect_common_args(request):
     loglevel = request.inputs["loglevel"][0].data
 
     return gcm_file, obs_file, varname, output_file, num_cores, loglevel
+
+
+def set_r_options():
+    robjects.r(
+        """
+    set_end_date <-function(end_date){
+        options(
+            calibration.end=as.POSIXct(end_date, tz='GMT')
+        )
+    }
+    """
+    )
+    return robjects.r["set_end_date"]
