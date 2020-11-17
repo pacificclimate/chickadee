@@ -1,6 +1,5 @@
 import os
 import re
-from datetime import date
 from pywps import Process
 from pywps.app.Common import Metadata
 from netCDF4 import Dataset

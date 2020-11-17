@@ -1,5 +1,5 @@
 from pywps import LiteralInput, ComplexInput, FORMATS
-
+from datetime import date
 import logging
 
 
@@ -48,12 +48,10 @@ num_cores = LiteralInput(
     data_type="positiveInteger",
 )
 
-end_date = (
-    LiteralInput(
-        "end_date",
-        "End Date",
-        abstract="Defines the end of the calibration period",
-        default=date(2005, 12, 31),
-        data_type="date",
-    ),
+end_date = LiteralInput(
+    "end_date",
+    "End Date",
+    abstract="Defines the end of the calibration period",
+    default=date(2005, 12, 31),
+    data_type="date",
 )
