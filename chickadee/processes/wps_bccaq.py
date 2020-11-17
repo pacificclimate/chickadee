@@ -7,7 +7,7 @@ from netCDF4 import Dataset
 
 from wps_tools.utils import log_handler
 from wps_tools.io import log_level, nc_output
-from chickadee.utils import logger, set_r_options, get_package, collect_common_args
+from chickadee.utils import logger, set_r_options, get_package, collect_args
 from chickadee.io import gcm_file, obs_file, varname, out_file, num_cores, end_date
 
 
@@ -73,7 +73,7 @@ class BCCAQ(Process):
             num_cores,
             end_date,
             loglevel,
-        ) = collect_common_args(request)
+        ) = collect_args(request)
         os.path.join(self.workdir, out_file)
 
         log_handler(

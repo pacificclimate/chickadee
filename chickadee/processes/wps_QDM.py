@@ -6,7 +6,7 @@ from wps_tools.io import log_level, nc_output
 from chickadee.utils import (
     logger,
     get_package,
-    collect_common_args,
+    collect_args,
     set_r_options,
     common_status_percentage,
 )
@@ -54,7 +54,7 @@ class QDM(Process):
             num_cores,
             end_date,
             loglevel,
-        ) = collect_common_args(request)
+        ) = collect_args(request)
 
         log_handler(
             self,

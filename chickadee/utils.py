@@ -30,20 +30,20 @@ def get_package(package):
         raise ProcessError(f"R package, {package}, is not installed")
 
 
-def collect_common_args(request):
-    return_args = [
-        request.inputs["gcm_file"][0].file,
-        request.inputs["obs_file"][0].file,
-        request.inputs["varname"][0].data,
-        request.inputs["out_file"][0].data,
-        request.inputs["num_cores"][0].data,
-    ]
-    if "end_date" in request.inputs.keys():
-        return_args.append(str(request.inputs["end_date"][0].data))
-    return_args.append(request.inputs["loglevel"][0].data)
+def collect_args(request):
+    args = OrderedDict()
+    for k in request.inputs.keys():
+        if "data_type" in vars(request.inputs[k][0]).keys():
+            # LiteralData
+            args[request.inputs[k][0].identifier] = request.inputs[k][0].data
+        elif vars(request.inputs[k][0])["_url"] != None:
+            # OPeNDAP
+            args[request.inputs[k][0].identifier] = request.inputs[k][0].url
+        elif vars(request.inputs[k][0])["_file"] != None:
+            # Local files
+            args[request.inputs[k][0].identifier] = request.inputs[k][0].file
 
-    print(return_args)
-    return tuple(return_args)
+    return tuple(args.values())
 
 
 def set_r_options():
