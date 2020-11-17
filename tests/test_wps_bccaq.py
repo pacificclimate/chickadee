@@ -26,9 +26,9 @@ def test_wps_bccaq(gcm_file, obs_file, var, end_date, num_cores):
         datainputs = (
             f"gcm_file=@xlink:href={gcm_file};"
             f"obs_file=@xlink:href={obs_file};"
-            f"var={var};"
+            f"varname={var};"
             f"end_date={end_date};"
             f"out_file={out_file.name};"
-            f"out_file={num_cores};"
+            f"num_cores={num_cores};"
         )
         run_wps_process(BCCAQ(), datainputs)

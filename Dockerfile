@@ -14,6 +14,7 @@ RUN apt-get update && \
     apt-get install -y --no-install-recommends \
       build-essential \
       gcc \
+      libpq-dev \
       python3.8 \
       python3-pip \
       python3-setuptools \
@@ -26,7 +27,6 @@ RUN apt-get update && \
     pip3 install -r requirements.txt --ignore-installed && \
     pip3 install gunicorn && \
     Rscript install_pkgs.R r_requirements.txt
-
 
 COPY . .
 
