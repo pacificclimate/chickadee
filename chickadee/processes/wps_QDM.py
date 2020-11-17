@@ -1,20 +1,23 @@
-from pywps import Process, LiteralInput
+from pywps import Process
 from pywps.app.Common import Metadata
 from datetime import date
 from wps_tools.utils import log_handler
 from wps_tools.io import log_level, nc_output
-from chickadee.utils import logger, get_package, collect_common_args, set_r_options
+from chickadee.utils import (
+    logger,
+    get_package,
+    collect_common_args,
+    set_r_options,
+    common_status_percentage,
+)
 from chickadee.io import gcm_file, obs_file, varname, out_file, num_cores, end_date
 
 
 class QDM(Process):
     def __init__(self):
-        self.status_percentage_steps = {
-            "start": 0,
-            "process": 10,
-            "build_output": 95,
-            "complete": 100,
-        }
+        self.status_percentage_steps = common_status_percentage.update(
+            {"parallelization": 5, "set_end_date": 10, "process": 15}
+        )
         inputs = [
             gcm_file,
             obs_file,
@@ -64,6 +67,31 @@ class QDM(Process):
 
         climdown = get_package("ClimDown")
 
+        # Set parallelization
+        log_handler(
+            self,
+            response,
+            "Setting parallelization",
+            logger,
+            log_level=loglevel,
+            process_step="parallelization",
+        )
+        doPar = get_package("doParallel")
+        doPar.registerDoParallel(cores=num_cores)
+
+        # Set R options
+        log_handler(
+            self,
+            response,
+            "Setting R option 'calibration.end'",
+            logger,
+            log_level=loglevel,
+            process_step="set_end_date",
+        )
+
+        set_end = set_r_options()
+        set_end(end_date)
+
         log_handler(
             self,
             response,
@@ -72,14 +100,6 @@ class QDM(Process):
             log_level=loglevel,
             process_step="process",
         )
-
-        # Set parallelization
-        doPar = get_package("doParallel")
-        doPar.registerDoParallel(cores=num_cores)
-
-        # Set R options
-        set_end = set_r_options()
-        set_end(end_date)
 
         climdown.qdm_netcdf_wrapper(obs_file, gcm_file, output_file, varname)
 

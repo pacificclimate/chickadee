@@ -1,14 +1,14 @@
 import os
 import re
 from datetime import date
-from pywps import Process, ComplexOutput, ComplexInput, LiteralInput, FORMATS
+from pywps import Process
 from pywps.app.Common import Metadata
 from netCDF4 import Dataset
 
 from wps_tools.utils import log_handler
 from wps_tools.io import log_level, nc_output
 from chickadee.utils import logger, set_r_options, get_package, collect_common_args
-from chickadee.io import gcm_file, obs_file, varname, out_file, num_cores
+from chickadee.io import gcm_file, obs_file, varname, out_file, num_cores, end_date
 
 
 class BCCAQ(Process):
@@ -30,13 +30,7 @@ class BCCAQ(Process):
             varname,
             out_file,
             num_cores,
-            LiteralInput(
-                "end_date",
-                "End Date",
-                abstract="Defines the end of the calibration period",
-                default=date(2005, 12, 31),
-                data_type="date",
-            ),
+            end_date,
             log_level,
         ]
 

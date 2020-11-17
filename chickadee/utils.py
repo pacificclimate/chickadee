@@ -15,6 +15,13 @@ handler = logging.StreamHandler()
 handler.setFormatter(formatter)
 logger.addHandler(handler)
 
+common_status_percentage = {
+    "start": 0,
+    "process": 10,
+    "build_output": 95,
+    "complete": 100,
+}
+
 
 def get_package(package):
     if isinstalled(package):
