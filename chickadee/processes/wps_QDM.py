@@ -98,7 +98,7 @@ class QDM(Process):
             process_step="set_end_date",
         )
         set_end = set_r_options()
-        set_end(end_date)
+        set_end(str(end_date))
 
         log_handler(
             self,

@@ -90,7 +90,7 @@ class BCCAQ(Process):
 
         # Set R options
         set_end = set_r_options()
-        set_end(end_date)
+        set_end(str(end_date))
 
         # Run ClimDown
         climdown = get_package("ClimDown")
