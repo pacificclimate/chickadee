@@ -82,12 +82,6 @@ class CA(Process):
             status_supported=True,
         )
 
-    def get_input_type(self, input_name, request):
-        if "file" in input_name:
-            return request.inputs[input_name][0].file
-        else:
-            return str(request.inputs[input_name][0].data)
-
     def write_list_to_file(self, list_, filename):
         with open(filename, "w") as file_:
             for line in list_:
@@ -115,8 +109,6 @@ class CA(Process):
             weights,
             log_level,
         ) = collect_args(request)
-
-        [os.path.join(self.workdir, file_) for file_ in [indices, weights]]
 
         log_handler(
             self,

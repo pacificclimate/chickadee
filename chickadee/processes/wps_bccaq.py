@@ -76,7 +76,6 @@ class BCCAQ(Process):
             end_date,
             loglevel,
         ) = collect_args(request)
-        os.path.join(self.workdir, out_file)
 
         log_handler(
             self,
