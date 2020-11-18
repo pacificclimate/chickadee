@@ -14,8 +14,9 @@ from chickadee.io import gcm_file, obs_file, varname, out_file, num_cores, end_d
 
 class QDM(Process):
     def __init__(self):
-        self.status_percentage_steps = common_status_percentage.update(
-            {"get_ClimDown": 5, "parallelization": 10, "set_end_date": 15}
+        self.status_percentage_steps = dict(
+            common_status_percentage,
+            **{"get_ClimDown": 5, "parallelization": 10, "set_end_date": 15},
         )
         inputs = [
             gcm_file,
