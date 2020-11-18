@@ -4,7 +4,7 @@ from tempfile import NamedTemporaryFile
 from datetime import date
 
 from wps_tools.testing import run_wps_process
-from chickadee.processes.wps_ca import CA
+from chickadee.processes.wps_CA import CA
 
 
 @pytest.mark.parametrize(

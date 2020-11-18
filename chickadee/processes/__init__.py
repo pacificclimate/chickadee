@@ -1,6 +1,6 @@
-from .wps_ca import CA
+from .wps_CA import CA
 from .wps_CI import CI
-from .wps_bccaq import BCCAQ
+from .wps_BCCAQ import BCCAQ
 
 processes = [
     CA(),
