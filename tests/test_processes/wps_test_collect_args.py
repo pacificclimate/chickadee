@@ -4,6 +4,8 @@ import logging
 
 
 class TestCollectArgs(Process):
+    """A simple wps process for test_collect_args in test_utils.py"""
+
     def __init__(self):
         inputs = [
             ComplexInput(
