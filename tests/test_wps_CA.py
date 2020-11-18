@@ -24,8 +24,12 @@ from chickadee.processes.wps_ca import CA
             "tasmax",
             date(1972, 12, 31),
             4,
-            NamedTemporaryFile( suffix=".txt", prefix="indices_", dir="/tmp", delete=True),
-            NamedTemporaryFile( suffix=".txt", prefix="weights_", dir="/tmp", delete=True),
+            NamedTemporaryFile(
+                suffix=".txt", prefix="indices_", dir="/tmp", delete=True
+            ),
+            NamedTemporaryFile(
+                suffix=".txt", prefix="weights_", dir="/tmp", delete=True
+            ),
         ),
     ],
 )
