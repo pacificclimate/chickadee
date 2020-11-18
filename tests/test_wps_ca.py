@@ -14,8 +14,8 @@ from chickadee.processes.wps_ca import CA
         "var",
         "end_date",
         "num_cores",
-        "indices_file",
-        "weights_file",
+        "indices",
+        "weights",
     ),
     [
         (
@@ -24,21 +24,19 @@ from chickadee.processes.wps_ca import CA
             "tasmax",
             date(1972, 12, 31),
             4,
-            NamedTemporaryFile(suffix=".txt", prefix="indices", dir="/tmp"),
-            NamedTemporaryFile(suffix=".txt", prefix="weights", dir="/tmp"),
+            "indices.txt",
+            "weights.txt",
         ),
     ],
 )
-def test_wps_ca(
-    gcm_file, obs_file, var, end_date, num_cores, indices_file, weights_file
-):
+def test_wps_ca(gcm_file, obs_file, var, end_date, num_cores, indices, weights):
     datainputs = (
         f"gcm_file=@xlink:href={gcm_file};"
         f"obs_file=@xlink:href={obs_file};"
         f"varname={var};"
         f"end_date={end_date};"
         f"num_cores={num_cores};"
-        f"indices_file={indices_file.name};"
-        f"weights_file={weights_file.name};"
+        f"indices={indices};"
+        f"weights={weights};"
     )
     run_wps_process(CA(), datainputs)
