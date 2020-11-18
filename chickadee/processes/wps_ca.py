@@ -6,7 +6,7 @@ from rpy2 import robjects
 
 from wps_tools.utils import log_handler
 from wps_tools.io import log_level
-from chickadee.utils import logger, set_r_options, get_package
+from chickadee.utils import logger, set_r_options, get_package, collect_args
 from chickadee.io import gcm_file, obs_file, varname, num_cores, end_date
 
 
@@ -72,9 +72,8 @@ class CA(Process):
             abstract="Constructed Analogue (CA) downscaling algorithm",
             keywords=["constructed", "analogue", "downscaling"],
             metadata=[
-                Metadata("PyWPS", "https://pywps.org/"),
-                Metadata("Birdhouse", "http://bird-house.github.io/"),
-                Metadata("PyWPS Demo", "https://pywps-demo.readthedocs.io/en/latest/"),
+                Metadata("NetCDF processing"),
+                Metadata("Climate Data Operations"),
             ],
             version="0.1.0",
             inputs=inputs,
@@ -115,7 +114,8 @@ class CA(Process):
             indices,
             weights,
             log_level,
-        ) = [self.get_input_type(input_name, request) for input_name in request.inputs]
+        ) = collect_args(request)
+
         [os.path.join(self.workdir, file_) for file_ in [indices, weights]]
 
         log_handler(
@@ -133,7 +133,7 @@ class CA(Process):
 
         # Set R options
         set_end = set_r_options()
-        set_end(end_date)
+        set_end(str(end_date))
 
         # Run Constructed Analogue Step (CA)
         climdown = get_package("ClimDown")

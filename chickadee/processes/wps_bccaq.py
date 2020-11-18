@@ -6,7 +6,7 @@ from netCDF4 import Dataset
 
 from wps_tools.utils import log_handler
 from wps_tools.io import log_level, nc_output
-from chickadee.utils import logger, set_r_options, get_package, collect_common_args
+from chickadee.utils import logger, set_r_options, get_package, collect_args
 from chickadee.io import gcm_file, obs_file, varname, out_file, num_cores, end_date
 
 
@@ -42,9 +42,8 @@ class BCCAQ(Process):
             abstract="Full statistical downscaling of coarse scale global climate model (GCM) output to a fine spatial resolution",
             keywords=["downscaling"],
             metadata=[
-                Metadata("PyWPS", "https://pywps.org/"),
-                Metadata("Birdhouse", "http://bird-house.github.io/"),
-                Metadata("PyWPS Demo", "https://pywps-demo.readthedocs.io/en/latest/"),
+                Metadata("NetCDF processing"),
+                Metadata("Climate Data Operations"),
             ],
             version="0.1.0",
             inputs=inputs,
@@ -74,9 +73,9 @@ class BCCAQ(Process):
             varname,
             out_file,
             num_cores,
+            end_date,
             loglevel,
-        ) = collect_common_args(request)
-        end_date = self.collect_args(request)
+        ) = collect_args(request)
         os.path.join(self.workdir, out_file)
 
         log_handler(
@@ -94,7 +93,7 @@ class BCCAQ(Process):
 
         # Set R options
         set_end = set_r_options()
-        set_end(end_date)
+        set_end(str(end_date))
 
         # Run ClimDown
         climdown = get_package("ClimDown")
