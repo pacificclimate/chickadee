@@ -1,5 +1,5 @@
 import os
-from pywps import Process, ComplexOutput, ComplexInput, LiteralInput, FORMATS
+from pywps import Process, ComplexOutput, LiteralInput, FORMATS
 from pywps.app.Common import Metadata
 from netCDF4 import Dataset
 from rpy2 import robjects
@@ -35,31 +35,31 @@ class CA(Process):
             varname,
             num_cores,
             end_date,
-            ComplexInput(
-                "indices_file",
+            LiteralInput(
+                "indices",
                 "Indices File",
-                abstract="File to store indices of analogue times steps",
-                supported_formats=[FORMATS.TEXT],
+                abstract="File name to store indices of analogue times steps (suffix .txt)",
+                data_type="string",
             ),
-            ComplexInput(
-                "weights_file",
+            LiteralInput(
+                "weights",
                 "Weights File",
-                abstract="File to store weights of analogues",
-                supported_formats=[FORMATS.TEXT],
+                abstract="File name to store weights of analogues (suffix .txt)",
+                data_type="string",
             ),
             log_level,
         ]
 
         outputs = [
             ComplexOutput(
-                "indices",
-                "Indices",
+                "indices_file",
+                "Indices File",
                 abstract="File path with analogue indices",
                 supported_formats=[FORMATS.TEXT],
             ),
             ComplexOutput(
-                "weights",
-                "Weights",
+                "weights_file",
+                "Weights File",
                 abstract="File path with analogue weights",
                 supported_formats=[FORMATS.TEXT],
             ),
@@ -112,10 +112,11 @@ class CA(Process):
             varname,
             num_cores,
             end_date,
-            indices_file,
-            weights_file,
+            indices,
+            weights,
             log_level,
         ) = [self.get_input_type(input_name, request) for input_name in request.inputs]
+        [os.path.join(self.workdir, file_) for file_ in [indices, weights]]
 
         log_handler(
             self,
@@ -150,8 +151,8 @@ class CA(Process):
             process_step="write_files",
         )
 
-        self.write_list_to_file(analogues[0], indices_file)
-        self.write_list_to_file(analogues[1], weights_file)
+        self.write_list_to_file(analogues[0], indices)
+        self.write_list_to_file(analogues[1], weights)
 
         log_handler(
             self,
@@ -162,8 +163,8 @@ class CA(Process):
             process_step="build_output",
         )
 
-        response.outputs["indices"].file = indices_file
-        response.outputs["weights"].file = weights_file
+        response.outputs["indices_file"].file = indices
+        response.outputs["weights_file"].file = weights
 
         log_handler(
             self,
