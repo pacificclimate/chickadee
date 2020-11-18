@@ -6,7 +6,7 @@ from chickadee.utils import (
     logger,
     get_package,
     collect_args,
-    set_r_options,
+    set_end_date,
     common_status_percentage,
 )
 from chickadee.io import gcm_file, obs_file, varname, out_file, num_cores, end_date
@@ -88,7 +88,7 @@ class QDM(Process):
         doPar = get_package("doParallel")
         doPar.registerDoParallel(cores=num_cores)
 
-        # Set R options
+        # Set R option 'calibration.end'
         log_handler(
             self,
             response,
@@ -97,8 +97,7 @@ class QDM(Process):
             log_level=loglevel,
             process_step="set_end_date",
         )
-        set_end = set_r_options()
-        set_end(str(end_date))
+        set_end_date(end_date)
 
         log_handler(
             self,

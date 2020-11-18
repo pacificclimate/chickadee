@@ -6,7 +6,7 @@ from netCDF4 import Dataset
 
 from wps_tools.utils import log_handler
 from wps_tools.io import log_level, nc_output
-from chickadee.utils import logger, set_r_options, get_package, collect_args
+from chickadee.utils import logger, set_end_date, get_package, collect_args
 from chickadee.io import gcm_file, obs_file, varname, out_file, num_cores, end_date
 
 
@@ -88,9 +88,8 @@ class BCCAQ(Process):
         doPar = get_package("doParallel")
         doPar.registerDoParallel(cores=num_cores)
 
-        # Set R options
-        set_end = set_r_options()
-        set_end(str(end_date))
+        # Set R options 'calibration.end'
+        set_end_date(end_date)
 
         # Run ClimDown
         climdown = get_package("ClimDown")

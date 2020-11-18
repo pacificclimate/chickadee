@@ -1,7 +1,6 @@
 import logging
 from rpy2 import robjects
 from rpy2.robjects.packages import isinstalled, importr
-from rpy2.robjects.vectors import StrVector
 from pywps.app.exceptions import ProcessError
 from collections import OrderedDict
 
@@ -46,7 +45,7 @@ def collect_args(request):
     return tuple(args.values())
 
 
-def set_r_options():
+def set_end_date(end_date):
     robjects.r(
         """
     set_end_date <-function(end_date){
@@ -56,4 +55,6 @@ def set_r_options():
     }
     """
     )
-    return robjects.r["set_end_date"]
+
+    robjects.r["set_end_date"](str(end_date))
+    return
