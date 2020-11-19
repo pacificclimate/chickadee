@@ -14,7 +14,7 @@ from chickadee.processes.wps_rerank import Rerank
             "tasmax",
             4,
             f"file://{resource_filename(__name__, 'data/QDM_expected_output.nc')}",
-            resource_filename(__name__, 'data/analogues.rds'),
+            resource_filename(__name__, "data/analogues.rds"),
         ),
     ],
 )

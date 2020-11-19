@@ -6,7 +6,13 @@ from netCDF4 import Dataset
 
 from wps_tools.utils import log_handler
 from wps_tools.io import log_level, nc_output
-from chickadee.utils import logger, set_end_date, get_package, collect_args, common_status_percentage
+from chickadee.utils import (
+    logger,
+    set_end_date,
+    get_package,
+    collect_args,
+    common_status_percentage,
+)
 from chickadee.io import gcm_file, obs_file, varname, out_file, num_cores, end_date
 
 
@@ -39,7 +45,7 @@ class Rerank(Process):
                 min_occurs=0,
                 max_occurs=1,
                 data_type="string",
-            )
+            ),
         ]
 
         outputs = [nc_output]
@@ -49,7 +55,7 @@ class Rerank(Process):
             identifier="rerank",
             title="Rerank",
             abstract="Quantile Reranking fixes bias introduced by the Climate Analogues step",
-            keywords=["quantile reranking","rerank", "bias correction"],
+            keywords=["quantile reranking", "rerank", "bias correction"],
             metadata=[
                 Metadata("NetCDF processing"),
                 Metadata("Climate Data Operations"),
@@ -99,8 +105,8 @@ class Rerank(Process):
         doPar.registerDoParallel(cores=num_cores)
 
         # Get analogues R oject from file
-        base = get_package('base')
-        print(F"ANALOGUES FILE {analogues_object}")
+        base = get_package("base")
+        print(f"ANALOGUES FILE {analogues_object}")
         with open(analogues_object):
             analogues = base.readRDS(analogues_object)
 
