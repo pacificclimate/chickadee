@@ -74,6 +74,9 @@ class CA(Process):
             metadata=[
                 Metadata("NetCDF processing"),
                 Metadata("Climate Data Operations"),
+                Metadata("PyWPS", "https://pywps.org/"),
+                Metadata("Birdhouse", "http://bird-house.github.io/"),
+                Metadata("PyWPS Demo", "https://pywps-demo.readthedocs.io/en/latest/"),
             ],
             version="0.1.0",
             inputs=inputs,
