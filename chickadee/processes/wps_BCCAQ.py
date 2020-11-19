@@ -6,7 +6,7 @@ from netCDF4 import Dataset
 
 from wps_tools.utils import log_handler
 from wps_tools.io import log_level, nc_output
-from chickadee.utils import logger, set_end_date, get_package, collect_args
+from chickadee.utils import logger, set_end_date, get_package, collect_args, common_status_percentage
 from chickadee.io import gcm_file, obs_file, varname, out_file, num_cores, end_date
 
 
@@ -16,12 +16,7 @@ class BCCAQ(Process):
     output to a fine spatial resolution"""
 
     def __init__(self):
-        self.status_percentage_steps = {
-            "start": 0,
-            "process": 10,
-            "build_output": 95,
-            "complete": 100,
-        }
+        self.status_percentage_steps = common_status_percentage
 
         inputs = [
             gcm_file,

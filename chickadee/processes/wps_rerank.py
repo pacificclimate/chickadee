@@ -1,12 +1,12 @@
 import os
 import re
-from pywps import Process, LiteralInput
+from pywps import Process, LiteralInput, ComplexInput, FORMATS
 from pywps.app.Common import Metadata
 from netCDF4 import Dataset
 
 from wps_tools.utils import log_handler
 from wps_tools.io import log_level, nc_output
-from chickadee.utils import logger, set_end_date, get_package, collect_args
+from chickadee.utils import logger, set_end_date, get_package, collect_args, common_status_percentage
 from chickadee.io import gcm_file, obs_file, varname, out_file, num_cores, end_date
 
 
@@ -16,20 +16,22 @@ class Rerank(Process):
     each grid box"""
 
     def __init__(self):
-        self.status_percentage_steps = {
-            "start": 0,
-            "process": 10,
-            "build_output": 95,
-            "complete": 100,
-        }
+        self.status_percentage_steps = common_status_percentage
 
         inputs = [
-            gcm_file,
             obs_file,
             varname,
             out_file,
             num_cores,
             log_level,
+            ComplexInput(
+                "qdm_file",
+                "QDM NetCDF file",
+                abstract="Filename of output from QDM step",
+                min_occurs=1,
+                max_occurs=1,
+                supported_formats=[FORMATS.NETCDF, FORMATS.DODS],
+            ),
             LiteralInput(
                 "analogues_file",
                 "Analogues R object",
@@ -74,13 +76,13 @@ class Rerank(Process):
         )
 
         (
-            gcm_file,
             obs_file,
             varname,
             out_file,
             num_cores,
             loglevel,
-            analogues
+            qdm_file,
+            analogues_file
         ) = collect_args(request)
 
         log_handler(
@@ -97,12 +99,13 @@ class Rerank(Process):
         doPar.registerDoParallel(cores=num_cores)
 
         # Get analogues R oject from file
-        base = importr('base')
-        analogues = base.readRDS(analogues_file)
+        base = get_package('base')
+        with open(analogues_file):
+            analogues = base.readRDS(analogues_file)
 
         # Run rerank
         climdown = get_package("ClimDown")
-        climdown.rerank_netcdf_wrapper(gcm_file, obs_file, analogues, out_file, varname)
+        climdown.rerank_netcdf_wrapper(qdm_file, obs_file, analogues, out_file, varname)
 
         # Stop parallelization
         doPar.stopImplicitCluster()
