@@ -1,9 +1,9 @@
-from pywps import Process, ComplexInput, ComplexOutput, LiteralInput, FORMATS
+from pywps import Process
 from pywps.app.Common import Metadata
 
 from wps_tools.utils import log_handler
 from wps_tools.io import log_level, nc_output
-from chickadee.utils import logger, get_package, collect_common_args
+from chickadee.utils import logger, get_package, collect_args
 from chickadee.io import gcm_file, obs_file, varname, out_file, num_cores
 
 
@@ -34,6 +34,9 @@ class CI(Process):
             metadata=[
                 Metadata("NetCDF processing"),
                 Metadata("Climate Data Operations"),
+                Metadata("PyWPS", "https://pywps.org/"),
+                Metadata("Birdhouse", "http://bird-house.github.io/"),
+                Metadata("PyWPS Demo", "https://pywps-demo.readthedocs.io/en/latest/"),
             ],
             inputs=inputs,
             outputs=outputs,
@@ -49,7 +52,7 @@ class CI(Process):
             output_file,
             num_cores,
             loglevel,
-        ) = collect_common_args(request)
+        ) = collect_args(request)
         log_handler(
             self,
             response,

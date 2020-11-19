@@ -1,7 +1,7 @@
 import logging
+import os
 from rpy2 import robjects
 from rpy2.robjects.packages import isinstalled, importr
-from rpy2.robjects.vectors import StrVector
 from pywps.app.exceptions import ProcessError
 from collections import OrderedDict
 
@@ -15,6 +15,13 @@ handler = logging.StreamHandler()
 handler.setFormatter(formatter)
 logger.addHandler(handler)
 
+common_status_percentage = {
+    "start": 0,
+    "process": 20,
+    "build_output": 95,
+    "complete": 100,
+}
+
 
 def get_package(package):
     if isinstalled(package):
@@ -23,18 +30,23 @@ def get_package(package):
         raise ProcessError(f"R package, {package}, is not installed")
 
 
-def collect_common_args(request):
-    gcm_file = request.inputs["gcm_file"][0].file
-    obs_file = request.inputs["obs_file"][0].file
-    varname = request.inputs["varname"][0].data
-    output_file = request.inputs["out_file"][0].data
-    num_cores = request.inputs["num_cores"][0].data
-    loglevel = request.inputs["loglevel"][0].data
+def collect_args(request):
+    args = OrderedDict()
+    for k in request.inputs.keys():
+        if "data_type" in vars(request.inputs[k][0]).keys():
+            # LiteralData
+            args[request.inputs[k][0].identifier] = request.inputs[k][0].data
+        elif vars(request.inputs[k][0])["_url"] != None:
+            # OPeNDAP
+            args[request.inputs[k][0].identifier] = request.inputs[k][0].url
+        elif os.path.isfile(request.inputs[k][0].file):
+            # Local files
+            args[request.inputs[k][0].identifier] = request.inputs[k][0].file
 
-    return gcm_file, obs_file, varname, output_file, num_cores, loglevel
+    return tuple(args.values())
 
 
-def set_r_options():
+def set_end_date(end_date):
     robjects.r(
         """
     set_end_date <-function(end_date){
@@ -44,4 +56,6 @@ def set_r_options():
     }
     """
     )
-    return robjects.r["set_end_date"]
+
+    robjects.r["set_end_date"](str(end_date))
+    return
