@@ -6,7 +6,13 @@ from rpy2 import robjects
 
 from wps_tools.utils import log_handler
 from wps_tools.io import log_level
-from chickadee.utils import logger, set_r_options, get_package, collect_args
+from chickadee.utils import (
+    logger,
+    set_end_date,
+    get_package,
+    collect_args,
+    common_status_percentage,
+)
 from chickadee.io import gcm_file, obs_file, varname, num_cores, end_date
 
 
@@ -21,13 +27,10 @@ class CA(Process):
     timestep (indices) and a weight for each of the analogues."""
 
     def __init__(self):
-        self.status_percentage_steps = {
-            "start": 0,
-            "process": 10,
-            "write_files": 80,
-            "build_output": 95,
-            "complete": 100,
-        }
+        self.status_percentage_steps = dict(
+            common_status_percentage,
+            **{"write_files": 80},
+        )
 
         inputs = [
             gcm_file,
@@ -127,8 +130,7 @@ class CA(Process):
         doPar.registerDoParallel(cores=num_cores)
 
         # Set R options
-        set_end = set_r_options()
-        set_end(str(end_date))
+        set_end_date(end_date)
 
         # Run Constructed Analogue Step (CA)
         climdown = get_package("ClimDown")
