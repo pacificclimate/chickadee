@@ -34,6 +34,9 @@ class CI(Process):
             metadata=[
                 Metadata("NetCDF processing"),
                 Metadata("Climate Data Operations"),
+                Metadata("PyWPS", "https://pywps.org/"),
+                Metadata("Birdhouse", "http://bird-house.github.io/"),
+                Metadata("PyWPS Demo", "https://pywps-demo.readthedocs.io/en/latest/"),
             ],
             inputs=inputs,
             outputs=outputs,
@@ -42,14 +45,9 @@ class CI(Process):
         )
 
     def _handler(self, request, response):
-        (
-            gcm_file,
-            obs_file,
-            varname,
-            output_file,
-            num_cores,
-            loglevel,
-        ) = collect_args(request)
+        (gcm_file, obs_file, varname, output_file, num_cores, loglevel,) = collect_args(
+            request
+        )
         log_handler(
             self,
             response,
