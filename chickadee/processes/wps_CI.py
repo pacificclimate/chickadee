@@ -45,9 +45,14 @@ class CI(Process):
         )
 
     def _handler(self, request, response):
-        (gcm_file, obs_file, varname, output_file, num_cores, loglevel,) = collect_args(
-            request
-        )
+        (
+            gcm_file,
+            obs_file,
+            varname,
+            output_file,
+            num_cores,
+            loglevel,
+        ) = collect_args(request)
         log_handler(
             self,
             response,
