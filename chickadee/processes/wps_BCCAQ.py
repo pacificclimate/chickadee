@@ -42,9 +42,8 @@ class BCCAQ(Process):
             abstract="Full statistical downscaling of coarse scale global climate model (GCM) output to a fine spatial resolution",
             keywords=["downscaling"],
             metadata=[
-                Metadata("PyWPS", "https://pywps.org/"),
-                Metadata("Birdhouse", "http://bird-house.github.io/"),
-                Metadata("PyWPS Demo", "https://pywps-demo.readthedocs.io/en/latest/"),
+                Metadata("NetCDF processing"),
+                Metadata("Climate Data Operations"),
             ],
             version="0.1.0",
             inputs=inputs,
@@ -73,7 +72,6 @@ class BCCAQ(Process):
             end_date,
             loglevel,
         ) = collect_args(request)
-        os.path.join(self.workdir, out_file)
 
         log_handler(
             self,
