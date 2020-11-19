@@ -1,4 +1,5 @@
 import logging
+import os
 from rpy2 import robjects
 from rpy2.robjects.packages import isinstalled, importr
 from pywps.app.exceptions import ProcessError
@@ -38,7 +39,7 @@ def collect_args(request):
         elif vars(request.inputs[k][0])["_url"] != None:
             # OPeNDAP
             args[request.inputs[k][0].identifier] = request.inputs[k][0].url
-        elif vars(request.inputs[k][0])["_file"] != None:
+        elif os.path.isfile(request.inputs[k][0].file):
             # Local files
             args[request.inputs[k][0].identifier] = request.inputs[k][0].file
 
