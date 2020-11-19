@@ -33,7 +33,7 @@ class Rerank(Process):
                 supported_formats=[FORMATS.NETCDF, FORMATS.DODS],
             ),
             LiteralInput(
-                "analogues_file",
+                "analogues_object",
                 "Analogues R object",
                 abstract="R object containing the analogues produced from the CA step (suffix .rds)",
                 min_occurs=0,
@@ -82,7 +82,7 @@ class Rerank(Process):
             num_cores,
             loglevel,
             qdm_file,
-            analogues_file
+            analogues_object,
         ) = collect_args(request)
 
         log_handler(
@@ -100,8 +100,9 @@ class Rerank(Process):
 
         # Get analogues R oject from file
         base = get_package('base')
-        with open(analogues_file):
-            analogues = base.readRDS(analogues_file)
+        print(F"ANALOGUES FILE {analogues_object}")
+        with open(analogues_object):
+            analogues = base.readRDS(analogues_object)
 
         # Run rerank
         climdown = get_package("ClimDown")
