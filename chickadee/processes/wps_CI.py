@@ -1,4 +1,4 @@
-from pywps import Process, ComplexInput, ComplexOutput, LiteralInput, FORMATS
+from pywps import Process
 from pywps.app.Common import Metadata
 
 from wps_tools.utils import log_handler
@@ -34,6 +34,9 @@ class CI(Process):
             metadata=[
                 Metadata("NetCDF processing"),
                 Metadata("Climate Data Operations"),
+                Metadata("PyWPS", "https://pywps.org/"),
+                Metadata("Birdhouse", "http://bird-house.github.io/"),
+                Metadata("PyWPS Demo", "https://pywps-demo.readthedocs.io/en/latest/"),
             ],
             inputs=inputs,
             outputs=outputs,

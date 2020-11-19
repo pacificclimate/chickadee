@@ -2,7 +2,6 @@ import logging
 import os
 from rpy2 import robjects
 from rpy2.robjects.packages import isinstalled, importr
-from rpy2.robjects.vectors import StrVector
 from pywps.app.exceptions import ProcessError
 from collections import OrderedDict
 
@@ -15,6 +14,13 @@ formatter = logging.Formatter(
 handler = logging.StreamHandler()
 handler.setFormatter(formatter)
 logger.addHandler(handler)
+
+common_status_percentage = {
+    "start": 0,
+    "process": 20,
+    "build_output": 95,
+    "complete": 100,
+}
 
 
 def get_package(package):
@@ -40,7 +46,7 @@ def collect_args(request):
     return tuple(args.values())
 
 
-def set_r_options():
+def set_end_date(end_date):
     robjects.r(
         """
     set_end_date <-function(end_date){
@@ -50,4 +56,6 @@ def set_r_options():
     }
     """
     )
-    return robjects.r["set_end_date"]
+
+    robjects.r["set_end_date"](str(end_date))
+    return
