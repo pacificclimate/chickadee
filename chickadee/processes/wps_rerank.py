@@ -106,7 +106,6 @@ class Rerank(Process):
 
         # Get analogues R oject from file
         base = get_package("base")
-        print(f"ANALOGUES FILE {analogues_object}")
         with open(analogues_object):
             analogues = base.readRDS(analogues_object)
 
