@@ -55,8 +55,8 @@ def test_collect_args(local_file, opendap_url, argc):
     [
         (
             25,
-            '1996-09-14',
-            '2020-11-20',
+            date(1996, 9, 14),
+            date(2020, 11, 20),
             False,
             False,
             'farenheit',
