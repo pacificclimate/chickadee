@@ -49,10 +49,62 @@ num_cores = LiteralInput(
     data_type="positiveInteger",
 )
 
-end_date = LiteralInput(
-    "end_date",
-    "End Date",
-    abstract="Defines the end of the calibration period",
-    default=date(2005, 12, 31),
-    data_type="date",
-)
+def options_input():
+    inputs = [
+        LiteralInput(
+            "num_analogues",
+            "Number of Analogues",
+            abstract="The number of temporal analogues that the CA algorithm will search for andmatch.  The higher this number, the longer the execution time of the reorderingstep.",
+            default=30,
+            data_type="positiveInteger"
+        ),
+        LiteralInput(
+            "start_date",
+            "Start Date",
+            abstract="Defines the stat of the calibration period",
+            default=date(1971, 1, 1),
+            data_type="date",
+        ),
+        LiteralInput(
+            "end_date",
+            "End Date",
+            abstract="Defines the end of the calibration period",
+            default=date(2005, 12, 31),
+            data_type="date",
+        ),
+        LiteralInput(
+            "units_bool",
+            "Units Boolean",
+            abstract="Whether to check the input units and convertthem to the target output units",
+            default=True,
+            data_type="boolean",
+        ),
+        LiteralInput(
+            "n_pr_bool",
+            "Negative Precipitation Boolean",
+            abstract="Whether to check for and eliminate negativeprecipitation values",
+            default=True,
+            data_type="boolean",
+        ),
+        LiteralInput(
+            "tasmax_units",
+            "Tasmax Units",
+            abstract="Units used for tasmax in output file",
+            default="celsius",
+            data_type="string"
+        ),
+        LiteralInput(
+            "tasmin_units",
+            "Tasmin Units",
+            abstract="Units used for tasmin in output file",
+            default="celsius",
+            data_type="string"
+        ),
+        LiteralInput(
+            "pr_units",
+            "Precipitation Units",
+            abstract="Units used for pr in output file",
+            default="kg m-2 d-1",
+            data_type="string"
+        ),
+    ]
