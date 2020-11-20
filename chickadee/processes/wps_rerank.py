@@ -1,6 +1,6 @@
 import os
 import re
-from pywps import Process
+from pywps import Process, LiteralInput, ComplexInput, FORMATS
 from pywps.app.Common import Metadata
 from netCDF4 import Dataset
 
@@ -16,32 +16,46 @@ from chickadee.utils import (
 from chickadee.io import gcm_file, obs_file, varname, out_file, num_cores, end_date
 
 
-class BCCAQ(Process):
-    """Bias Correction/Constructed Analogues with Quantile mapping reordering:
-    Full statistical downscaling of coarse scale global climate model (GCM)
-    output to a fine spatial resolution"""
+class Rerank(Process):
+    """Quantile Reranking fixes bias introduced by the Climate Analogues
+    step by re-applying a simple quantile mapping bias correction at
+    each grid box"""
 
     def __init__(self):
         self.status_percentage_steps = common_status_percentage
 
         inputs = [
-            gcm_file,
             obs_file,
             varname,
             out_file,
             num_cores,
-            end_date,
             log_level,
+            ComplexInput(
+                "qdm_file",
+                "QDM NetCDF file",
+                abstract="Filename of output from QDM step",
+                min_occurs=1,
+                max_occurs=1,
+                supported_formats=[FORMATS.NETCDF, FORMATS.DODS],
+            ),
+            LiteralInput(
+                "analogues_object",
+                "Analogues R object",
+                abstract="R object containing the analogues produced from the CA step (suffix .rds)",
+                min_occurs=0,
+                max_occurs=1,
+                data_type="string",
+            ),
         ]
 
         outputs = [nc_output]
 
-        super(BCCAQ, self).__init__(
+        super(Rerank, self).__init__(
             self._handler,
-            identifier="bccaq",
-            title="BCCAQ",
-            abstract="Full statistical downscaling of coarse scale global climate model (GCM) output to a fine spatial resolution",
-            keywords=["downscaling"],
+            identifier="rerank",
+            title="Rerank",
+            abstract="Quantile Reranking fixes bias introduced by the Climate Analogues step",
+            keywords=["quantile reranking", "rerank", "bias correction"],
             metadata=[
                 Metadata("NetCDF processing"),
                 Metadata("Climate Data Operations"),
@@ -68,19 +82,19 @@ class BCCAQ(Process):
         )
 
         (
-            gcm_file,
             obs_file,
             varname,
             out_file,
             num_cores,
-            end_date,
             loglevel,
+            qdm_file,
+            analogues_object,
         ) = collect_args(request)
 
         log_handler(
             self,
             response,
-            "Downscaling GCM",
+            "Applying quantile mapping bias correction",
             logger,
             log_level=loglevel,
             process_step="process",
@@ -90,12 +104,14 @@ class BCCAQ(Process):
         doPar = get_package("doParallel")
         doPar.registerDoParallel(cores=num_cores)
 
-        # Set R options 'calibration.end'
-        set_end_date(end_date)
+        # Get analogues R oject from file
+        base = get_package("base")
+        with open(analogues_object):
+            analogues = base.readRDS(analogues_object)
 
-        # Run ClimDown
+        # Run rerank
         climdown = get_package("ClimDown")
-        climdown.bccaq_netcdf_wrapper(gcm_file, obs_file, out_file, varname)
+        climdown.rerank_netcdf_wrapper(qdm_file, obs_file, analogues, out_file, varname)
 
         # Stop parallelization
         doPar.stopImplicitCluster()

@@ -15,4 +15,5 @@ def test_wps_caps():
         "ca",
         "ci",
         "qdm",
+        "rerank",
     ]
