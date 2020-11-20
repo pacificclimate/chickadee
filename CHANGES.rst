@@ -1,6 +1,16 @@
 Changes
 *******
 
+0.3.0 (2020-11-19)
+==================
+
+* Add ``qdm`` process (#_21)
+* Add ``ca`` process (#_22)
+* Docker rework (#_24)
+
+.. _21: https://github.com/pacificclimate/chickadee/pull/21
+.. _22: https://github.com/pacificclimate/chickadee/pull/22
+.. _24: https://github.com/pacificclimate/chickadee/pull/24
 0.2.0 (2020-11-18)
 ==================
 
