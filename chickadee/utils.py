@@ -46,6 +46,20 @@ def collect_args(request):
     return tuple(args.values())
 
 
+def set_end_date(end_date):
+    robjects.r(
+        """
+    set_end_date <-function(end_date){
+        options(
+            calibration.end=as.POSIXct(end_date, tz='GMT')
+        )
+    }
+    """
+    )
+
+    robjects.r["set_end_date"](str(end_date))
+    return
+
 def set_r_options(
     num_analogues=30,
     start_date='1971-01-01',
@@ -61,7 +75,7 @@ def set_r_options(
     function(num_analogues, start_date, end_date, units_bool, n_pr_bool, tasmax_units, tasmin_units, pr_units){
         options(
             n.analogues=num_analogues,
-            calibration.end=as.POSIXct(start_date, tz='GMT'),
+            calibration.start=as.POSIXct(start_date, tz='GMT'),
             calibration.end=as.POSIXct(end_date, tz='GMT'),
             check.units=units_bool,
             check.neg.precip=n_pr_bool,
@@ -69,7 +83,5 @@ def set_r_options(
         )
     }
     """
-    )
-
-    robjects.r["set_end_date"](num_analogues, str(start_date), str(end_date), units_bool, n_pr_bool, tasmax_units, tasmin_units, pr_units)
+    )(num_analogues, str(start_date), str(end_date), units_bool, n_pr_bool, tasmax_units, tasmin_units, pr_units)
     return
