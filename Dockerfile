@@ -25,15 +25,13 @@ COPY . /opt/wps
 
 WORKDIR /opt/wps
 
-# Create python environment
-RUN ["python3", "-m", "venv", "venv"]
-
 # Install WPS
-RUN ["sh", "-c", "bash venv/bin/activate && pip3 install -e . && Rscript install_pkgs.R r_requirements.txt"]
+RUN pip3 install -e . && \
+  Rscript install_pkgs.R r_requirements.txt
 
 EXPOSE 5004
 ENTRYPOINT ["sh", "-c"]
-CMD ["bash venv/bin/activate && exec chickadee start -b 0.0.0.0"]
+CMD ["exec chickadee start -b 0.0.0.0"]
 
 # docker build -t pcic/chickadee .
 # docker run -p 8102:5004 pcic/chickadee
