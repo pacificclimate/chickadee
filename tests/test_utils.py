@@ -23,14 +23,6 @@ def test_get_package_err(package):
     assert str(vars(e)["_excinfo"][1]) == f"R package, {package}, is not installed"
 
 
-# @pytest.mark.parametrize("end_date", [date(1972, 12, 31), date.today()])
-# def test_set_r_options(end_date):
-#     set_end_date(end_date)
-#     assert str(base.getOption("calibration.end")).split('"')[1].split()[0] == str(
-#         end_date
-#     )
-
-
 @pytest.mark.parametrize(
     ("local_file", "opendap_url", "argc"),
     [
