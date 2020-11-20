@@ -1,6 +1,13 @@
 Changes
 *******
 
+0.3.1 (2020-11-20)
+==================
+
+* Docker efficiency fix (#_28)
+
+.. _28: https://github.com/pacificclimate/chickadee/pull/28
+
 0.3.0 (2020-11-19)
 ==================
 
@@ -11,6 +18,7 @@ Changes
 .. _21: https://github.com/pacificclimate/chickadee/pull/21
 .. _22: https://github.com/pacificclimate/chickadee/pull/22
 .. _24: https://github.com/pacificclimate/chickadee/pull/24
+
 0.2.0 (2020-11-18)
 ==================
 
