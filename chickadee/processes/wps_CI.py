@@ -1,20 +1,15 @@
 from pywps import Process
 from pywps.app.Common import Metadata
 
-from wps_tools.utils import log_handler
+from wps_tools.utils import log_handler, collect_args, common_status_percentages
 from wps_tools.io import log_level, nc_output
-from chickadee.utils import logger, get_package, collect_args
+from chickadee.utils import logger, get_package
 from chickadee.io import gcm_file, obs_file, varname, out_file, num_cores
 
 
 class CI(Process):
     def __init__(self):
-        self.status_percentage_steps = {
-            "start": 0,
-            "process": 10,
-            "build_output": 95,
-            "complete": 100,
-        }
+        self.status_percentage_steps = common_status_percentages
         inputs = [
             gcm_file,
             obs_file,
@@ -45,14 +40,11 @@ class CI(Process):
         )
 
     def _handler(self, request, response):
-        (
-            gcm_file,
-            obs_file,
-            varname,
-            output_file,
-            num_cores,
-            loglevel,
-        ) = collect_args(request)
+        logger.critical(str(collect_args(request, self.workdir).values()))
+        (gcm_file, obs_file, varname, output_file, num_cores, loglevel,) = [
+            arg[0] for arg in collect_args(request, self.workdir).values()
+        ]
+
         log_handler(
             self,
             response,

@@ -4,14 +4,12 @@ from pywps import Process
 from pywps.app.Common import Metadata
 from netCDF4 import Dataset
 
-from wps_tools.utils import log_handler
+from wps_tools.utils import log_handler, collect_args, common_status_percentages
 from wps_tools.io import log_level, nc_output
 from chickadee.utils import (
     logger,
     set_end_date,
     get_package,
-    collect_args,
-    common_status_percentage,
 )
 from chickadee.io import gcm_file, obs_file, varname, out_file, num_cores, end_date
 
@@ -22,7 +20,7 @@ class BCCAQ(Process):
     output to a fine spatial resolution"""
 
     def __init__(self):
-        self.status_percentage_steps = common_status_percentage
+        self.status_percentage_steps = common_status_percentages
 
         inputs = [
             gcm_file,
@@ -67,15 +65,9 @@ class BCCAQ(Process):
             process_step="start",
         )
 
-        (
-            gcm_file,
-            obs_file,
-            varname,
-            out_file,
-            num_cores,
-            end_date,
-            loglevel,
-        ) = collect_args(request)
+        (gcm_file, obs_file, varname, out_file, num_cores, end_date, loglevel,) = [
+            arg[0] for arg in collect_args(request, self.workdir).values()
+        ]
 
         log_handler(
             self,

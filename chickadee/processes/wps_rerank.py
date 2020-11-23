@@ -4,14 +4,12 @@ from pywps import Process, LiteralInput, ComplexInput, FORMATS
 from pywps.app.Common import Metadata
 from netCDF4 import Dataset
 
-from wps_tools.utils import log_handler
+from wps_tools.utils import log_handler, common_status_percentages, collect_args
 from wps_tools.io import log_level, nc_output
 from chickadee.utils import (
     logger,
     set_end_date,
     get_package,
-    collect_args,
-    common_status_percentage,
 )
 from chickadee.io import gcm_file, obs_file, varname, out_file, num_cores, end_date
 
@@ -22,7 +20,7 @@ class Rerank(Process):
     each grid box"""
 
     def __init__(self):
-        self.status_percentage_steps = common_status_percentage
+        self.status_percentage_steps = common_status_percentages
 
         inputs = [
             obs_file,
@@ -89,7 +87,7 @@ class Rerank(Process):
             loglevel,
             qdm_file,
             analogues_object,
-        ) = collect_args(request)
+        ) = [arg[0] for arg in collect_args(request, self.workdir).values()]
 
         log_handler(
             self,

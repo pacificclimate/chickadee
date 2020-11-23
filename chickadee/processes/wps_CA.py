@@ -4,14 +4,12 @@ from pywps.app.Common import Metadata
 from netCDF4 import Dataset
 from rpy2 import robjects
 
-from wps_tools.utils import log_handler
+from wps_tools.utils import log_handler, collect_args, common_status_percentages
 from wps_tools.io import log_level
 from chickadee.utils import (
     logger,
     set_end_date,
     get_package,
-    collect_args,
-    common_status_percentage,
 )
 from chickadee.io import gcm_file, obs_file, varname, num_cores, end_date
 
@@ -28,8 +26,7 @@ class CA(Process):
 
     def __init__(self):
         self.status_percentage_steps = dict(
-            common_status_percentage,
-            **{"write_files": 80},
+            common_status_percentages, **{"write_files": 80},
         )
 
         inputs = [
@@ -113,8 +110,8 @@ class CA(Process):
             end_date,
             indices,
             weights,
-            log_level,
-        ) = collect_args(request)
+            loglevel,
+        ) = [arg[0] for arg in collect_args(request, self.workdir).values()]
 
         log_handler(
             self,
