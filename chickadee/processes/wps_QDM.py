@@ -47,9 +47,15 @@ class QDM(Process):
         )
 
     def _handler(self, request, response):
-        (gcm_file, obs_file, varname, output_file, num_cores, end_date, loglevel,) = [
-            arg[0] for arg in collect_args(request, self.workdir).values()
-        ]
+        (
+            gcm_file,
+            obs_file,
+            varname,
+            output_file,
+            num_cores,
+            end_date,
+            loglevel,
+        ) = [arg[0] for arg in collect_args(request, self.workdir).values()]
 
         log_handler(
             self,
