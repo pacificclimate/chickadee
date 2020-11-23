@@ -49,29 +49,8 @@ num_cores = LiteralInput(
     data_type="positiveInteger",
 )
 
-def options_input():
-    inputs = [
-        LiteralInput(
-            "num_analogues",
-            "Number of Analogues",
-            abstract="The number of temporal analogues that the CA algorithm will search for andmatch.  The higher this number, the longer the execution time of the reorderingstep.",
-            default=30,
-            data_type="positiveInteger"
-        ),
-        LiteralInput(
-            "start_date",
-            "Start Date",
-            abstract="Defines the stat of the calibration period",
-            default=date(1971, 1, 1),
-            data_type="date",
-        ),
-        LiteralInput(
-            "end_date",
-            "End Date",
-            abstract="Defines the end of the calibration period",
-            default=date(2005, 12, 31),
-            data_type="date",
-        ),
+
+general_options_input = [
         LiteralInput(
             "units_bool",
             "Units Boolean",
@@ -91,20 +70,159 @@ def options_input():
             "Tasmax Units",
             abstract="Units used for tasmax in output file",
             default="celsius",
-            data_type="string"
+            data_type="string",
         ),
         LiteralInput(
             "tasmin_units",
             "Tasmin Units",
             abstract="Units used for tasmin in output file",
             default="celsius",
-            data_type="string"
+            data_type="string",
         ),
         LiteralInput(
             "pr_units",
             "Precipitation Units",
             abstract="Units used for pr in output file",
             default="kg m-2 d-1",
-            data_type="string"
+            data_type="string",
         ),
-    ]
+        LiteralInput(
+            "max_gb",
+            "Max BG",
+            abstract="Anapproximate measure of how much RAM to use in the chunk I/O loop. It’s best to set this to about 1/3 to 1/4 of what you want the high-water mark to be",
+            default=1.0,
+            data_type="float",
+        ),
+]
+
+
+ca_options_input = [
+        LiteralInput(
+            "num_analogues",
+            "Number of Analogues",
+            abstract="The number of temporal analogues that the CA algorithm will search for andmatch.  The higher this number, the longer the execution time of the reorderingstep.",
+            default=30,
+            data_type="positiveInteger",
+        ),
+        LiteralInput(
+            "start_date",
+            "Start Date",
+            abstract="Defines the stat of the calibration period",
+            default=date(1971, 1, 1),
+            data_type="date",
+        ),
+        LiteralInput(
+            "end_date",
+            "End Date",
+            abstract="Defines the end of the calibration period",
+            default=date(2005, 12, 31),
+            data_type="date",
+        ),
+        LiteralInput(
+            "trimmed_mean",
+            "Trimmed Mean",
+            default=0.0,
+            data_type="float",
+        ),
+        LiteralInput(
+            "tol",
+            "Tol",
+            default=0.1,
+            data_type="float",
+        ),
+        LiteralInput(
+            "expon",
+            "Expon",
+            default=0.5,
+            data_type="float",
+
+        ),
+]
+
+
+qdm_options_input = [
+        LiteralInput(
+            "multiyear",
+            "Multiyear",
+            default=True,
+            data_type="boolean"
+        ),
+        LiteralInput(
+            "expand_multiyear",
+            "Expand Multiyear",
+            default=True,
+            data_type="boolean",
+        ),
+        LiteralInput(
+            "multiyear_window_length",
+            "Multiyear Window Length",
+            default=30,
+            data_type="positiveInteger",
+        ),
+        LiteralInput(
+            "trace",
+            "Trace",
+            default=0.005,
+            data_type="float",
+        ),
+        LiteralInput(
+            "jitter_factor",
+            "Jitter Factor",
+            default=0.01,
+            data_type="float",
+        ),
+        LiteralInput(
+            "pr_tau",
+            "Pr Tau",
+            default=1001,
+            data_type="positiveInteger",
+        ),
+        LiteralInput(
+            "tasmax_tau",
+            "Tasmax Tau",
+            default=101,
+            data_type="positiveInteger",
+        ),
+        LiteralInput(
+            "tasmin_tau",
+            "Tasmin Tau",
+            default=101,
+            data_type="positiveInteger",
+        ),
+        LiteralInput(
+            "pr_seasonal",
+            "Pr Seasonal",
+            default=True,
+            data_type="boolean",
+        ),
+        LiteralInput(
+            "tasmax_seasonal",
+            "Tasmax Seasonal",
+            default=False,
+            data_type="boolean",
+        ),
+        LiteralInput(
+            "tasmin_seasonal",
+            "Tasmin Seasonal",
+            default=False,
+            data_type="boolean",
+        ),
+        LiteralInput(
+            "pr_ratio",
+            "Pr Ratio",
+            default=True,
+            data_type="boolean",
+        ),
+        LiteralInput(
+            "tasmax_ratio",
+            "Tasmax Ratio",
+            default=False,
+            data_type="boolean",
+        ),
+        LiteralInput(
+            "tasmin_ratio",
+            "Tasmin Ratio",
+            default=False,
+            data_type="boolean",
+        ),
+]
