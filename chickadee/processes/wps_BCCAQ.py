@@ -12,8 +12,20 @@ from chickadee.utils import (
     get_package,
     collect_args,
     common_status_percentage,
+    set_general_options,
+    set_ca_options,
+    set_qdm_options,
 )
-from chickadee.io import gcm_file, obs_file, varname, out_file, num_cores, end_date
+from chickadee.io import (
+    gcm_file,
+    obs_file,
+    varname,
+    out_file,
+    num_cores,
+    general_options_input,
+    ca_options_input,
+    qdm_options_input,
+)
 
 
 class BCCAQ(Process):
@@ -30,9 +42,8 @@ class BCCAQ(Process):
             varname,
             out_file,
             num_cores,
-            end_date,
             log_level,
-        ]
+        ] + general_options_input + ca_options_input + qdm_options_input
 
         outputs = [nc_output]
 
@@ -67,15 +78,22 @@ class BCCAQ(Process):
             process_step="start",
         )
 
+        args = collect_args(request)
         (
             gcm_file,
             obs_file,
             varname,
             out_file,
             num_cores,
-            end_date,
-            loglevel,
-        ) = collect_args(request)
+            loglevel
+        ) = args[:6]
+
+        # Uses general_options_input
+        set_general_options(*args[6:12])
+        # Uses ca_options_input
+        set_ca_options(*args[12:19])
+        # Uses qdm_options_input
+        set_qdm_options(*args[19:])
 
         log_handler(
             self,
@@ -89,9 +107,6 @@ class BCCAQ(Process):
         # Set parallelization
         doPar = get_package("doParallel")
         doPar.registerDoParallel(cores=num_cores)
-
-        # Set R options 'calibration.end'
-        set_end_date(end_date)
 
         # Run ClimDown
         climdown = get_package("ClimDown")

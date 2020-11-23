@@ -105,6 +105,12 @@ ca_options_input = [
             data_type="positiveInteger",
         ),
         LiteralInput(
+            "delta_days",
+            "Delta Days",
+            default=45,
+            data_type="positiveInteger",
+        ),
+        LiteralInput(
             "start_date",
             "Start Date",
             abstract="Defines the stat of the calibration period",

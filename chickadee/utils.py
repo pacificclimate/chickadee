@@ -60,28 +60,130 @@ def set_end_date(end_date):
     robjects.r["set_end_date"](str(end_date))
     return
 
-def set_r_options(
-    num_analogues=30,
-    start_date='1971-01-01',
-    end_date='2005-12-31',
-    units_bool=True,
-    n_pr_bool=True,
-    tasmax_units='celsius',
-    tasmin_units='celsius',
-    pr_units='kg m-2 d-1'
+
+def set_general_options(
+    units_bool,
+    n_pr_bool,
+    tasmax_units,
+    tasmin_units,
+    pr_units,
+    max_gb,
 ):
     robjects.r(
         """
-    function(num_analogues, start_date, end_date, units_bool, n_pr_bool, tasmax_units, tasmin_units, pr_units){
+    function(max_gb, units_bool, n_pr_bool, tasmax_units, tasmin_units, pr_units){
         options(
-            n.analogues=num_analogues,
-            calibration.start=as.POSIXct(start_date, tz='GMT'),
-            calibration.end=as.POSIXct(end_date, tz='GMT'),
+            max.GB=max_gb,
             check.units=units_bool,
             check.neg.precip=n_pr_bool,
             target.units=c(tasmax=tasmax_units, tasmin=tasmin_units, pr=pr_units)
         )
     }
     """
-    )(num_analogues, str(start_date), str(end_date), units_bool, n_pr_bool, tasmax_units, tasmin_units, pr_units)
-    return
+    )(
+        max_gb,
+        units_bool,
+        n_pr_bool,
+        tasmax_units,
+        tasmin_units,
+        pr_units,
+    )
+
+
+def set_ca_options(
+    num_analogues,
+    delta_days,
+    start_date,
+    end_date,
+    trimmed_mean,
+    tol,
+    expon,
+):
+    robjects.r(
+        """
+    function(trimmed_mean, delta_days, num_analogues, start_date, end_date, tol, expon){
+        options(
+            trimmed.mean=trimmed_mean,
+            delta_days=delta_days,
+            n.analogues=num_analogues,
+            calibration.start=as.POSIXct(start_date, tz='GMT'),
+            calibration.end=as.POSIXct(end_date, tz='GMT'),
+            tol=tol,
+            expon=expon
+        )
+    }
+    """
+    )(
+        trimmed_mean,
+        delta_days,
+        num_analogues,
+        str(start_date),
+        str(end_date),
+        tol,
+        expon,
+    )
+
+
+def set_qdm_options(
+    multiyear,
+    expand_multiyear,
+    multiyear_window_length,
+    trace,
+    jitter_factor,
+    pr_tau,
+    tasmax_tau,
+    tasmin_tau,
+    pr_seasonal,
+    tasmax_seasonal,
+    tasmin_seasonal,
+    pr_ratio,
+    tasmax_ratio,
+    tasmin_ratio,
+):
+    robjects.r(
+        """
+    function(
+        multiyear,
+        expand_multiyear,
+        multiyear_window_length,
+        trace,
+        jitter_factor,
+        pr_tau,
+        tasmax_tau,
+        tasmin_tau,
+        pr_seasonal,
+        tasmax_seasonal,
+        tasmin_seasonal,
+        pr_ratio,
+        tasmax_ratio,
+        tasmin_ratio
+    ){
+        options(
+            multiyear=multiyear,
+            expand.multiyear=expand_multiyear,
+            multiyear.window.length=multiyear_window_length,
+            trace=trace,
+            jitter.factor=jitter_factor,
+            tau=list(pr=pr_tau, tasmax=tasmax_tau, tasmin=tasmin_tau),
+            seasonal=list(pr=pr_seasonal, tasmax=tasmax_seasonal, tasmin=tasmin_seasonal),
+            ratio=list(pr=pr_ratio, tasmax=tasmax_ratio, tasmin=tasmin_ratio)
+        )
+    }
+    """
+    )(
+        multiyear,
+        expand_multiyear,
+        multiyear_window_length,
+        trace,
+        jitter_factor,
+        pr_tau,
+        tasmax_tau,
+        tasmin_tau,
+        pr_seasonal,
+        tasmax_seasonal,
+        tasmin_seasonal,
+        pr_ratio,
+        tasmax_ratio,
+        tasmin_ratio
+    )
+
