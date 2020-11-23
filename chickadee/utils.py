@@ -30,22 +30,6 @@ def get_package(package):
         raise ProcessError(f"R package, {package}, is not installed")
 
 
-def collect_args(request):
-    args = OrderedDict()
-    for k in request.inputs.keys():
-        if "data_type" in vars(request.inputs[k][0]).keys():
-            # LiteralData
-            args[request.inputs[k][0].identifier] = request.inputs[k][0].data
-        elif vars(request.inputs[k][0])["_url"] != None:
-            # OPeNDAP
-            args[request.inputs[k][0].identifier] = request.inputs[k][0].url
-        elif os.path.isfile(request.inputs[k][0].file):
-            # Local files
-            args[request.inputs[k][0].identifier] = request.inputs[k][0].file
-
-    return tuple(args.values())
-
-
 def set_end_date(end_date):
     robjects.r(
         """

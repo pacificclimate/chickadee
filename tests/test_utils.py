@@ -29,22 +29,3 @@ def test_set_r_options(end_date):
     assert str(base.getOption("calibration.end")).split('"')[1].split()[0] == str(
         end_date
     )
-
-
-@pytest.mark.parametrize(
-    ("local_file", "opendap_url", "argc"),
-    [
-        (
-            f"file://{resource_filename(__name__, 'data/tiny_gcm.nc')}",
-            "https://docker-dev03.pcic.uvic.ca/twitcher/ows/proxy/thredds/fileServer/datasets/storage/data/projects/comp_support/daccs/chickadee/tests/data/tiny_obs.nc",
-            3,
-        )
-    ],
-)
-def test_collect_args(local_file, opendap_url, argc):
-    params = (
-        f"local_file=@xlink:href={local_file};"
-        f"opendap_url=@xlink:href={opendap_url};"
-        f"argc={argc};"
-    )
-    run_wps_process(TestCollectArgs(), params)
