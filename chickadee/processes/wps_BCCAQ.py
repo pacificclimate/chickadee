@@ -58,16 +58,6 @@ class BCCAQ(Process):
         )
 
     def _handler(self, request, response):
-        loglevel = request.inputs["loglevel"][0].data
-        log_handler(
-            self,
-            response,
-            "Starting Process",
-            logger,
-            log_level=loglevel,
-            process_step="start",
-        )
-
         (
             gcm_file,
             obs_file,
@@ -77,14 +67,13 @@ class BCCAQ(Process):
             end_date,
             loglevel,
         ) = [arg[0] for arg in collect_args(request, self.workdir).values()]
-
         log_handler(
             self,
             response,
-            "Downscaling GCM",
+            "Starting Process",
             logger,
             log_level=loglevel,
-            process_step="process",
+            process_step="start",
         )
 
         # Get ClimDown
@@ -125,7 +114,7 @@ class BCCAQ(Process):
         log_handler(
             self,
             response,
-            "Processing BCCAQ",
+            "Downscaling GCM",
             logger,
             log_level=loglevel,
             process_step="process",

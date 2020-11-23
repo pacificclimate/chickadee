@@ -73,16 +73,6 @@ class Rerank(Process):
         )
 
     def _handler(self, request, response):
-        loglevel = request.inputs["loglevel"][0].data
-        log_handler(
-            self,
-            response,
-            "Starting Process",
-            logger,
-            log_level=loglevel,
-            process_step="start",
-        )
-
         (
             obs_file,
             varname,
@@ -92,14 +82,13 @@ class Rerank(Process):
             qdm_file,
             analogues_object,
         ) = [arg[0] for arg in collect_args(request, self.workdir).values()]
-
         log_handler(
             self,
             response,
-            "Applying quantile mapping bias correction",
+            "Starting Process",
             logger,
             log_level=loglevel,
-            process_step="process",
+            process_step="start",
         )
 
         # Get analogues R oject from file
@@ -134,7 +123,7 @@ class Rerank(Process):
         log_handler(
             self,
             response,
-            "Processing Quantile Reranking",
+            "Applying quantile mapping bias correction",
             logger,
             log_level=loglevel,
             process_step="process",

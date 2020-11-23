@@ -46,7 +46,6 @@ class CI(Process):
         )
 
     def _handler(self, request, response):
-        logger.critical(str(collect_args(request, self.workdir).values()))
         (
             gcm_file,
             obs_file,
