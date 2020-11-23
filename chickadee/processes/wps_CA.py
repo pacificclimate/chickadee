@@ -26,7 +26,13 @@ class CA(Process):
 
     def __init__(self):
         self.status_percentage_steps = dict(
-            common_status_percentages, **{"write_files": 80},
+            common_status_percentages,
+            **{
+                "get_ClimDown": 5,
+                "parallelization": 10,
+                "set_end_date": 15,
+                "write_files": 80,
+            },
         )
 
         inputs = [
@@ -122,15 +128,49 @@ class CA(Process):
             process_step="process",
         )
 
+        # Get ClimDown
+        log_handler(
+            self,
+            response,
+            "Importing R package 'ClimDown'",
+            logger,
+            log_level=loglevel,
+            process_step="get_ClimDown",
+        )
+        climdown = get_package("ClimDown")
+
         # Set parallelization
+        log_handler(
+            self,
+            response,
+            "Setting parallelization",
+            logger,
+            log_level=loglevel,
+            process_step="parallelization",
+        )
         doPar = get_package("doParallel")
         doPar.registerDoParallel(cores=num_cores)
 
-        # Set R options
+        # Set R option 'calibration.end'
+        log_handler(
+            self,
+            response,
+            "Setting R option 'calibration.end'",
+            logger,
+            log_level=loglevel,
+            process_step="set_end_date",
+        )
         set_end_date(end_date)
 
         # Run Constructed Analogue Step (CA)
-        climdown = get_package("ClimDown")
+        log_handler(
+            self,
+            response,
+            "Processing CA downscaling",
+            logger,
+            log_level=loglevel,
+            process_step="process",
+        )
         analogues = climdown.ca_netcdf_wrapper(gcm_file, obs_file, varname)
 
         # Stop parallelization

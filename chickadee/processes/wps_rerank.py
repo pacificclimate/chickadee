@@ -8,7 +8,6 @@ from wps_tools.utils import log_handler, common_status_percentages, collect_args
 from wps_tools.io import log_level, nc_output
 from chickadee.utils import (
     logger,
-    set_end_date,
     get_package,
 )
 from chickadee.io import gcm_file, obs_file, varname, out_file, num_cores, end_date
@@ -20,8 +19,13 @@ class Rerank(Process):
     each grid box"""
 
     def __init__(self):
-        self.status_percentage_steps = common_status_percentages
-
+        self.status_percentage_steps = dict(
+            common_status_percentages,
+            **{
+                "get_ClimDown": 5,
+                "parallelization": 10,
+            },
+        )
         inputs = [
             obs_file,
             varname,
@@ -98,17 +102,43 @@ class Rerank(Process):
             process_step="process",
         )
 
-        # Set parallelization
-        doPar = get_package("doParallel")
-        doPar.registerDoParallel(cores=num_cores)
-
         # Get analogues R oject from file
         base = get_package("base")
         with open(analogues_object):
             analogues = base.readRDS(analogues_object)
 
-        # Run rerank
+        # Get ClimDown
+        log_handler(
+            self,
+            response,
+            "Importing R package 'ClimDown'",
+            logger,
+            log_level=loglevel,
+            process_step="get_ClimDown",
+        )
         climdown = get_package("ClimDown")
+
+        # Set parallelization
+        log_handler(
+            self,
+            response,
+            "Setting parallelization",
+            logger,
+            log_level=loglevel,
+            process_step="parallelization",
+        )
+        doPar = get_package("doParallel")
+        doPar.registerDoParallel(cores=num_cores)
+
+        # Run rerank
+        log_handler(
+            self,
+            response,
+            "Processing Quantile Reranking",
+            logger,
+            log_level=loglevel,
+            process_step="process",
+        )
         climdown.rerank_netcdf_wrapper(qdm_file, obs_file, analogues, out_file, varname)
 
         # Stop parallelization

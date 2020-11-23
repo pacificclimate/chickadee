@@ -20,7 +20,10 @@ class BCCAQ(Process):
     output to a fine spatial resolution"""
 
     def __init__(self):
-        self.status_percentage_steps = common_status_percentages
+        self.status_percentage_steps = dict(
+            common_status_percentages,
+            **{"get_ClimDown": 5, "parallelization": 10, "set_end_date": 15},
+        )
 
         inputs = [
             gcm_file,
@@ -65,9 +68,15 @@ class BCCAQ(Process):
             process_step="start",
         )
 
-        (gcm_file, obs_file, varname, out_file, num_cores, end_date, loglevel,) = [
-            arg[0] for arg in collect_args(request, self.workdir).values()
-        ]
+        (
+            gcm_file,
+            obs_file,
+            varname,
+            out_file,
+            num_cores,
+            end_date,
+            loglevel,
+        ) = [arg[0] for arg in collect_args(request, self.workdir).values()]
 
         log_handler(
             self,
@@ -78,15 +87,49 @@ class BCCAQ(Process):
             process_step="process",
         )
 
+        # Get ClimDown
+        log_handler(
+            self,
+            response,
+            "Importing R package 'ClimDown'",
+            logger,
+            log_level=loglevel,
+            process_step="get_ClimDown",
+        )
+        climdown = get_package("ClimDown")
+
         # Set parallelization
+        log_handler(
+            self,
+            response,
+            "Setting parallelization",
+            logger,
+            log_level=loglevel,
+            process_step="parallelization",
+        )
         doPar = get_package("doParallel")
         doPar.registerDoParallel(cores=num_cores)
 
-        # Set R options 'calibration.end'
+        # Set R option 'calibration.end'
+        log_handler(
+            self,
+            response,
+            "Setting R option 'calibration.end'",
+            logger,
+            log_level=loglevel,
+            process_step="set_end_date",
+        )
         set_end_date(end_date)
 
         # Run ClimDown
-        climdown = get_package("ClimDown")
+        log_handler(
+            self,
+            response,
+            "Processing BCCAQ",
+            logger,
+            log_level=loglevel,
+            process_step="process",
+        )
         climdown.bccaq_netcdf_wrapper(gcm_file, obs_file, out_file, varname)
 
         # Stop parallelization

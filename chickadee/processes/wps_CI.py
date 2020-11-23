@@ -9,7 +9,13 @@ from chickadee.io import gcm_file, obs_file, varname, out_file, num_cores
 
 class CI(Process):
     def __init__(self):
-        self.status_percentage_steps = common_status_percentages
+        self.status_percentage_steps = dict(
+            common_status_percentages,
+            **{
+                "get_ClimDown": 5,
+                "parallelization": 10,
+            },
+        )
         inputs = [
             gcm_file,
             obs_file,
@@ -41,9 +47,14 @@ class CI(Process):
 
     def _handler(self, request, response):
         logger.critical(str(collect_args(request, self.workdir).values()))
-        (gcm_file, obs_file, varname, output_file, num_cores, loglevel,) = [
-            arg[0] for arg in collect_args(request, self.workdir).values()
-        ]
+        (
+            gcm_file,
+            obs_file,
+            varname,
+            output_file,
+            num_cores,
+            loglevel,
+        ) = [arg[0] for arg in collect_args(request, self.workdir).values()]
 
         log_handler(
             self,
@@ -54,7 +65,28 @@ class CI(Process):
             process_step="start",
         )
 
+        # Get ClimDown
+        log_handler(
+            self,
+            response,
+            "Importing R package 'ClimDown'",
+            logger,
+            log_level=loglevel,
+            process_step="get_ClimDown",
+        )
         climdown = get_package("ClimDown")
+
+        # Set parallelization
+        log_handler(
+            self,
+            response,
+            "Setting parallelization",
+            logger,
+            log_level=loglevel,
+            process_step="parallelization",
+        )
+        doPar = get_package("doParallel")
+        doPar.registerDoParallel(cores=num_cores)
 
         log_handler(
             self,
@@ -64,11 +96,6 @@ class CI(Process):
             log_level=loglevel,
             process_step="process",
         )
-
-        # Set parallelization
-        doPar = get_package("doParallel")
-        doPar.registerDoParallel(cores=num_cores)
-
         climdown.ci_netcdf_wrapper(gcm_file, obs_file, output_file, varname)
 
         # stop parallelization
