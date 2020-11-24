@@ -4,14 +4,12 @@ from pywps.app.Common import Metadata
 from netCDF4 import Dataset
 from rpy2 import robjects
 
-from wps_tools.utils import log_handler
+from wps_tools.utils import log_handler, collect_args, common_status_percentages
 from wps_tools.io import log_level
 from chickadee.utils import (
     logger,
     set_end_date,
     get_package,
-    collect_args,
-    common_status_percentage,
 )
 from chickadee.io import gcm_file, obs_file, varname, num_cores, end_date
 
@@ -28,8 +26,13 @@ class CA(Process):
 
     def __init__(self):
         self.status_percentage_steps = dict(
-            common_status_percentage,
-            **{"write_files": 80},
+            common_status_percentages,
+            **{
+                "get_ClimDown": 5,
+                "parallelization": 10,
+                "set_end_date": 15,
+                "write_files": 80,
+            },
         )
 
         inputs = [
@@ -95,7 +98,16 @@ class CA(Process):
                     file_.write(f"{item}\n")
 
     def _handler(self, request, response):
-        loglevel = request.inputs["loglevel"][0].data
+        (
+            gcm_file,
+            obs_file,
+            varname,
+            num_cores,
+            end_date,
+            indices,
+            weights,
+            loglevel,
+        ) = [arg[0] for arg in collect_args(request, self.workdir).values()]
         log_handler(
             self,
             response,
@@ -105,17 +117,41 @@ class CA(Process):
             process_step="start",
         )
 
-        (
-            gcm_file,
-            obs_file,
-            varname,
-            num_cores,
-            end_date,
-            indices,
-            weights,
-            log_level,
-        ) = collect_args(request)
+        # Get ClimDown
+        log_handler(
+            self,
+            response,
+            "Importing R package 'ClimDown'",
+            logger,
+            log_level=loglevel,
+            process_step="get_ClimDown",
+        )
+        climdown = get_package("ClimDown")
 
+        # Set parallelization
+        log_handler(
+            self,
+            response,
+            "Setting parallelization",
+            logger,
+            log_level=loglevel,
+            process_step="parallelization",
+        )
+        doPar = get_package("doParallel")
+        doPar.registerDoParallel(cores=num_cores)
+
+        # Set R option 'calibration.end'
+        log_handler(
+            self,
+            response,
+            "Setting R option 'calibration.end'",
+            logger,
+            log_level=loglevel,
+            process_step="set_end_date",
+        )
+        set_end_date(end_date)
+
+        # Run Constructed Analogue Step (CA)
         log_handler(
             self,
             response,
@@ -124,16 +160,6 @@ class CA(Process):
             log_level=loglevel,
             process_step="process",
         )
-
-        # Set parallelization
-        doPar = get_package("doParallel")
-        doPar.registerDoParallel(cores=num_cores)
-
-        # Set R options
-        set_end_date(end_date)
-
-        # Run Constructed Analogue Step (CA)
-        climdown = get_package("ClimDown")
         analogues = climdown.ca_netcdf_wrapper(gcm_file, obs_file, varname)
 
         # Stop parallelization

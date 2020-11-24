@@ -2,7 +2,7 @@ import pytest
 from pkg_resources import resource_filename
 from tempfile import NamedTemporaryFile
 
-from wps_tools.testing import run_wps_process
+from wps_tools.testing import run_wps_process, local_path
 from chickadee.processes.wps_rerank import Rerank
 
 
@@ -10,9 +10,9 @@ from chickadee.processes.wps_rerank import Rerank
     ("obs_file", "var", "qdm_file", "analogues_object"),
     [
         (
-            f"file://{resource_filename(__name__, 'data/tiny_obs.nc')}",
+            local_path("tiny_obs.nc"),
             "tasmax",
-            f"file://{resource_filename(__name__, 'data/QDM_expected_output.nc')}",
+            local_path("QDM_expected_output.nc"),
             resource_filename(__name__, "data/analogues.rds"),
         ),
     ],

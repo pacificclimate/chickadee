@@ -1,13 +1,11 @@
 from pywps import Process
 from pywps.app.Common import Metadata
-from wps_tools.utils import log_handler
+from wps_tools.utils import log_handler, collect_args, common_status_percentages
 from wps_tools.io import log_level, nc_output
 from chickadee.utils import (
     logger,
     get_package,
-    collect_args,
     set_end_date,
-    common_status_percentage,
 )
 from chickadee.io import gcm_file, obs_file, varname, out_file, num_cores, end_date
 
@@ -15,7 +13,7 @@ from chickadee.io import gcm_file, obs_file, varname, out_file, num_cores, end_d
 class QDM(Process):
     def __init__(self):
         self.status_percentage_steps = dict(
-            common_status_percentage,
+            common_status_percentages,
             **{"get_ClimDown": 5, "parallelization": 10, "set_end_date": 15},
         )
         inputs = [
@@ -57,7 +55,7 @@ class QDM(Process):
             num_cores,
             end_date,
             loglevel,
-        ) = collect_args(request)
+        ) = [arg[0] for arg in collect_args(request, self.workdir).values()]
 
         log_handler(
             self,

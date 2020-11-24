@@ -1,20 +1,21 @@
 from pywps import Process
 from pywps.app.Common import Metadata
 
-from wps_tools.utils import log_handler
+from wps_tools.utils import log_handler, collect_args, common_status_percentages
 from wps_tools.io import log_level, nc_output
-from chickadee.utils import logger, get_package, collect_args
+from chickadee.utils import logger, get_package
 from chickadee.io import gcm_file, obs_file, varname, out_file, num_cores
 
 
 class CI(Process):
     def __init__(self):
-        self.status_percentage_steps = {
-            "start": 0,
-            "process": 10,
-            "build_output": 95,
-            "complete": 100,
-        }
+        self.status_percentage_steps = dict(
+            common_status_percentages,
+            **{
+                "get_ClimDown": 5,
+                "parallelization": 10,
+            },
+        )
         inputs = [
             gcm_file,
             obs_file,
@@ -52,7 +53,8 @@ class CI(Process):
             output_file,
             num_cores,
             loglevel,
-        ) = collect_args(request)
+        ) = [arg[0] for arg in collect_args(request, self.workdir).values()]
+
         log_handler(
             self,
             response,
@@ -62,7 +64,28 @@ class CI(Process):
             process_step="start",
         )
 
+        # Get ClimDown
+        log_handler(
+            self,
+            response,
+            "Importing R package 'ClimDown'",
+            logger,
+            log_level=loglevel,
+            process_step="get_ClimDown",
+        )
         climdown = get_package("ClimDown")
+
+        # Set parallelization
+        log_handler(
+            self,
+            response,
+            "Setting parallelization",
+            logger,
+            log_level=loglevel,
+            process_step="parallelization",
+        )
+        doPar = get_package("doParallel")
+        doPar.registerDoParallel(cores=num_cores)
 
         log_handler(
             self,
@@ -72,11 +95,6 @@ class CI(Process):
             log_level=loglevel,
             process_step="process",
         )
-
-        # Set parallelization
-        doPar = get_package("doParallel")
-        doPar.registerDoParallel(cores=num_cores)
-
         climdown.ci_netcdf_wrapper(gcm_file, obs_file, output_file, varname)
 
         # stop parallelization
