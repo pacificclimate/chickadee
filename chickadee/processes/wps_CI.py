@@ -21,8 +21,8 @@ from chickadee.io import (
 class CI(Process):
     def __init__(self):
         self.status_percentage_steps = dict(
-            common_status_percentage,
-            **{"get_ClimDown": 5, "parallelization": 15},
+            common_status_percentages,
+            **{"get_ClimDown": 5, "set_R_options": 10, "parallelization": 15},
         )
         inputs = [
             gcm_file,

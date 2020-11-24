@@ -8,7 +8,6 @@ from wps_tools.utils import log_handler, collect_args, common_status_percentages
 from wps_tools.io import log_level, nc_output
 from chickadee.utils import (
     logger,
-    set_end_date,
     get_package,
     set_general_options,
     set_ca_options,
@@ -33,8 +32,8 @@ class BCCAQ(Process):
 
     def __init__(self):
         self.status_percentage_steps = dict(
-            common_status_percentage,
-            **{"get_ClimDown": 5, "parallelization": 15},
+            common_status_percentages,
+            **{"get_ClimDown": 5, "set_R_options": 10, "parallelization": 15},
         )
 
         inputs = (
@@ -131,15 +130,6 @@ class BCCAQ(Process):
             process_step="process",
         )
 
-        # Run ClimDown
-        log_handler(
-            self,
-            response,
-            "Downscaling GCM",
-            logger,
-            log_level=loglevel,
-            process_step="process",
-        )
         climdown.bccaq_netcdf_wrapper(gcm_file, obs_file, out_file, varname)
 
         # Stop parallelization

@@ -3,7 +3,6 @@ from pywps.app.exceptions import ProcessError
 from pkg_resources import resource_filename
 from chickadee.utils import (
     get_package,
-    collect_args,
     set_general_options,
     set_ca_options,
     set_qdm_options,
@@ -26,25 +25,6 @@ def test_get_package_err(package):
     with pytest.raises(ProcessError) as e:
         get_package(package)
     assert str(vars(e)["_excinfo"][1]) == f"R package, {package}, is not installed"
-
-
-@pytest.mark.parametrize(
-    ("local_file", "opendap_url", "argc"),
-    [
-        (
-            f"file://{resource_filename(__name__, 'data/tiny_gcm.nc')}",
-            "https://docker-dev03.pcic.uvic.ca/twitcher/ows/proxy/thredds/fileServer/datasets/storage/data/projects/comp_support/daccs/chickadee/tests/data/tiny_obs.nc",
-            3,
-        )
-    ],
-)
-def test_collect_args(local_file, opendap_url, argc):
-    params = (
-        f"local_file=@xlink:href={local_file};"
-        f"opendap_url=@xlink:href={opendap_url};"
-        f"argc={argc};"
-    )
-    run_wps_process(TestCollectArgs(), params)
 
 
 @pytest.mark.parametrize(
