@@ -151,21 +151,21 @@ qdm_options_input = [
     LiteralInput(
         "multiyear",
         "Multiyear",
-        abstract="Apply over multi-year chunks"
+        abstract="Apply over multi-year chunks",
         default=True,
-        data_type="boolean"
+        data_type="boolean",
     ),
     LiteralInput(
         "expand_multiyear",
         "Expand Multiyear",
-        abstract="Fold incomplete multi-year block into previous"
+        abstract="Fold incomplete multi-year block into previous",
         default=True,
         data_type="boolean",
     ),
     LiteralInput(
         "multiyear_window_length",
         "Multiyear Window Length",
-        abstract="Number of years to run if multiyear is true"
+        abstract="Number of years to run if multiyear is true",
         default=30,
         data_type="positiveInteger",
     ),
@@ -179,7 +179,7 @@ qdm_options_input = [
     LiteralInput(
         "jitter_factor",
         "Jitter Factor",
-        abstract="Adds random noise to data to accomodate ties"
+        abstract="Adds random noise to data to accomodate ties",
         default=0.01,
         data_type="float",
     ),
