@@ -1,12 +1,10 @@
 from pywps import Process
 from pywps.app.Common import Metadata
-from wps_tools.utils import log_handler
+from wps_tools.utils import log_handler, collect_args, common_status_percentages
 from wps_tools.io import log_level, nc_output
 from chickadee.utils import (
     logger,
     get_package,
-    collect_args,
-    common_status_percentage,
     set_general_options,
     set_qdm_options,
 )
@@ -61,7 +59,7 @@ class QDM(Process):
         )
 
     def _handler(self, request, response):
-        args = collect_args(request)
+        args = ) = [arg[0] for arg in collect_args(request, self.workdir).values()]
         (
             gcm_file,
             obs_file,

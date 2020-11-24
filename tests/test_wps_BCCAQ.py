@@ -3,7 +3,7 @@ from pkg_resources import resource_filename
 from tempfile import NamedTemporaryFile
 from datetime import date
 
-from wps_tools.testing import run_wps_process
+from wps_tools.testing import run_wps_process, local_path
 from chickadee.processes.wps_BCCAQ import BCCAQ
 
 
@@ -11,8 +11,8 @@ from chickadee.processes.wps_BCCAQ import BCCAQ
     ("gcm_file", "obs_file", "var", "end_date", "num_cores"),
     [
         (
-            f"file://{resource_filename(__name__, 'data/tiny_gcm.nc')}",
-            f"file://{resource_filename(__name__, 'data/tiny_obs.nc')}",
+            local_path("tiny_gcm.nc"),
+            local_path("tiny_obs.nc"),
             "tasmax",
             date(1972, 12, 31),
             4,

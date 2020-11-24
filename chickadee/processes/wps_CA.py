@@ -4,13 +4,11 @@ from pywps.app.Common import Metadata
 from netCDF4 import Dataset
 from rpy2 import robjects
 
-from wps_tools.utils import log_handler
+from wps_tools.utils import log_handler, collect_args, common_status_percentages
 from wps_tools.io import log_level
 from chickadee.utils import (
     logger,
     get_package,
-    collect_args,
-    common_status_percentage,
     set_general_options,
     set_ca_options,
 )
@@ -106,7 +104,7 @@ class CA(Process):
                     file_.write(f"{item}\n")
 
     def _handler(self, request, response):
-        args = collect_args(request)
+        args = [arg[0] for arg in collect_args(request, self.workdir).values()]
         (
             gcm_file,
             obs_file,
@@ -170,7 +168,14 @@ class CA(Process):
         )
 
         # Run Constructed Analogue Step (CA)
-        climdown = get_package("ClimDown")
+        log_handler(
+            self,
+            response,
+            "Calculating weights",
+            logger,
+            log_level=loglevel,
+            process_step="process",
+        )
         analogues = climdown.ca_netcdf_wrapper(gcm_file, obs_file, varname)
 
         # Stop parallelization

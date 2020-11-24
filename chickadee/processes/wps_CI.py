@@ -1,14 +1,12 @@
 from pywps import Process
 from pywps.app.Common import Metadata
 
-from wps_tools.utils import log_handler
+from wps_tools.utils import log_handler, collect_args, common_status_percentages
 from wps_tools.io import log_level, nc_output
 from chickadee.utils import (
     logger,
     get_package,
-    collect_args,
     set_general_options,
-    common_status_percentage,
 )
 from chickadee.io import (
     gcm_file,
@@ -56,7 +54,7 @@ class CI(Process):
         )
 
     def _handler(self, request, response):
-        args = collect_args(request)
+        args = [arg[0] for arg in collect_args(request, self.workdir).values()]
         (
             gcm_file,
             obs_file,
@@ -116,8 +114,6 @@ class CI(Process):
             log_level=loglevel,
             process_step="process",
         )
-
-        climdown = get_package("ClimDown")
         climdown.ci_netcdf_wrapper(gcm_file, obs_file, output_file, varname)
 
         # stop parallelization

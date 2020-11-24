@@ -11,7 +11,6 @@ from chickadee.utils import (
 from datetime import date
 from rpy2.robjects.packages import importr
 from wps_tools.testing import run_wps_process
-from .test_processes.wps_test_collect_args import TestCollectArgs
 
 base = importr("base")
 

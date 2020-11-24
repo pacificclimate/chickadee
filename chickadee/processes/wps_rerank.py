@@ -4,13 +4,11 @@ from pywps import Process, LiteralInput, ComplexInput, FORMATS
 from pywps.app.Common import Metadata
 from netCDF4 import Dataset
 
-from wps_tools.utils import log_handler
+from wps_tools.utils import log_handler, common_status_percentages, collect_args
 from wps_tools.io import log_level, nc_output
 from chickadee.utils import (
     logger,
     get_package,
-    collect_args,
-    common_status_percentage,
     set_general_options,
 )
 from chickadee.io import (
@@ -81,7 +79,7 @@ class Rerank(Process):
         )
 
     def _handler(self, request, response):
-        args = collect_args(request)
+        args = = [arg[0] for arg in collect_args(request, self.workdir).values()]
         (
             obs_file,
             varname,
@@ -148,7 +146,14 @@ class Rerank(Process):
             analogues = base.readRDS(analogues_object)
 
         # Run rerank
-        climdown = get_package("ClimDown")
+        log_handler(
+            self,
+            response,
+            "Applying quantile mapping bias correction",
+            logger,
+            log_level=loglevel,
+            process_step="process",
+        )
         climdown.rerank_netcdf_wrapper(qdm_file, obs_file, analogues, out_file, varname)
 
         # Stop parallelization

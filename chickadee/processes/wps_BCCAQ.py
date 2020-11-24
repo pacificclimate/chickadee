@@ -4,14 +4,12 @@ from pywps import Process
 from pywps.app.Common import Metadata
 from netCDF4 import Dataset
 
-from wps_tools.utils import log_handler
+from wps_tools.utils import log_handler, collect_args, common_status_percentages
 from wps_tools.io import log_level, nc_output
 from chickadee.utils import (
     logger,
     set_end_date,
     get_package,
-    collect_args,
-    common_status_percentage,
     set_general_options,
     set_ca_options,
     set_qdm_options,
@@ -76,7 +74,7 @@ class BCCAQ(Process):
         )
 
     def _handler(self, request, response):
-        args = collect_args(request)
+        args = [arg[0] for arg in collect_args(request, self.workdir).values()]
         (gcm_file, obs_file, varname, out_file, num_cores, loglevel) = args[:6]
 
         log_handler(
@@ -134,7 +132,14 @@ class BCCAQ(Process):
         )
 
         # Run ClimDown
-        climdown = get_package("ClimDown")
+        log_handler(
+            self,
+            response,
+            "Downscaling GCM",
+            logger,
+            log_level=loglevel,
+            process_step="process",
+        )
         climdown.bccaq_netcdf_wrapper(gcm_file, obs_file, out_file, varname)
 
         # Stop parallelization

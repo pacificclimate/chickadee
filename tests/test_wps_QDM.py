@@ -3,7 +3,7 @@ from pkg_resources import resource_filename
 from tempfile import NamedTemporaryFile
 from datetime import date
 
-from wps_tools.testing import run_wps_process
+from wps_tools.testing import run_wps_process, local_path
 from chickadee.processes.wps_QDM import QDM
 
 
@@ -11,8 +11,8 @@ from chickadee.processes.wps_QDM import QDM
     ("gcm_file", "obs_file", "var", "num_cores"),
     [
         (
-            f"file://{resource_filename(__name__, 'data/tiny_obs.nc')}",
-            f"file://{resource_filename(__name__, 'data/CI_expected_output.nc')}",
+            local_path("tiny_obs.nc"),
+            local_path("CI_expected_output.nc"),
             "tasmax",
             4,
         ),
