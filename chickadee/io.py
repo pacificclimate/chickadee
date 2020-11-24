@@ -107,8 +107,8 @@ ca_options_input = [
         LiteralInput(
             "delta_days",
             "Delta Days",
-            default=45,
-            data_type="positiveInteger",
+            default=45.0,
+            data_type="float",
         ),
         LiteralInput(
             "start_date",

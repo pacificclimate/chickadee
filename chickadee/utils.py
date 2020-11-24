@@ -105,7 +105,7 @@ def set_ca_options(
     function(trimmed_mean, delta_days, num_analogues, start_date, end_date, tol, expon){
         options(
             trimmed.mean=trimmed_mean,
-            delta_days=delta_days,
+            delta.days=delta_days,
             n.analogues=num_analogues,
             calibration.start=as.POSIXct(start_date, tz='GMT'),
             calibration.end=as.POSIXct(end_date, tz='GMT'),
