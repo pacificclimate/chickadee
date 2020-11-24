@@ -8,12 +8,12 @@ from wps_tools.utils import log_handler
 from wps_tools.io import log_level, nc_output
 from chickadee.utils import (
     logger,
-    set_end_date,
     get_package,
     collect_args,
     common_status_percentage,
+    set_general_options
 )
-from chickadee.io import gcm_file, obs_file, varname, out_file, num_cores, end_date
+from chickadee.io import gcm_file, obs_file, varname, out_file, num_cores, general_options_input
 
 
 class Rerank(Process):
@@ -22,7 +22,10 @@ class Rerank(Process):
     each grid box"""
 
     def __init__(self):
-        self.status_percentage_steps = common_status_percentage
+        self.status_percentage_steps = dict(
+            common_status_percentage,
+            **{"get_ClimDown": 5, "parallelization": 15},
+        )
 
         inputs = [
             obs_file,
@@ -46,7 +49,7 @@ class Rerank(Process):
                 max_occurs=1,
                 data_type="string",
             ),
-        ]
+        ] + general_options_input
 
         outputs = [nc_output]
 
@@ -71,7 +74,17 @@ class Rerank(Process):
         )
 
     def _handler(self, request, response):
-        loglevel = request.inputs["loglevel"][0].data
+        args = collect_args(request)
+        (
+            obs_file,
+            varname,
+            out_file,
+            num_cores,
+            loglevel,
+            qdm_file,
+            analogues_object,
+        ) = args[:7]
+
         log_handler(
             self,
             response,
@@ -81,15 +94,37 @@ class Rerank(Process):
             process_step="start",
         )
 
-        (
-            obs_file,
-            varname,
-            out_file,
-            num_cores,
-            loglevel,
-            qdm_file,
-            analogues_object,
-        ) = collect_args(request)
+        log_handler(
+            self,
+            response,
+            "Importing R package 'ClimDown'",
+            logger,
+            log_level=loglevel,
+            process_step="get_ClimDown",
+        )
+        climdown = get_package("ClimDown")
+
+        log_handler(
+            self,
+            response,
+            "Setting R options",
+            logger,
+            log_level=loglevel,
+            process_step="set_R_options",
+        )
+        # Uses general_options_input
+        set_general_options(*args[7:13])
+
+        log_handler(
+            self,
+            response,
+            "Setting parallelization",
+            logger,
+            log_level=loglevel,
+            process_step="parallelization",
+        )
+        doPar = get_package("doParallel")
+        doPar.registerDoParallel(cores=num_cores)
 
         log_handler(
             self,
@@ -99,10 +134,6 @@ class Rerank(Process):
             log_level=loglevel,
             process_step="process",
         )
-
-        # Set parallelization
-        doPar = get_package("doParallel")
-        doPar.registerDoParallel(cores=num_cores)
 
         # Get analogues R oject from file
         base = get_package("base")

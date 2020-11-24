@@ -34,7 +34,10 @@ class BCCAQ(Process):
     output to a fine spatial resolution"""
 
     def __init__(self):
-        self.status_percentage_steps = common_status_percentage
+        self.status_percentage_steps = dict(
+            common_status_percentage,
+            **{"get_ClimDown": 5, "parallelization": 15},
+        )
 
         inputs = [
             gcm_file,
@@ -68,16 +71,6 @@ class BCCAQ(Process):
         )
 
     def _handler(self, request, response):
-        loglevel = request.inputs["loglevel"][0].data
-        log_handler(
-            self,
-            response,
-            "Starting Process",
-            logger,
-            log_level=loglevel,
-            process_step="start",
-        )
-
         args = collect_args(request)
         (
             gcm_file,
@@ -88,6 +81,33 @@ class BCCAQ(Process):
             loglevel
         ) = args[:6]
 
+        log_handler(
+            self,
+            response,
+            "Starting Process",
+            logger,
+            log_level=loglevel,
+            process_step="start",
+        )
+
+        log_handler(
+            self,
+            response,
+            "Importing R package 'ClimDown'",
+            logger,
+            log_level=loglevel,
+            process_step="get_ClimDown",
+        )
+        climdown = get_package("ClimDown")
+
+        log_handler(
+            self,
+            response,
+            "Setting R options",
+            logger,
+            log_level=loglevel,
+            process_step="set_R_options",
+        )
         # Uses general_options_input
         set_general_options(*args[6:12])
         # Uses ca_options_input
@@ -98,15 +118,22 @@ class BCCAQ(Process):
         log_handler(
             self,
             response,
+            "Setting parallelization",
+            logger,
+            log_level=loglevel,
+            process_step="parallelization",
+        )
+        doPar = get_package("doParallel")
+        doPar.registerDoParallel(cores=num_cores)
+
+        log_handler(
+            self,
+            response,
             "Downscaling GCM",
             logger,
             log_level=loglevel,
             process_step="process",
         )
-
-        # Set parallelization
-        doPar = get_package("doParallel")
-        doPar.registerDoParallel(cores=num_cores)
 
         # Run ClimDown
         climdown = get_package("ClimDown")

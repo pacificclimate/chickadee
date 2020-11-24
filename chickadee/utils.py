@@ -17,6 +17,7 @@ logger.addHandler(handler)
 
 common_status_percentage = {
     "start": 0,
+    "set_R_options": 10,
     "process": 20,
     "build_output": 95,
     "complete": 100,

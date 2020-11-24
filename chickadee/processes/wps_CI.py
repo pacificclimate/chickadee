@@ -3,18 +3,16 @@ from pywps.app.Common import Metadata
 
 from wps_tools.utils import log_handler
 from wps_tools.io import log_level, nc_output
-from chickadee.utils import logger, get_package, collect_args
-from chickadee.io import gcm_file, obs_file, varname, out_file, num_cores
+from chickadee.utils import logger, get_package, collect_args, set_general_options, common_status_percentage
+from chickadee.io import gcm_file, obs_file, varname, out_file, num_cores, general_options_input
 
 
 class CI(Process):
     def __init__(self):
-        self.status_percentage_steps = {
-            "start": 0,
-            "process": 10,
-            "build_output": 95,
-            "complete": 100,
-        }
+        self.status_percentage_steps = dict(
+            common_status_percentage,
+            **{"get_ClimDown": 5, "parallelization": 15},
+        )
         inputs = [
             gcm_file,
             obs_file,
@@ -22,7 +20,7 @@ class CI(Process):
             out_file,
             num_cores,
             log_level,
-        ]
+        ] + general_options_input
 
         outputs = [nc_output]
 
@@ -45,6 +43,7 @@ class CI(Process):
         )
 
     def _handler(self, request, response):
+        args = collect_args(request)
         (
             gcm_file,
             obs_file,
@@ -52,7 +51,8 @@ class CI(Process):
             output_file,
             num_cores,
             loglevel,
-        ) = collect_args(request)
+        ) = args[:6]
+
         log_handler(
             self,
             response,
@@ -62,7 +62,38 @@ class CI(Process):
             process_step="start",
         )
 
+        log_handler(
+            self,
+            response,
+            "Importing R package 'ClimDown'",
+            logger,
+            log_level=loglevel,
+            process_step="get_ClimDown",
+        )
         climdown = get_package("ClimDown")
+
+        log_handler(
+            self,
+            response,
+            "Setting R options",
+            logger,
+            log_level=loglevel,
+            process_step="set_R_options",
+        )
+        # Uses general_options_input
+        set_general_options(*args[6:])
+
+        # Set parallelization
+        log_handler(
+            self,
+            response,
+            "Setting parallelization",
+            logger,
+            log_level=loglevel,
+            process_step="parallelization",
+        )
+        doPar = get_package("doParallel")
+        doPar.registerDoParallel(cores=num_cores)
 
         log_handler(
             self,
@@ -73,10 +104,7 @@ class CI(Process):
             process_step="process",
         )
 
-        # Set parallelization
-        doPar = get_package("doParallel")
-        doPar.registerDoParallel(cores=num_cores)
-
+        climdown = get_package("ClimDown")
         climdown.ci_netcdf_wrapper(gcm_file, obs_file, output_file, varname)
 
         # stop parallelization
