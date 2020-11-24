@@ -11,9 +11,16 @@ from chickadee.utils import (
     get_package,
     collect_args,
     common_status_percentage,
-    set_general_options
+    set_general_options,
 )
-from chickadee.io import gcm_file, obs_file, varname, out_file, num_cores, general_options_input
+from chickadee.io import (
+    gcm_file,
+    obs_file,
+    varname,
+    out_file,
+    num_cores,
+    general_options_input,
+)
 
 
 class Rerank(Process):

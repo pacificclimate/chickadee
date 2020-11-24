@@ -185,6 +185,5 @@ def set_qdm_options(
         tasmin_seasonal,
         pr_ratio,
         tasmax_ratio,
-        tasmin_ratio
+        tasmin_ratio,
     )
-

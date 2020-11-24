@@ -14,7 +14,14 @@ from chickadee.utils import (
     set_general_options,
     set_ca_options,
 )
-from chickadee.io import gcm_file, obs_file, varname, num_cores, general_options_input, ca_options_input
+from chickadee.io import (
+    gcm_file,
+    obs_file,
+    varname,
+    num_cores,
+    general_options_input,
+    ca_options_input,
+)
 
 
 class CA(Process):
@@ -33,25 +40,29 @@ class CA(Process):
             **{"get_ClimDown": 5, "parallelization": 15, "write_files": 80},
         )
 
-        inputs = [
-            gcm_file,
-            obs_file,
-            varname,
-            num_cores,
-            LiteralInput(
-                "indices",
-                "Indices File",
-                abstract="File name to store indices of analogue times steps (suffix .txt)",
-                data_type="string",
-            ),
-            LiteralInput(
-                "weights",
-                "Weights File",
-                abstract="File name to store weights of analogues (suffix .txt)",
-                data_type="string",
-            ),
-            log_level,
-        ] + general_options_input + ca_options_input
+        inputs = (
+            [
+                gcm_file,
+                obs_file,
+                varname,
+                num_cores,
+                LiteralInput(
+                    "indices",
+                    "Indices File",
+                    abstract="File name to store indices of analogue times steps (suffix .txt)",
+                    data_type="string",
+                ),
+                LiteralInput(
+                    "weights",
+                    "Weights File",
+                    abstract="File name to store weights of analogues (suffix .txt)",
+                    data_type="string",
+                ),
+                log_level,
+            ]
+            + general_options_input
+            + ca_options_input
+        )
 
         outputs = [
             ComplexOutput(

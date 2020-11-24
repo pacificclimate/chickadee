@@ -10,7 +10,15 @@ from chickadee.utils import (
     set_general_options,
     set_qdm_options,
 )
-from chickadee.io import gcm_file, obs_file, varname, out_file, num_cores, general_options_input, qdm_options_input
+from chickadee.io import (
+    gcm_file,
+    obs_file,
+    varname,
+    out_file,
+    num_cores,
+    general_options_input,
+    qdm_options_input,
+)
 
 
 class QDM(Process):
@@ -19,14 +27,18 @@ class QDM(Process):
             common_status_percentage,
             **{"get_ClimDown": 5, "parallelization": 15},
         )
-        inputs = [
-            gcm_file,
-            obs_file,
-            varname,
-            out_file,
-            num_cores,
-            log_level,
-        ] + general_options_input + qdm_options_input
+        inputs = (
+            [
+                gcm_file,
+                obs_file,
+                varname,
+                out_file,
+                num_cores,
+                log_level,
+            ]
+            + general_options_input
+            + qdm_options_input
+        )
 
         outputs = [nc_output]
 

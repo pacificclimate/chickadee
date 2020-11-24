@@ -3,8 +3,21 @@ from pywps.app.Common import Metadata
 
 from wps_tools.utils import log_handler
 from wps_tools.io import log_level, nc_output
-from chickadee.utils import logger, get_package, collect_args, set_general_options, common_status_percentage
-from chickadee.io import gcm_file, obs_file, varname, out_file, num_cores, general_options_input
+from chickadee.utils import (
+    logger,
+    get_package,
+    collect_args,
+    set_general_options,
+    common_status_percentage,
+)
+from chickadee.io import (
+    gcm_file,
+    obs_file,
+    varname,
+    out_file,
+    num_cores,
+    general_options_input,
+)
 
 
 class CI(Process):

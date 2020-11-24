@@ -39,14 +39,19 @@ class BCCAQ(Process):
             **{"get_ClimDown": 5, "parallelization": 15},
         )
 
-        inputs = [
-            gcm_file,
-            obs_file,
-            varname,
-            out_file,
-            num_cores,
-            log_level,
-        ] + general_options_input + ca_options_input + qdm_options_input
+        inputs = (
+            [
+                gcm_file,
+                obs_file,
+                varname,
+                out_file,
+                num_cores,
+                log_level,
+            ]
+            + general_options_input
+            + ca_options_input
+            + qdm_options_input
+        )
 
         outputs = [nc_output]
 
@@ -72,14 +77,7 @@ class BCCAQ(Process):
 
     def _handler(self, request, response):
         args = collect_args(request)
-        (
-            gcm_file,
-            obs_file,
-            varname,
-            out_file,
-            num_cores,
-            loglevel
-        ) = args[:6]
+        (gcm_file, obs_file, varname, out_file, num_cores, loglevel) = args[:6]
 
         log_handler(
             self,
