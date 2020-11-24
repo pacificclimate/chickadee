@@ -68,7 +68,7 @@ def test_set_general_options(
         "tol",
         "expon",
     ),
-    [(25, 40.0, date(1996, 9, 14), date(2020, 11, 23), 0.5, 0.2, 0.6)],
+    [(25, 40, date(1996, 9, 14), date(2020, 11, 23), 0.5, 0.2, 0.6)],
 )
 def test_set_ca_options(
     num_analogues,

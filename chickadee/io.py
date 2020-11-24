@@ -107,8 +107,9 @@ ca_options_input = [
     LiteralInput(
         "delta_days",
         "Delta Days",
-        default=45.0,
-        data_type="float",
+        abstract="An integer describing the size of the window on either side of a day",
+        default=45,
+        data_type="positiveInteger",
     ),
     LiteralInput(
         "start_date",
@@ -127,6 +128,7 @@ ca_options_input = [
     LiteralInput(
         "trimmed_mean",
         "Trimmed Mean",
+        abstract="The fraction (0 to 0.5) of observations to be trimmed from each end of the set of values before the mean is computed",
         default=0.0,
         data_type="float",
     ),
@@ -138,7 +140,7 @@ ca_options_input = [
     ),
     LiteralInput(
         "expon",
-        "Expon",
+        "Exponent",
         default=0.5,
         data_type="float",
     ),
@@ -146,82 +148,101 @@ ca_options_input = [
 
 
 qdm_options_input = [
-    LiteralInput("multiyear", "Multiyear", default=True, data_type="boolean"),
+    LiteralInput(
+        "multiyear",
+        "Multiyear",
+        abstract="Apply over multi-year chunks"
+        default=True,
+        data_type="boolean"
+    ),
     LiteralInput(
         "expand_multiyear",
         "Expand Multiyear",
+        abstract="Fold incomplete multi-year block into previous"
         default=True,
         data_type="boolean",
     ),
     LiteralInput(
         "multiyear_window_length",
         "Multiyear Window Length",
+        abstract="Number of years to run if multiyear is true"
         default=30,
         data_type="positiveInteger",
     ),
     LiteralInput(
         "trace",
         "Trace",
+        abstract="Treat values below trace as left censored",
         default=0.005,
         data_type="float",
     ),
     LiteralInput(
         "jitter_factor",
         "Jitter Factor",
+        abstract="Adds random noise to data to accomodate ties"
         default=0.01,
         data_type="float",
     ),
     LiteralInput(
         "pr_tau",
         "Pr Tau",
+        abstract="Number of empirical quantiles for pr variable (NULL=sample length)",
         default=1001,
         data_type="positiveInteger",
     ),
     LiteralInput(
         "tasmax_tau",
         "Tasmax Tau",
+        abstract="Number of empirical quantiles for tasmax variable (NULL=sample length)",
         default=101,
         data_type="positiveInteger",
     ),
     LiteralInput(
         "tasmin_tau",
         "Tasmin Tau",
+        abstract="Number of empirical quantiles for tasmin variable (NULL=sample length)",
         default=101,
         data_type="positiveInteger",
     ),
     LiteralInput(
         "pr_seasonal",
         "Pr Seasonal",
+        abstract="Apply over sliding 3-month windows",
         default=True,
         data_type="boolean",
     ),
     LiteralInput(
         "tasmax_seasonal",
         "Tasmax Seasonal",
+        abstract="Apply over sliding 3-month windows",
         default=False,
         data_type="boolean",
     ),
     LiteralInput(
         "tasmin_seasonal",
         "Tasmin Seasonal",
+        abstract="Apply over sliding 3-month windows",
         default=False,
         data_type="boolean",
     ),
     LiteralInput(
         "pr_ratio",
         "Pr Ratio",
+        abstract="Preserve relative trends in a ratio variable",
         default=True,
         data_type="boolean",
     ),
     LiteralInput(
         "tasmax_ratio",
         "Tasmax Ratio",
+        abstract="Preserve relative trends in a ratio variable",
         default=False,
         data_type="boolean",
     ),
     LiteralInput(
         "tasmin_ratio",
         "Tasmin Ratio",
+        abstract="Preserve relative trends in a ratio variable",
         default=False,
         data_type="boolean",
     ),
