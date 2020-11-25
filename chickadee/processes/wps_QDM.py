@@ -7,6 +7,7 @@ from chickadee.utils import (
     get_package,
     set_general_options,
     set_qdm_options,
+    select_args_from_input_list,
 )
 from chickadee.io import (
     gcm_file,
@@ -25,18 +26,16 @@ class QDM(Process):
             common_status_percentages,
             **{"get_ClimDown": 5, "set_R_options": 10, "parallelization": 15},
         )
-        inputs = (
-            [
-                gcm_file,
-                obs_file,
-                varname,
-                out_file,
-                num_cores,
-                log_level,
-            ]
-            + general_options_input
-            + qdm_options_input
-        )
+        self.handler_inputs = [
+            gcm_file,
+            obs_file,
+            varname,
+            out_file,
+            num_cores,
+            log_level,
+        ]
+
+        inputs = self.handler_inputs + general_options_input + qdm_options_input
 
         outputs = [nc_output]
 
@@ -59,7 +58,7 @@ class QDM(Process):
         )
 
     def _handler(self, request, response):
-        args = [arg[0] for arg in collect_args(request, self.workdir).values()]
+        args = collect_args(request, self.workdir)
         (
             gcm_file,
             obs_file,
@@ -67,7 +66,7 @@ class QDM(Process):
             output_file,
             num_cores,
             loglevel,
-        ) = args[:6]
+        ) = select_args_from_input_list(args, self.handler_inputs)
 
         log_handler(
             self,
@@ -96,10 +95,8 @@ class QDM(Process):
             log_level=loglevel,
             process_step="set_R_options",
         )
-        # Uses general_options_input
-        set_general_options(*args[6:14])
-        # Uses qdm_options_input
-        set_qdm_options(*args[14:])
+        set_general_options(*select_args_from_input_list(args, general_options_input))
+        set_qdm_options(*select_args_from_input_list(args, qdm_options_input))
 
         # Set parallelization
         log_handler(

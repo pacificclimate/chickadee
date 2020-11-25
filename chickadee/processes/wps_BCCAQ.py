@@ -12,6 +12,7 @@ from chickadee.utils import (
     set_general_options,
     set_ca_options,
     set_qdm_options,
+    select_args_from_input_list,
 )
 from chickadee.io import (
     gcm_file,
@@ -36,15 +37,17 @@ class BCCAQ(Process):
             **{"get_ClimDown": 5, "set_R_options": 10, "parallelization": 15},
         )
 
+        self.handler_inputs = [
+            gcm_file,
+            obs_file,
+            varname,
+            out_file,
+            num_cores,
+            log_level,
+        ]
+
         inputs = (
-            [
-                gcm_file,
-                obs_file,
-                varname,
-                out_file,
-                num_cores,
-                log_level,
-            ]
+            self.handler_inputs
             + general_options_input
             + ca_options_input
             + qdm_options_input
@@ -73,8 +76,15 @@ class BCCAQ(Process):
         )
 
     def _handler(self, request, response):
-        args = [arg[0] for arg in collect_args(request, self.workdir).values()]
-        (gcm_file, obs_file, varname, out_file, num_cores, loglevel) = args[:6]
+        args = collect_args(request, self.workdir)
+        (
+            gcm_file,
+            obs_file,
+            varname,
+            out_file,
+            num_cores,
+            loglevel,
+        ) = select_args_from_input_list(args, self.handler_inputs)
 
         log_handler(
             self,
@@ -103,12 +113,9 @@ class BCCAQ(Process):
             log_level=loglevel,
             process_step="set_R_options",
         )
-        # Uses general_options_input
-        set_general_options(*args[6:14])
-        # Uses ca_options_input
-        set_ca_options(*args[14:19])
-        # Uses qdm_options_input
-        set_qdm_options(*args[19:])
+        set_general_options(*select_args_from_input_list(args, general_options_input))
+        set_ca_options(*select_args_from_input_list(args, ca_options_input))
+        set_qdm_options(*select_args_from_input_list(args, qdm_options_input))
 
         log_handler(
             self,

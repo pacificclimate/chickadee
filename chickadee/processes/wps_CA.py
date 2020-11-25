@@ -11,6 +11,7 @@ from chickadee.utils import (
     get_package,
     set_general_options,
     set_ca_options,
+    select_args_from_input_list,
 )
 from chickadee.io import (
     gcm_file,
@@ -43,29 +44,27 @@ class CA(Process):
             },
         )
 
-        inputs = (
-            [
-                gcm_file,
-                obs_file,
-                varname,
-                num_cores,
-                LiteralInput(
-                    "indices",
-                    "Indices File",
-                    abstract="File name to store indices of analogue times steps (suffix .txt)",
-                    data_type="string",
-                ),
-                LiteralInput(
-                    "weights",
-                    "Weights File",
-                    abstract="File name to store weights of analogues (suffix .txt)",
-                    data_type="string",
-                ),
-                log_level,
-            ]
-            + general_options_input
-            + ca_options_input
-        )
+        self.handler_inputs = [
+            gcm_file,
+            obs_file,
+            varname,
+            num_cores,
+            LiteralInput(
+                "indices",
+                "Indices File",
+                abstract="File name to store indices of analogue times steps (suffix .txt)",
+                data_type="string",
+            ),
+            LiteralInput(
+                "weights",
+                "Weights File",
+                abstract="File name to store weights of analogues (suffix .txt)",
+                data_type="string",
+            ),
+            log_level,
+        ]
+
+        inputs = self.handler_inputs + general_options_input + ca_options_input
 
         outputs = [
             ComplexOutput(
@@ -109,7 +108,7 @@ class CA(Process):
                     file_.write(f"{item}\n")
 
     def _handler(self, request, response):
-        args = [arg[0] for arg in collect_args(request, self.workdir).values()]
+        args = collect_args(request, self.workdir)
         (
             gcm_file,
             obs_file,
@@ -118,7 +117,7 @@ class CA(Process):
             indices,
             weights,
             loglevel,
-        ) = args[:7]
+        ) = select_args_from_input_list(args, self.handler_inputs)
 
         log_handler(
             self,
@@ -147,10 +146,8 @@ class CA(Process):
             log_level=loglevel,
             process_step="set_R_options",
         )
-        # Uses general_options_input
-        set_general_options(*args[7:15])
-        # Uses ca_options_input
-        set_ca_options(*args[15:])
+        set_general_options(*select_args_from_input_list(args, general_options_input))
+        set_ca_options(*select_args_from_input_list(args, ca_options_input))
 
         log_handler(
             self,

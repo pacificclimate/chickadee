@@ -23,6 +23,10 @@ def get_package(package):
         raise ProcessError(f"R package, {package}, is not installed")
 
 
+def select_args_from_input_list(args, inputs):
+    return (args[input_.identifier][0] for input_ in inputs)
+
+
 def set_general_options(
     units_bool,
     n_pr_bool,

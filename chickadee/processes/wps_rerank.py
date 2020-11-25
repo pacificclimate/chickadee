@@ -10,6 +10,7 @@ from chickadee.utils import (
     logger,
     get_package,
     set_general_options,
+    select_args_from_input_list,
 )
 from chickadee.io import (
     gcm_file,
@@ -32,7 +33,7 @@ class Rerank(Process):
             **{"get_ClimDown": 5, "set_R_options": 10, "parallelization": 15},
         )
 
-        inputs = [
+        self.handler_inputs = [
             obs_file,
             varname,
             out_file,
@@ -54,7 +55,8 @@ class Rerank(Process):
                 max_occurs=1,
                 data_type="string",
             ),
-        ] + general_options_input
+        ]
+        inputs = self.handler_inputs + general_options_input
 
         outputs = [nc_output]
 
@@ -79,7 +81,7 @@ class Rerank(Process):
         )
 
     def _handler(self, request, response):
-        args = [arg[0] for arg in collect_args(request, self.workdir).values()]
+        args = collect_args(request, self.workdir)
         (
             obs_file,
             varname,
@@ -88,7 +90,7 @@ class Rerank(Process):
             loglevel,
             qdm_file,
             analogues_object,
-        ) = args[:7]
+        ) = select_args_from_input_list(args, self.handler_inputs)
 
         log_handler(
             self,
@@ -117,8 +119,7 @@ class Rerank(Process):
             log_level=loglevel,
             process_step="set_R_options",
         )
-        # Uses general_options_input
-        set_general_options(*args[7:])
+        set_general_options(*select_args_from_input_list(args, general_options_input))
 
         log_handler(
             self,
