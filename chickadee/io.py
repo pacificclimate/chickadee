@@ -88,10 +88,24 @@ general_options_input = [
     ),
     LiteralInput(
         "max_gb",
-        "Max BG",
+        "Max GB",
         abstract="Anapproximate measure of how much RAM to use in the chunk I/O loop. It’s best to set this to about 1/3 to 1/4 of what you want the high-water mark to be",
         default=1.0,
         data_type="float",
+    ),
+    LiteralInput(
+        "start_date",
+        "Start Date",
+        abstract="Defines the stat of the calibration period",
+        default=date(1971, 1, 1),
+        data_type="date",
+    ),
+    LiteralInput(
+        "end_date",
+        "End Date",
+        abstract="Defines the end of the calibration period",
+        default=date(2005, 12, 31),
+        data_type="date",
     ),
 ]
 
@@ -110,20 +124,6 @@ ca_options_input = [
         abstract="An integer describing the size of the window on either side of a day",
         default=45,
         data_type="positiveInteger",
-    ),
-    LiteralInput(
-        "start_date",
-        "Start Date",
-        abstract="Defines the stat of the calibration period",
-        default=date(1971, 1, 1),
-        data_type="date",
-    ),
-    LiteralInput(
-        "end_date",
-        "End Date",
-        abstract="Defines the end of the calibration period",
-        default=date(2005, 12, 31),
-        data_type="date",
     ),
     LiteralInput(
         "trimmed_mean",

@@ -97,9 +97,9 @@ class QDM(Process):
             process_step="set_R_options",
         )
         # Uses general_options_input
-        set_general_options(*args[6:12])
+        set_general_options(*args[6:14])
         # Uses qdm_options_input
-        set_qdm_options(*args[12:])
+        set_qdm_options(*args[14:])
 
         # Set parallelization
         log_handler(

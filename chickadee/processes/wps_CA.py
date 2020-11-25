@@ -148,9 +148,9 @@ class CA(Process):
             process_step="set_R_options",
         )
         # Uses general_options_input
-        set_general_options(*args[7:13])
+        set_general_options(*args[7:15])
         # Uses ca_options_input
-        set_ca_options(*args[13:])
+        set_ca_options(*args[15:])
 
         log_handler(
             self,

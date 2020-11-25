@@ -104,9 +104,9 @@ class BCCAQ(Process):
             process_step="set_R_options",
         )
         # Uses general_options_input
-        set_general_options(*args[6:12])
+        set_general_options(*args[6:14])
         # Uses ca_options_input
-        set_ca_options(*args[12:19])
+        set_ca_options(*args[14:19])
         # Uses qdm_options_input
         set_qdm_options(*args[19:])
 

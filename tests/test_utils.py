@@ -28,8 +28,28 @@ def test_get_package_err(package):
 
 
 @pytest.mark.parametrize(
-    ("units_bool", "n_pr_bool", "tasmax_units", "tasmin_units", "pr_units", "max_gb"),
-    [(False, False, "farenheit", "farenheit", "mm", 0.5)],
+    (
+        "units_bool",
+        "n_pr_bool",
+        "tasmax_units",
+        "tasmin_units",
+        "pr_units",
+        "max_gb",
+        "start_date",
+        "end_date",
+    ),
+    [
+        (
+            False,
+            False,
+            "farenheit",
+            "farenheit",
+            "mm",
+            0.5,
+            date(1996, 9, 14),
+            date(2020, 11, 23),
+        )
+    ],
 )
 def test_set_general_options(
     units_bool,
@@ -38,6 +58,8 @@ def test_set_general_options(
     tasmin_units,
     pr_units,
     max_gb,
+    start_date,
+    end_date,
 ):
     set_general_options(
         units_bool,
@@ -46,6 +68,8 @@ def test_set_general_options(
         tasmin_units,
         pr_units,
         max_gb,
+        start_date,
+        end_date,
     )
 
     assert base.getOption("check.units")[0] == units_bool
@@ -56,25 +80,27 @@ def test_set_general_options(
         pr_units,
     ]
     assert base.getOption("max.GB")[0] == max_gb
+    assert str(base.getOption("calibration.start")).split('"')[1].split()[0] == str(
+        start_date
+    )
+    assert str(base.getOption("calibration.end")).split('"')[1].split()[0] == str(
+        end_date
+    )
 
 
 @pytest.mark.parametrize(
     (
         "num_analogues",
         "delta_days",
-        "start_date",
-        "end_date",
         "trimmed_mean",
         "tol",
         "expon",
     ),
-    [(25, 40, date(1996, 9, 14), date(2020, 11, 23), 0.5, 0.2, 0.6)],
+    [(25, 40.0, 0.5, 0.2, 0.6)],
 )
 def test_set_ca_options(
     num_analogues,
     delta_days,
-    start_date,
-    end_date,
     trimmed_mean,
     tol,
     expon,
@@ -82,8 +108,6 @@ def test_set_ca_options(
     set_ca_options(
         num_analogues,
         delta_days,
-        start_date,
-        end_date,
         trimmed_mean,
         tol,
         expon,
@@ -91,12 +115,6 @@ def test_set_ca_options(
 
     assert base.getOption("n.analogues")[0] == num_analogues
     assert base.getOption("delta.days")[0] == delta_days
-    assert str(base.getOption("calibration.start")).split('"')[1].split()[0] == str(
-        start_date
-    )
-    assert str(base.getOption("calibration.end")).split('"')[1].split()[0] == str(
-        end_date
-    )
     assert base.getOption("trimmed.mean")[0] == trimmed_mean
     assert base.getOption("tol")[0] == tol
     assert base.getOption("expon")[0] == expon
