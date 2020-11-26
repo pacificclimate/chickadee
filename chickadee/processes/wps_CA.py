@@ -8,10 +8,19 @@ from wps_tools.utils import log_handler, collect_args, common_status_percentages
 from wps_tools.io import log_level
 from chickadee.utils import (
     logger,
-    set_end_date,
     get_package,
+    set_general_options,
+    set_ca_options,
+    select_args_from_input_list,
 )
-from chickadee.io import gcm_file, obs_file, varname, num_cores, end_date
+from chickadee.io import (
+    gcm_file,
+    obs_file,
+    varname,
+    num_cores,
+    general_options_input,
+    ca_options_input,
+)
 
 
 class CA(Process):
@@ -29,18 +38,17 @@ class CA(Process):
             common_status_percentages,
             **{
                 "get_ClimDown": 5,
-                "parallelization": 10,
-                "set_end_date": 15,
+                "set_R_options": 10,
+                "parallelization": 15,
                 "write_files": 80,
             },
         )
 
-        inputs = [
+        self.handler_inputs = [
             gcm_file,
             obs_file,
             varname,
             num_cores,
-            end_date,
             LiteralInput(
                 "indices",
                 "Indices File",
@@ -55,6 +63,8 @@ class CA(Process):
             ),
             log_level,
         ]
+
+        inputs = self.handler_inputs + general_options_input + ca_options_input
 
         outputs = [
             ComplexOutput(
@@ -98,16 +108,17 @@ class CA(Process):
                     file_.write(f"{item}\n")
 
     def _handler(self, request, response):
+        args = collect_args(request, self.workdir)
         (
             gcm_file,
             obs_file,
             varname,
             num_cores,
-            end_date,
             indices,
             weights,
             loglevel,
-        ) = [arg[0] for arg in collect_args(request, self.workdir).values()]
+        ) = select_args_from_input_list(args, self.handler_inputs)
+
         log_handler(
             self,
             response,
@@ -117,7 +128,6 @@ class CA(Process):
             process_step="start",
         )
 
-        # Get ClimDown
         log_handler(
             self,
             response,
@@ -128,7 +138,17 @@ class CA(Process):
         )
         climdown = get_package("ClimDown")
 
-        # Set parallelization
+        log_handler(
+            self,
+            response,
+            "Setting R options",
+            logger,
+            log_level=loglevel,
+            process_step="set_R_options",
+        )
+        set_general_options(*select_args_from_input_list(args, general_options_input))
+        set_ca_options(*select_args_from_input_list(args, ca_options_input))
+
         log_handler(
             self,
             response,
@@ -140,16 +160,14 @@ class CA(Process):
         doPar = get_package("doParallel")
         doPar.registerDoParallel(cores=num_cores)
 
-        # Set R option 'calibration.end'
         log_handler(
             self,
             response,
-            "Setting R option 'calibration.end'",
+            "Calculating weights",
             logger,
             log_level=loglevel,
-            process_step="set_end_date",
+            process_step="process",
         )
-        set_end_date(end_date)
 
         # Run Constructed Analogue Step (CA)
         log_handler(

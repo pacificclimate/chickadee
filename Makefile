@@ -18,7 +18,7 @@ SANITIZE_FILE := https://github.com/Ouranosinc/PAVICS-e2e-workflow-tests/raw/mas
 
 
 .PHONY: all
-all: apt install-r-pkg develop test clean-test test-notebooks-prod
+all: apt install-r-pkg develop test-all clean-test test-notebooks-prod
 
 .PHONY: help
 help:

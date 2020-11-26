@@ -3,20 +3,29 @@ from pywps.app.Common import Metadata
 
 from wps_tools.utils import log_handler, collect_args, common_status_percentages
 from wps_tools.io import log_level, nc_output
-from chickadee.utils import logger, get_package
-from chickadee.io import gcm_file, obs_file, varname, out_file, num_cores
+from chickadee.utils import (
+    logger,
+    get_package,
+    set_general_options,
+    select_args_from_input_list,
+)
+from chickadee.io import (
+    gcm_file,
+    obs_file,
+    varname,
+    out_file,
+    num_cores,
+    general_options_input,
+)
 
 
 class CI(Process):
     def __init__(self):
         self.status_percentage_steps = dict(
             common_status_percentages,
-            **{
-                "get_ClimDown": 5,
-                "parallelization": 10,
-            },
+            **{"get_ClimDown": 5, "set_R_options": 10, "parallelization": 15},
         )
-        inputs = [
+        self.handler_inputs = [
             gcm_file,
             obs_file,
             varname,
@@ -24,6 +33,7 @@ class CI(Process):
             num_cores,
             log_level,
         ]
+        inputs = self.handler_inputs + general_options_input
 
         outputs = [nc_output]
 
@@ -46,6 +56,7 @@ class CI(Process):
         )
 
     def _handler(self, request, response):
+        args = collect_args(request, self.workdir)
         (
             gcm_file,
             obs_file,
@@ -53,7 +64,7 @@ class CI(Process):
             output_file,
             num_cores,
             loglevel,
-        ) = [arg[0] for arg in collect_args(request, self.workdir).values()]
+        ) = select_args_from_input_list(args, self.handler_inputs)
 
         log_handler(
             self,
@@ -64,7 +75,6 @@ class CI(Process):
             process_step="start",
         )
 
-        # Get ClimDown
         log_handler(
             self,
             response,
@@ -74,6 +84,17 @@ class CI(Process):
             process_step="get_ClimDown",
         )
         climdown = get_package("ClimDown")
+
+        log_handler(
+            self,
+            response,
+            "Setting R options",
+            logger,
+            log_level=loglevel,
+            process_step="set_R_options",
+        )
+        # Uses general_options_input
+        set_general_options(*select_args_from_input_list(args, general_options_input))
 
         # Set parallelization
         log_handler(

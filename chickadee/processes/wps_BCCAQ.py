@@ -8,10 +8,22 @@ from wps_tools.utils import log_handler, collect_args, common_status_percentages
 from wps_tools.io import log_level, nc_output
 from chickadee.utils import (
     logger,
-    set_end_date,
     get_package,
+    set_general_options,
+    set_ca_options,
+    set_qdm_options,
+    select_args_from_input_list,
 )
-from chickadee.io import gcm_file, obs_file, varname, out_file, num_cores, end_date
+from chickadee.io import (
+    gcm_file,
+    obs_file,
+    varname,
+    out_file,
+    num_cores,
+    general_options_input,
+    ca_options_input,
+    qdm_options_input,
+)
 
 
 class BCCAQ(Process):
@@ -22,18 +34,24 @@ class BCCAQ(Process):
     def __init__(self):
         self.status_percentage_steps = dict(
             common_status_percentages,
-            **{"get_ClimDown": 5, "parallelization": 10, "set_end_date": 15},
+            **{"get_ClimDown": 5, "set_R_options": 10, "parallelization": 15},
         )
 
-        inputs = [
+        self.handler_inputs = [
             gcm_file,
             obs_file,
             varname,
             out_file,
             num_cores,
-            end_date,
             log_level,
         ]
+
+        inputs = (
+            self.handler_inputs
+            + general_options_input
+            + ca_options_input
+            + qdm_options_input
+        )
 
         outputs = [nc_output]
 
@@ -58,15 +76,16 @@ class BCCAQ(Process):
         )
 
     def _handler(self, request, response):
+        args = collect_args(request, self.workdir)
         (
             gcm_file,
             obs_file,
             varname,
             out_file,
             num_cores,
-            end_date,
             loglevel,
-        ) = [arg[0] for arg in collect_args(request, self.workdir).values()]
+        ) = select_args_from_input_list(args, self.handler_inputs)
+
         log_handler(
             self,
             response,
@@ -76,7 +95,6 @@ class BCCAQ(Process):
             process_step="start",
         )
 
-        # Get ClimDown
         log_handler(
             self,
             response,
@@ -87,7 +105,18 @@ class BCCAQ(Process):
         )
         climdown = get_package("ClimDown")
 
-        # Set parallelization
+        log_handler(
+            self,
+            response,
+            "Setting R options",
+            logger,
+            log_level=loglevel,
+            process_step="set_R_options",
+        )
+        set_general_options(*select_args_from_input_list(args, general_options_input))
+        set_ca_options(*select_args_from_input_list(args, ca_options_input))
+        set_qdm_options(*select_args_from_input_list(args, qdm_options_input))
+
         log_handler(
             self,
             response,
@@ -99,18 +128,6 @@ class BCCAQ(Process):
         doPar = get_package("doParallel")
         doPar.registerDoParallel(cores=num_cores)
 
-        # Set R option 'calibration.end'
-        log_handler(
-            self,
-            response,
-            "Setting R option 'calibration.end'",
-            logger,
-            log_level=loglevel,
-            process_step="set_end_date",
-        )
-        set_end_date(end_date)
-
-        # Run ClimDown
         log_handler(
             self,
             response,
@@ -119,6 +136,7 @@ class BCCAQ(Process):
             log_level=loglevel,
             process_step="process",
         )
+
         climdown.bccaq_netcdf_wrapper(gcm_file, obs_file, out_file, varname)
 
         # Stop parallelization
