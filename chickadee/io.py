@@ -54,7 +54,7 @@ general_options_input = [
     LiteralInput(
         "units_bool",
         "Units Boolean",
-        abstract="Whether to check the input units and convertthem to the target output units",
+        abstract="Check the input units and convert them to the target output units",
         max_occurs=1,
         default=True,
         data_type="boolean",
@@ -62,7 +62,7 @@ general_options_input = [
     LiteralInput(
         "n_pr_bool",
         "Negative Precipitation Boolean",
-        abstract="Whether to check for and eliminate negativeprecipitation values",
+        abstract="Check for and eliminate negative precipitation values",
         max_occurs=1,
         default=True,
         data_type="boolean",
@@ -94,7 +94,7 @@ general_options_input = [
     LiteralInput(
         "max_gb",
         "Max GB",
-        abstract="Anapproximate measure of how much RAM to use in the chunk I/O loop. It’s best to set this to about 1/3 to 1/4 of what you want the high-water mark to be",
+        abstract="Anapproximately how much RAM to use in the chunk I/O loop. It’s best to set this to about 1/3 to 1/4 of what you want the high-water mark to be",
         max_occurs=1,
         default=1.0,
         data_type="float",
@@ -122,7 +122,7 @@ ca_options_input = [
     LiteralInput(
         "num_analogues",
         "Number of Analogues",
-        abstract="The number of temporal analogues that the CA algorithm will search for andmatch.  The higher this number, the longer the execution time of the reorderingstep.",
+        abstract="The number of temporal analogues that the CA algorithm will search for and match. The higher this number, the longer the execution time of the reordering step.",
         max_occurs=1,
         default=30,
         data_type="positiveInteger",
@@ -138,7 +138,7 @@ ca_options_input = [
     LiteralInput(
         "trimmed_mean",
         "Trimmed Mean",
-        abstract="The fraction (0 to 0.5) of observations to be trimmed from each end of the set of values before the mean is computed - Not recommended to change",
+        abstract="The fraction (0 to 0.5) of observations to be trimmed from each extreme of the distribution before the mean is computed - Not recommended to change",
         max_occurs=1,
         default=0.0,
         data_type="float",
