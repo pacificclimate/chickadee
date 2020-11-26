@@ -67,17 +67,15 @@ def set_ca_options(
     delta_days,
     trimmed_mean,
     tol,
-    expon,
 ):
     robjects.r(
         """
-    function(trimmed_mean, delta_days, num_analogues, tol, expon){
+    function(trimmed_mean, delta_days, num_analogues, tol){
         options(
             trimmed.mean=trimmed_mean,
             delta.days=delta_days,
             n.analogues=num_analogues,
-            tol=tol,
-            expon=expon
+            tol=tol
         )
     }
     """
@@ -86,7 +84,6 @@ def set_ca_options(
         delta_days,
         num_analogues,
         tol,
-        expon,
     )
 
 

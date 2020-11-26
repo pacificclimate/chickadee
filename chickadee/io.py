@@ -151,14 +151,6 @@ ca_options_input = [
         default=0.1,
         data_type="float",
     ),
-    LiteralInput(
-        "expon",
-        "Exponent",
-        abstract="Undocumented and not recommended to change",
-        max_occurs=1,
-        default=0.5,
-        data_type="float",
-    ),
 ]
 
 
