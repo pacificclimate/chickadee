@@ -1,6 +1,17 @@
 Changes
 *******
 
+0.4.0 (2020-11-30)
+==================
+
+* Add rerank process (#_27)
+* Bump ``wps-tools`` target (#_31)
+* Add all options (#_32)
+
+.. _27: https://github.com/pacificclimate/chickadee/pull/27
+.. _31: https://github.com/pacificclimate/chickadee/pull/31
+.. _32: https://github.com/pacificclimate/chickadee/pull/32
+
 0.3.1 (2020-11-20)
 ==================
 

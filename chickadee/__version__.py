@@ -6,4 +6,4 @@
 
 __author__ = """Nikola Rados"""
 __email__ = "nrados@uvic.ca"
-__version__ = "0.3.1"
+__version__ = "0.4.0"
