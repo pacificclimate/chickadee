@@ -13,7 +13,7 @@ from chickadee.processes.wps_rerank import Rerank
             local_path("tiny_obs.nc"),
             "tasmax",
             local_path("QDM_expected_output.nc"),
-            resource_filename(__name__, "data/analogues.rds"),
+            local_path("analogues.rda"),
         ),
     ],
 )
@@ -26,6 +26,6 @@ def test_wps_rerank(obs_file, var, qdm_file, analogues_object):
             f"varname={var};"
             f"out_file={out_file.name};"
             f"qdm_file=@xlink:href={qdm_file};"
-            f"analogues_object={analogues_object};"
+            f"analogues_object=@xlink:href={analogues_object};"
         )
         run_wps_process(Rerank(), datainputs)

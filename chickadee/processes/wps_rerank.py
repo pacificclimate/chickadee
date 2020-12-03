@@ -1,6 +1,6 @@
-import os
-import re
-from pywps import Process, LiteralInput, ComplexInput, FORMATS
+from rpy2 import robjects
+from pywps.inout.formats import Format
+from pywps import Process, ComplexInput, FORMATS
 from pywps.app.Common import Metadata
 from netCDF4 import Dataset
 
@@ -47,13 +47,15 @@ class Rerank(Process):
                 max_occurs=1,
                 supported_formats=[FORMATS.NETCDF, FORMATS.DODS],
             ),
-            LiteralInput(
+            ComplexInput(
                 "analogues_object",
                 "Analogues R object",
-                abstract="R object containing the analogues produced from the CA step (suffix .rds)",
-                min_occurs=0,
+                abstract="R object containing the analogues produced from the CA step (suffix .rda)",
+                min_occurs=1,
                 max_occurs=1,
-                data_type="string",
+                supported_formats=[
+                    Format("application/x-gzip", extension=".rda", encoding="base64")
+                ],
             ),
         ]
         inputs = self.handler_inputs + general_options_input
@@ -141,11 +143,11 @@ class Rerank(Process):
             process_step="process",
         )
 
-        # Get analogues R oject from file
-        base = get_package("base")
-        with open(analogues_object):
-            analogues = base.readRDS(analogues_object)
-
+        # First load the analogues object into the R environment
+        # Then assign that object a name in the python environment
+        analogues = robjects.r(
+            robjects.r("load(file='{}')".format(analogues_object))[0]
+        )
         climdown.rerank_netcdf_wrapper(qdm_file, obs_file, analogues, out_file, varname)
 
         # Stop parallelization
@@ -161,6 +163,9 @@ class Rerank(Process):
         )
 
         response.outputs["output"].file = out_file
+
+        # Clear R global env
+        robjects.r("rm(list=ls())")
 
         log_handler(
             self,
