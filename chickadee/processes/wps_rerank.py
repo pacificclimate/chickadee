@@ -1,8 +1,6 @@
-import os
-import re
-from pywps import Process, LiteralInput, ComplexInput, FORMATS
+from rpy2 import robjects
+from pywps import Process, ComplexInput, LiteralInput, FORMATS, Format
 from pywps.app.Common import Metadata
-from netCDF4 import Dataset
 
 from wps_tools.utils import log_handler, common_status_percentages, collect_args
 from wps_tools.io import log_level, nc_output
@@ -47,10 +45,21 @@ class Rerank(Process):
                 max_occurs=1,
                 supported_formats=[FORMATS.NETCDF, FORMATS.DODS],
             ),
-            LiteralInput(
+            ComplexInput(
                 "analogues_object",
                 "Analogues R object",
-                abstract="R object containing the analogues produced from the CA step (suffix .rds)",
+                abstract="R object containing the analogues produced from the CA step (suffix .rda)",
+                min_occurs=1,
+                max_occurs=1,
+                supported_formats=[
+                    Format("application/x-gzip", extension=".rda", encoding="base64")
+                ],
+            ),
+            LiteralInput(
+                "analogues_name",
+                "Name of analogues R object",
+                abstract="Name of the R object containing the analogues",
+                default="analogues",
                 min_occurs=0,
                 max_occurs=1,
                 data_type="string",
@@ -90,6 +99,7 @@ class Rerank(Process):
             loglevel,
             qdm_file,
             analogues_object,
+            analogues_name,
         ) = select_args_from_input_list(args, self.handler_inputs)
 
         log_handler(
@@ -141,10 +151,8 @@ class Rerank(Process):
             process_step="process",
         )
 
-        # Get analogues R oject from file
-        base = get_package("base")
-        with open(analogues_object):
-            analogues = base.readRDS(analogues_object)
+        robjects.r(f"load(file='{analogues_object}')")
+        analogues = robjects.r(analogues_name)
 
         climdown.rerank_netcdf_wrapper(qdm_file, obs_file, analogues, out_file, varname)
 
@@ -161,6 +169,9 @@ class Rerank(Process):
         )
 
         response.outputs["output"].file = out_file
+
+        # Clear R global env
+        robjects.r("rm(list=ls())")
 
         log_handler(
             self,
