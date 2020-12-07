@@ -1,8 +1,6 @@
 from rpy2 import robjects
-from pywps.inout.formats import Format
-from pywps import Process, ComplexInput, LiteralInput, FORMATS
+from pywps import Process, ComplexInput, LiteralInput, FORMATS, Format
 from pywps.app.Common import Metadata
-from netCDF4 import Dataset
 
 from wps_tools.utils import log_handler, common_status_percentages, collect_args
 from wps_tools.io import log_level, nc_output
@@ -153,8 +151,6 @@ class Rerank(Process):
             process_step="process",
         )
 
-        # First load the analogues object into the R environment
-        # Then assign that object a name in the python environment
         robjects.r(f"load(file='{analogues_object}')")
         analogues = robjects.r(analogues_name)
 
