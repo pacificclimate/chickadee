@@ -64,7 +64,7 @@ class Rerank(Process):
                 default="analogues",
                 min_occurs=0,
                 max_occurs=1,
-                data_type="string"
+                data_type="string",
             ),
         ]
         inputs = self.handler_inputs + general_options_input
@@ -101,7 +101,7 @@ class Rerank(Process):
             loglevel,
             qdm_file,
             analogues_object,
-            analogues_name
+            analogues_name,
         ) = select_args_from_input_list(args, self.handler_inputs)
 
         log_handler(
@@ -157,7 +157,7 @@ class Rerank(Process):
         # Then assign that object a name in the python environment
         robjects.r(f"load(file='{analogues_object}')")
         analogues = robjects.r(analogues_name)
-        
+
         climdown.rerank_netcdf_wrapper(qdm_file, obs_file, analogues, out_file, varname)
 
         # Stop parallelization
