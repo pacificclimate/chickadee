@@ -1,6 +1,9 @@
 import logging
 import os
 from rpy2 import robjects
+from tempfile import NamedTemporaryFile
+from urllib.request import urlretrieve
+from pkg_resources import resource_filename
 from rpy2.robjects.packages import isinstalled, importr
 from pywps.app.exceptions import ProcessError
 from collections import OrderedDict
@@ -149,3 +152,31 @@ def set_qdm_options(
         tasmax_ratio,
         tasmin_ratio,
     )
+
+
+def test_analogues(url, analogues_name, expected_file, expected_analogues):
+    with NamedTemporaryFile(
+        suffix=".rda", prefix="tmp_copy", dir="/tmp", delete=True
+    ) as tmp_file:
+        urlretrieve(url, tmp_file.name)
+        robjects.r(f"load(file='{tmp_file.name}')")
+    # robjects.r(analogues_name)
+
+    robjects.r(
+        "load(file='{}')".format(resource_filename("tests", f"data/{expected_file}"))
+    )
+    # robjects.r(expected_analogues)
+
+    for col in ["indices", "weights"]:
+        r_expected = f'{expected_analogues}[["{col}"]]'
+        r_output = f'{analogues_name}[["{col}"]]'
+
+        expected_vector = robjects.r(r_expected)
+
+        for i in range(1, len(expected_vector) + 1):
+            test = f"all({r_expected}[[{i}]]=={r_output}[[{i}]])"
+
+            assert robjects.r(test)
+
+    # Clear R global env
+    robjects.r("rm(list=ls())")

@@ -1,5 +1,5 @@
 import os
-from pywps import Process, ComplexOutput, LiteralInput, FORMATS
+from pywps import Process, ComplexOutput, LiteralInput, Format
 from pywps.app.Common import Metadata
 from netCDF4 import Dataset
 from rpy2 import robjects
@@ -50,15 +50,19 @@ class CA(Process):
             varname,
             num_cores,
             LiteralInput(
-                "indices",
-                "Indices File",
-                abstract="File name to store indices of analogue times steps (suffix .txt)",
+                "output_file",
+                "Output file name",
+                abstract="Filename to store the output Rdata (extension .rda)",
+                min_occurs=0,
+                max_occurs=1,
+                default="output.rda",
                 data_type="string",
             ),
             LiteralInput(
-                "weights",
-                "Weights File",
-                abstract="File name to store weights of analogues (suffix .txt)",
+                "vector_name",
+                "Vector Name",
+                abstract="Output vector name",
+                default="analogues",
                 data_type="string",
             ),
             log_level,
@@ -68,16 +72,12 @@ class CA(Process):
 
         outputs = [
             ComplexOutput(
-                "indices_file",
-                "Indices File",
-                abstract="File path with analogue indices",
-                supported_formats=[FORMATS.TEXT],
-            ),
-            ComplexOutput(
-                "weights_file",
-                "Weights File",
-                abstract="File path with analogue weights",
-                supported_formats=[FORMATS.TEXT],
+                "rda_output",
+                "Rda output file",
+                abstract="Rda file containing R vector with weights and indices",
+                supported_formats=[
+                    Format("application/x-gzip", extension=".rda", encoding="base64")
+                ],
             ),
         ]
 
@@ -101,12 +101,6 @@ class CA(Process):
             status_supported=True,
         )
 
-    def write_list_to_file(self, list_, filename):
-        with open(filename, "w") as file_:
-            for line in list_:
-                for item in line:
-                    file_.write(f"{item}\n")
-
     def _handler(self, request, response):
         args = collect_args(request, self.workdir)
         (
@@ -114,8 +108,8 @@ class CA(Process):
             obs_file,
             varname,
             num_cores,
-            indices,
-            weights,
+            output_file,
+            vector_name,
             loglevel,
         ) = select_args_from_input_list(args, self.handler_inputs)
 
@@ -192,8 +186,8 @@ class CA(Process):
             process_step="write_files",
         )
 
-        self.write_list_to_file(analogues[0], indices)
-        self.write_list_to_file(analogues[1], weights)
+        robjects.r.assign(vector_name, analogues)
+        robjects.r(f"save({vector_name}, file='{output_file}')")
 
         log_handler(
             self,
@@ -204,8 +198,10 @@ class CA(Process):
             process_step="build_output",
         )
 
-        response.outputs["indices_file"].file = indices
-        response.outputs["weights_file"].file = weights
+        response.outputs["rda_output"].file = output_file
+
+        # Clear R global env
+        robjects.r("rm(list=ls())")
 
         log_handler(
             self,
