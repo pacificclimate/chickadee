@@ -2,11 +2,10 @@ from rpy2 import robjects
 from pywps import Process, ComplexInput, LiteralInput, FORMATS, Format
 from pywps.app.Common import Metadata
 
-from wps_tools.utils import log_handler, common_status_percentages, collect_args
+from wps_tools.utils import log_handler, common_status_percentages, collect_args, get_package, load_rdata_to_python 
 from wps_tools.io import log_level, nc_output
 from chickadee.utils import (
     logger,
-    get_package,
     set_general_options,
     select_args_from_input_list,
 )
@@ -151,8 +150,7 @@ class Rerank(Process):
             process_step="process",
         )
 
-        robjects.r(f"load(file='{analogues_object}')")
-        analogues = robjects.r(analogues_name)
+        analogues = load_rdata_to_python(analogues_object, analogues_name)
 
         climdown.rerank_netcdf_wrapper(qdm_file, obs_file, analogues, out_file, varname)
 
