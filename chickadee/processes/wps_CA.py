@@ -4,11 +4,16 @@ from pywps.app.Common import Metadata
 from netCDF4 import Dataset
 from rpy2 import robjects
 
-from wps_tools.utils import log_handler, collect_args, common_status_percentages
-from wps_tools.io import log_level
+from wps_tools.utils import (
+    log_handler,
+    collect_args,
+    common_status_percentages,
+    get_package,
+    save_python_to_rdata,
+)
+from wps_tools.io import log_level, vector_name, rda_output
 from chickadee.utils import (
     logger,
-    get_package,
     set_general_options,
     set_ca_options,
     select_args_from_input_list,
@@ -58,28 +63,13 @@ class CA(Process):
                 default="output.rda",
                 data_type="string",
             ),
-            LiteralInput(
-                "vector_name",
-                "Vector Name",
-                abstract="Output vector name",
-                default="analogues",
-                data_type="string",
-            ),
+            vector_name,
             log_level,
         ]
 
         inputs = self.handler_inputs + general_options_input + ca_options_input
 
-        outputs = [
-            ComplexOutput(
-                "rda_output",
-                "Rda output file",
-                abstract="Rda file containing R vector with weights and indices",
-                supported_formats=[
-                    Format("application/x-gzip", extension=".rda", encoding="base64")
-                ],
-            ),
-        ]
+        outputs = [rda_output]
 
         super(CA, self).__init__(
             self._handler,
@@ -185,9 +175,7 @@ class CA(Process):
             log_level=loglevel,
             process_step="write_files",
         )
-
-        robjects.r.assign(vector_name, analogues)
-        robjects.r(f"save({vector_name}, file='{output_file}')")
+        save_python_to_rdata(vector_name, analogues, output_file)
 
         log_handler(
             self,

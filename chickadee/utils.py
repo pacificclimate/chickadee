@@ -19,13 +19,6 @@ handler.setFormatter(formatter)
 logger.addHandler(handler)
 
 
-def get_package(package):
-    if isinstalled(package):
-        return importr(package)
-    else:
-        raise ProcessError(f"R package, {package}, is not installed")
-
-
 def select_args_from_input_list(args, inputs):
     return (args[input_.identifier][0] for input_ in inputs)
 
