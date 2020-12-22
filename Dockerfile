@@ -31,11 +31,11 @@ RUN apt-get update && \
 
 COPY . .
 
-EXPOSE 5004
+EXPOSE 5000
 
-CMD gunicorn --bind=0.0.0.0:5004 --timeout 300 chickadee.wsgi:application
+CMD gunicorn --bind=0.0.0.0:5000 --timeout 300 chickadee.wsgi:application
 
 # docker build -t pacificclimate/chickadee .
-# docker run -p 8102:5004 pacificclimate/chickadee
-# http://localhost:5004/wps?request=GetCapabilities&service=WPS
-# http://localhost:5004/wps?request=DescribeProcess&service=WPS&identifier=all&version=1.0.0
+# docker run -p 8102:5000 pacificclimate/chickadee
+# http://localhost:5000/wps?request=GetCapabilities&service=WPS
+# http://localhost:5000/wps?request=DescribeProcess&service=WPS&identifier=all&version=1.0.0
