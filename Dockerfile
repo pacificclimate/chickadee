@@ -81,7 +81,7 @@ ENV LD_LIBRARY_PATH=/usr/local/lib/R/lib:$LD_LIBRARY_PATH
 
 WORKDIR /code
 
-COPY . .
+COPY ./chickadee /code/chickadee
 
 EXPOSE 5004
 
