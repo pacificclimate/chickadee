@@ -1,4 +1,4 @@
-FROM r-base:4.0.3 AS builder
+FROM rocker/r-ver:4.0.3 AS builder
 
 ENV PIP_INDEX_URL="https://pypi.pacificclimate.org/simple/"
 
@@ -24,7 +24,7 @@ RUN apt-get update && \
     pip3 install -r requirements.txt --ignore-installed --user && \
     pip3 install gunicorn --user
 
-FROM r-base:4.0.3 AS prod
+FROM rocker/r-ver:4.0.3 AS prod
 MAINTAINER https://github.com/pacificclimate/chickadee
 LABEL Description="chickadee WPS" Vendor="Birdhouse" Version="0.1.0"
 
@@ -36,7 +36,7 @@ RUN apt-get update && \
 COPY --from=builder /root/.local /root/.local
 
 # Copy compiled library files
-COPY --from=builder /usr/lib/x86_64-linux-gnu/libnetcdf.so.18 \
+COPY --from=builder /usr/lib/x86_64-linux-gnu/libnetcdf.so.15 \
   /usr/lib/x86_64-linux-gnu/libhdf5_serial_hl.so.100 \
   /usr/lib/x86_64-linux-gnu/libhdf5_serial.so.103 \
   /usr/lib/x86_64-linux-gnu/libcurl-gnutls.so.4 \
@@ -76,6 +76,7 @@ COPY --from=builder /root/R/x86_64-pc-linux-gnu-library/4.0/iterators \
 
 # Make sure scripts in .local are usable:
 ENV PATH=/root/.local/bin:$PATH
+ENV LD_LIBRARY_PATH=/usr/local/lib/R/lib:$LD_LIBRARY_PATH
 
 WORKDIR /code
 
