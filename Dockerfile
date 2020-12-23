@@ -76,6 +76,7 @@ COPY --from=builder /root/R/x86_64-pc-linux-gnu-library/4.0/iterators \
 
 # Make sure scripts in .local are usable:
 ENV PATH=/root/.local/bin:$PATH
+# Add path to libR.so to the environment variable LD_LIBRARY_PATH
 ENV LD_LIBRARY_PATH=/usr/local/lib/R/lib:$LD_LIBRARY_PATH
 
 WORKDIR /code
