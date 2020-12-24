@@ -1,6 +1,17 @@
 Changes
 *******
 
+0.4.1 (2020-12-24)
+==================
+
+* Docker build optimization (#_43)
+* Update ``wps_CA`` (#_38)
+* Update ``wps_rerank`` (#_35)
+
+.. _43: https://github.com/pacificclimate/chickadee/pull/43
+.. _38: https://github.com/pacificclimate/chickadee/pull/38
+.. _35: https://github.com/pacificclimate/chickadee/pull/35
+
 0.4.0 (2020-11-30)
 ==================
 
