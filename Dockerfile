@@ -7,15 +7,20 @@ COPY requirements.txt r_requirements.txt install_pkgs.R ./
 # Install python and R packages
 RUN apt-get update && \
   apt-get install -y --no-install-recommends \
+    # Install pip
     python3-pip \
+    # Install libraries for R packages installation
     libssl-dev \
     libxml2-dev \
     libudunits2-dev \
     libnetcdf-dev \
     libgit2-dev && \
+    # Install R packages
     Rscript install_pkgs.R r_requirements.txt && \
+    # Install python packages
     pip3 install --upgrade pip && \
     pip3 install -r requirements.txt --ignore-installed --user && \
+    # Install gunicorn
     pip3 install gunicorn --user
 
 FROM rocker/r-ver:4.0.3 AS prod
