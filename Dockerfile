@@ -35,6 +35,7 @@ RUN apt-get update && \
 COPY --from=builder /root/.local /root/.local
 
 # Copy compiled library files
+# Necessary files are found manually by running processes
 COPY --from=builder /usr/lib/x86_64-linux-gnu/libnetcdf.so.15 \
   /usr/lib/x86_64-linux-gnu/libhdf5_serial_hl.so.100 \
   /usr/lib/x86_64-linux-gnu/libhdf5_serial.so.103 \
