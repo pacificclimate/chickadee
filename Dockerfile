@@ -7,13 +7,7 @@ COPY requirements.txt r_requirements.txt install_pkgs.R ./
 # Install python and R packages
 RUN apt-get update && \
   apt-get install -y --no-install-recommends \
-    build-essential \
-    gcc \
-    libpq-dev \
-    python3.8 \
     python3-pip \
-    python3-setuptools \
-    python3-dev \
     libssl-dev \
     libxml2-dev \
     libudunits2-dev \
