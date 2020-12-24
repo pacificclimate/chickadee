@@ -27,11 +27,13 @@ FROM rocker/r-ver:4.0.3 AS prod
 MAINTAINER https://github.com/pacificclimate/chickadee
 LABEL Description="chickadee WPS" Vendor="pacificclimate" Version="1.0.2"
 
+# Install Python
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
       python3.8 \
       python3-pip
 
+# COPY Python packages from builder
 COPY --from=builder /root/.local /root/.local
 
 # Copy compiled library files
@@ -74,7 +76,7 @@ COPY --from=builder /root/R/x86_64-pc-linux-gnu-library/4.0/dotCall64 \
 COPY --from=builder /root/R/x86_64-pc-linux-gnu-library/4.0/iterators \
   /root/R/x86_64-pc-linux-gnu-library/4.0/iterators
 
-# Make sure scripts in .local are usable:
+# Make sure scripts in .local are usable
 ENV PATH=/root/.local/bin:$PATH
 # Add path to libR.so to the environment variable LD_LIBRARY_PATH
 ENV LD_LIBRARY_PATH=/usr/local/lib/R/lib:$LD_LIBRARY_PATH
