@@ -25,7 +25,7 @@ RUN apt-get update && \
 
 FROM rocker/r-ver:4.0.3 AS prod
 MAINTAINER https://github.com/pacificclimate/chickadee
-LABEL Description="chickadee WPS" Vendor="Birdhouse" Version="0.1.0"
+LABEL Description="chickadee WPS" Vendor="pacificclimate" Version="1.0.2"
 
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
