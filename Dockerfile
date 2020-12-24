@@ -44,7 +44,7 @@ COPY --from=builder /usr/lib/x86_64-linux-gnu/libnetcdf.so.15 \
   /usr/lib/x86_64-linux-gnu/libudunits2.so.0 \
   /usr/lib/x86_64-linux-gnu/
 
-# Copy R packages
+# Copy R packages in r_requirements.txt and their dependencies
 # Directories cannot be recursively copied
 COPY --from=builder /root/R/x86_64-pc-linux-gnu-library/4.0/PCICt \
   /root/R/x86_64-pc-linux-gnu-library/4.0/PCICt
