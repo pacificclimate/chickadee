@@ -4,13 +4,9 @@ from pywps import Process
 from pywps.app.Common import Metadata
 from netCDF4 import Dataset
 
-from wps_tools.utils import (
-    log_handler,
-    collect_args,
-    common_status_percentages,
-    get_package,
-)
-from wps_tools.io import log_level, nc_output
+from wps_tools.logging import log_handler, common_status_percentages
+from wps_tools.io import collect_args, log_level, nc_output
+from wps_tools.R import get_package
 from chickadee.utils import (
     logger,
     set_general_options,

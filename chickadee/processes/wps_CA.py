@@ -4,14 +4,9 @@ from pywps.app.Common import Metadata
 from netCDF4 import Dataset
 from rpy2 import robjects
 
-from wps_tools.utils import (
-    log_handler,
-    collect_args,
-    common_status_percentages,
-    get_package,
-    save_python_to_rdata,
-)
-from wps_tools.io import log_level, vector_name, rda_output
+from wps_tools.logging import log_handler, common_status_percentages
+from wps_tools.io import log_level, vector_name, rda_output, collect_args
+from wps_tools.R import save_python_to_rdata, get_package
 from chickadee.utils import (
     logger,
     set_general_options,
