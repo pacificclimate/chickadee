@@ -1,5 +1,6 @@
 from pywps import Process
 from pywps.app.Common import Metadata
+from rpy2 import robjects
 
 from wps_tools.logging import log_handler, common_status_percentages
 from wps_tools.R import get_package
@@ -9,6 +10,7 @@ from chickadee.utils import (
     set_general_options,
     set_qdm_options,
     select_args_from_input_list,
+    run_wps_climdown
 )
 from chickadee.io import (
     gcm_file,
@@ -57,6 +59,10 @@ class QDM(Process):
             store_supported=True,
             status_supported=True,
         )
+
+    @run_wps_climdown
+    def qdm_netcdf_wrapper(self, climdown, obs_file, gcm_file, output_file, varname):
+        climdown.qdm_netcdf_wrapper(obs_file, gcm_file, output_file, varname)
 
     def _handler(self, request, response):
         args = collect_args(request, self.workdir)
@@ -120,15 +126,7 @@ class QDM(Process):
             process_step="process",
         )
 
-        try:
-            climdown.qdm_netcdf_wrapper(obs_file, gcm_file, output_file, varname)
-        except RRuntimeError as e:
-            err = ProcessError(msg=e)
-            if err.message == "Sorry, process failed. Please check server error log.":
-                raise ProcessError(msg="Failure running qdm.netcdf.wrapper()")
-            else:
-                raise err
-
+        self.qdm_netcdf_wrapper(climdown, obs_file, gcm_file, output_file, varname)
         # stop parallelization
         doPar.stopImplicitCluster()
 
@@ -141,6 +139,9 @@ class QDM(Process):
             process_step="build_output",
         )
         response.outputs["output"].file = output_file
+
+        # Clear R global env
+        robjects.r("rm(list=ls())")
 
         log_handler(
             self,

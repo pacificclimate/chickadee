@@ -5,8 +5,10 @@ from tempfile import NamedTemporaryFile
 from urllib.request import urlretrieve
 from pkg_resources import resource_filename
 from rpy2.robjects.packages import isinstalled, importr
+from rpy2.rinterface_lib.embedded import RRuntimeError
 from pywps.app.exceptions import ProcessError
 from collections import OrderedDict
+
 
 logger = logging.getLogger("PYWPS")
 logger.setLevel(logging.NOTSET)
@@ -22,6 +24,23 @@ logger.addHandler(handler)
 def select_args_from_input_list(args, inputs):
     return (args[input_.identifier][0] for input_ in inputs)
 
+
+def run_wps_climdown(func):
+    def error_wrapper(*args, **kwargs):
+        try:
+            return func(*args, **kwargs)
+        except RRuntimeError as e:
+            err_msg = str(e)
+            if "Variable not found" in err_msg:
+                raise ProcessError("RRuntimeError: Requested varname not in file")
+            elif "ensure that the GCM time covers the range and extends beyond it into the future" in err_msg:
+                raise ProcessError("RRuntimeError: Check your configuration options start-date and end-date and ensure that the GCM time covers the range and extends beyond")
+            elif "Observation domain must be a proper spatial subset of the GCM domain" in err_msg:
+                raise ProcessError("RRuntimeError: Invalid obs-file or gcm-file, observation domain must be a proper spatial subset of the GCM domain")
+            else:
+                raise ProcessError(msg=err_msg)
+
+    return error_wrapper
 
 def set_general_options(
     units_bool,

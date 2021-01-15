@@ -14,6 +14,7 @@ from chickadee.utils import (
     set_general_options,
     set_ca_options,
     select_args_from_input_list,
+    run_wps_climdown
 )
 from chickadee.io import (
     gcm_file,
@@ -88,6 +89,10 @@ class CA(Process):
             status_supported=True,
         )
 
+    @run_wps_climdown
+    def ca_netcdf_wrapper(self, climdown, gcm_file, obs_file, varname):
+        return climdown.ca_netcdf_wrapper(gcm_file, obs_file, varname)
+
     def _handler(self, request, response):
         args = collect_args(request, self.workdir)
         (
@@ -160,16 +165,8 @@ class CA(Process):
             process_step="process",
         )
 
-        try:
-            analogues = climdown.ca_netcdf_wrapper(gcm_file, obs_file, varname)
-        except RRuntimeError as e:
-            err = ProcessError(msg=e)
-            if err.message == "Sorry, process failed. Please check server error log.":
-                raise ProcessError(msg="Failure running ca.netcdf.wrapper()")
-            else:
-                raise err
-
-        # Stop parallelization
+        analogues = self.ca_netcdf_wrapper(climdown, gcm_file, obs_file, varname)
+       # Stop parallelization
         doPar.stopImplicitCluster()
 
         log_handler(

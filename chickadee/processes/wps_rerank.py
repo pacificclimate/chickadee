@@ -9,6 +9,7 @@ from chickadee.utils import (
     logger,
     set_general_options,
     select_args_from_input_list,
+    run_wps_climdown
 )
 from chickadee.io import (
     gcm_file,
@@ -89,13 +90,9 @@ class Rerank(Process):
             status_supported=True,
         )
 
-    def load_rda(self, file_, obj_name):
-        try:
-            return load_rdata_to_python(file_, obj_name)
-        except RRuntimeError:
-            raise ProcessError(
-                msg="Either your file is not a valid Rdata file or there is no object of that name is not found in this rda file"
-            )
+    @run_wps_climdown
+    def rerank_netcdf_wrapper(self, climdown, qdm_file, obs_file, analogues, out_file, varname):
+        climdown.rerank_netcdf_wrapper(qdm_file, obs_file, analogues, out_file, varname)
 
     def _handler(self, request, response):
         args = collect_args(request, self.workdir)
@@ -159,17 +156,14 @@ class Rerank(Process):
             process_step="process",
         )
 
-        analogues = self.load_rda(analogues_object, analogues_name)
-
         try:
-            climdown.rerank_netcdf_wrapper(qdm_file, obs_file, analogues, out_file, varname)
-        except RRuntimeError as e:
-            err = ProcessError(msg=e)
-            if err.message == "Sorry, process failed. Please check server error log.":
-                raise ProcessError(msg="Failure running rerank.netcdf.wrapper()")
-            else:
-                raise err
+            analogues = load_rdata_to_python(analogues_object, analogues_name)
+        except RRuntimeError:
+            raise ProcessError(
+                msg="RRuntimeError: Either your file is not a valid Rdata file or there is no object of that name is not found in this rda file"
+            )
 
+        self.rerank_netcdf_wrapper(climdown, qdm_file, obs_file, analogues, out_file, varname)
         # Stop parallelization
         doPar.stopImplicitCluster()
 

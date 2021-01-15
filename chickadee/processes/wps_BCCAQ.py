@@ -1,10 +1,9 @@
-import os
-import re
 from pywps import Process
 from pywps.app.Common import Metadata
 from netCDF4 import Dataset
 from pywps.app.exceptions import ProcessError
 from rpy2.rinterface_lib.embedded import RRuntimeError
+from rpy2 import robjects
 
 from wps_tools.logging import log_handler, common_status_percentages
 from wps_tools.io import collect_args, log_level, nc_output
@@ -15,6 +14,7 @@ from chickadee.utils import (
     set_ca_options,
     set_qdm_options,
     select_args_from_input_list,
+    run_wps_climdown
 )
 from chickadee.io import (
     gcm_file,
@@ -76,6 +76,10 @@ class BCCAQ(Process):
             store_supported=True,
             status_supported=True,
         )
+
+    @run_wps_climdown
+    def bccaq_netcdf_wrapper(self, climdown, gcm_file, obs_file, out_file, varname):
+        climdown.bccaq_netcdf_wrapper(gcm_file, obs_file, out_file, varname)
 
     def _handler(self, request, response):
         args = collect_args(request, self.workdir)
@@ -139,16 +143,7 @@ class BCCAQ(Process):
             process_step="process",
         )
 
-        try:
-            climdown.bccaq_netcdf_wrapper(gcm_file, obs_file, out_file, varname)
-        except RRuntimeError as e:
-            err = ProcessError(msg=e)
-            if err.message == "Sorry, process failed. Please check server error log.":
-                raise ProcessError(msg="Failure running bccaq.netcdf.wrapper()")
-            else:
-                raise err
-
-        # Stop parallelization
+        self.bccaq_netcdf_wrapper(climdown, gcm_file, obs_file, out_file, varname)
         doPar.stopImplicitCluster()
 
         log_handler(
@@ -161,6 +156,9 @@ class BCCAQ(Process):
         )
 
         response.outputs["output"].file = out_file
+
+        # Clear R global env
+        robjects.r("rm(list=ls())")
 
         log_handler(
             self,

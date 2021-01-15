@@ -1,6 +1,7 @@
 from pywps import Process
 from pywps.app.Common import Metadata
 from pywps.app.exceptions import ProcessError
+from rpy2 import robjects
 from rpy2.rinterface_lib.embedded import RRuntimeError
 
 from wps_tools.logging import log_handler, common_status_percentages
@@ -10,6 +11,7 @@ from chickadee.utils import (
     logger,
     set_general_options,
     select_args_from_input_list,
+    run_wps_climdown
 )
 from chickadee.io import (
     gcm_file,
@@ -56,6 +58,10 @@ class CI(Process):
             store_supported=True,
             status_supported=True,
         )
+
+    @run_wps_climdown
+    def ci_netcdf_wrapper(self, climdown, gcm_file, obs_file, output_file, varname):
+        climdown.ci_netcdf_wrapper(gcm_file, obs_file, output_file, varname)
 
     def _handler(self, request, response):
         args = collect_args(request, self.workdir)
@@ -119,15 +125,7 @@ class CI(Process):
             process_step="process",
         )
 
-        try:
-            climdown.ci_netcdf_wrapper(gcm_file, obs_file, output_file, varname)
-        except RRuntimeError as e:
-            err = ProcessError(msg=e)
-            if err.message == "Sorry, process failed. Please check server error log.":
-                raise ProcessError(msg="Failure running ci.netcdf.wrapper()")
-            else:
-                raise err
-
+        self.ci_netcdf_wrapper(climdown, gcm_file, obs_file, output_file, varname)
         # stop parallelization
         doPar.stopImplicitCluster()
 
@@ -141,6 +139,9 @@ class CI(Process):
         )
 
         response.outputs["output"].file = output_file
+
+        # Clear R global env
+        robjects.r("rm(list=ls())")
 
         log_handler(
             self,
