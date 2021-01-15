@@ -1,5 +1,7 @@
 from pywps import Process
 from pywps.app.Common import Metadata
+from pywps.app.exceptions import ProcessError
+from rpy2.rinterface_lib.embedded import RRuntimeError
 
 from wps_tools.logging import log_handler, common_status_percentages
 from wps_tools.R import get_package
@@ -116,7 +118,15 @@ class CI(Process):
             log_level=loglevel,
             process_step="process",
         )
-        climdown.ci_netcdf_wrapper(gcm_file, obs_file, output_file, varname)
+
+        try:
+            climdown.ci_netcdf_wrapper(gcm_file, obs_file, output_file, varname)
+        except RRuntimeError as e:
+            err = ProcessError(msg=e)
+            if err.message == "Sorry, process failed. Please check server error log.":
+                raise ProcessError(msg="Failure running ci.netcdf.wrapper()")
+            else:
+                raise err
 
         # stop parallelization
         doPar.stopImplicitCluster()

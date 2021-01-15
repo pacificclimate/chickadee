@@ -119,7 +119,15 @@ class QDM(Process):
             log_level=loglevel,
             process_step="process",
         )
-        climdown.qdm_netcdf_wrapper(obs_file, gcm_file, output_file, varname)
+
+        try:
+            climdown.qdm_netcdf_wrapper(obs_file, gcm_file, output_file, varname)
+        except RRuntimeError as e:
+            err = ProcessError(msg=e)
+            if err.message == "Sorry, process failed. Please check server error log.":
+                raise ProcessError(msg="Failure running qdm.netcdf.wrapper()")
+            else:
+                raise err
 
         # stop parallelization
         doPar.stopImplicitCluster()

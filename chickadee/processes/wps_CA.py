@@ -3,6 +3,8 @@ from pywps import Process, ComplexOutput, LiteralInput, Format
 from pywps.app.Common import Metadata
 from netCDF4 import Dataset
 from rpy2 import robjects
+from pywps.app.exceptions import ProcessError
+from rpy2.rinterface_lib.embedded import RRuntimeError
 
 from wps_tools.logging import log_handler, common_status_percentages
 from wps_tools.io import log_level, vector_name, rda_output, collect_args
@@ -157,7 +159,15 @@ class CA(Process):
             log_level=loglevel,
             process_step="process",
         )
-        analogues = climdown.ca_netcdf_wrapper(gcm_file, obs_file, varname)
+
+        try:
+            analogues = climdown.ca_netcdf_wrapper(gcm_file, obs_file, varname)
+        except RRuntimeError as e:
+            err = ProcessError(msg=e)
+            if err.message == "Sorry, process failed. Please check server error log.":
+                raise ProcessError(msg="Failure running ca.netcdf.wrapper()")
+            else:
+                raise err
 
         # Stop parallelization
         doPar.stopImplicitCluster()

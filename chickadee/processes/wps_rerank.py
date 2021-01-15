@@ -89,6 +89,14 @@ class Rerank(Process):
             status_supported=True,
         )
 
+    def load_rda(self, file_, obj_name):
+        try:
+            return load_rdata_to_python(file_, obj_name)
+        except RRuntimeError:
+            raise ProcessError(
+                msg="Either your file is not a valid Rdata file or there is no object of that name is not found in this rda file"
+            )
+
     def _handler(self, request, response):
         args = collect_args(request, self.workdir)
         (
@@ -151,9 +159,16 @@ class Rerank(Process):
             process_step="process",
         )
 
-        analogues = load_rdata_to_python(analogues_object, analogues_name)
+        analogues = self.load_rda(analogues_object, analogues_name)
 
-        climdown.rerank_netcdf_wrapper(qdm_file, obs_file, analogues, out_file, varname)
+        try:
+            climdown.rerank_netcdf_wrapper(qdm_file, obs_file, analogues, out_file, varname)
+        except RRuntimeError as e:
+            err = ProcessError(msg=e)
+            if err.message == "Sorry, process failed. Please check server error log.":
+                raise ProcessError(msg="Failure running rerank.netcdf.wrapper()")
+            else:
+                raise err
 
         # Stop parallelization
         doPar.stopImplicitCluster()

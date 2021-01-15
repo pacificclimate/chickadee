@@ -3,6 +3,8 @@ import re
 from pywps import Process
 from pywps.app.Common import Metadata
 from netCDF4 import Dataset
+from pywps.app.exceptions import ProcessError
+from rpy2.rinterface_lib.embedded import RRuntimeError
 
 from wps_tools.logging import log_handler, common_status_percentages
 from wps_tools.io import collect_args, log_level, nc_output
@@ -137,7 +139,14 @@ class BCCAQ(Process):
             process_step="process",
         )
 
-        climdown.bccaq_netcdf_wrapper(gcm_file, obs_file, out_file, varname)
+        try:
+            climdown.bccaq_netcdf_wrapper(gcm_file, obs_file, out_file, varname)
+        except RRuntimeError as e:
+            err = ProcessError(msg=e)
+            if err.message == "Sorry, process failed. Please check server error log.":
+                raise ProcessError(msg="Failure running bccaq.netcdf.wrapper()")
+            else:
+                raise err
 
         # Stop parallelization
         doPar.stopImplicitCluster()
