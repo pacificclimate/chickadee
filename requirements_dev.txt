@@ -5,8 +5,8 @@ ipython
 pytest-notebook
 nbsphinx
 nbval>=0.9.6
-nbconvert
-sphinx>=1.7
+nbconvert~=5.6.0
+sphinx==2.4.4
 bumpversion
 twine
 cruft

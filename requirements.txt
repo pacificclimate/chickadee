@@ -1,7 +1,7 @@
-pywps>=4.2
+pywps==4.2.6
 jinja2
 click
 psutil
-wps-tools==1.0.1
+wps-tools==1.0.3
 nchelpers==5.5.7
 rpy2==3.3.6
