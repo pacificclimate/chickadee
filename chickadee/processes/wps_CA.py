@@ -93,6 +93,14 @@ class CA(Process):
     def ca_netcdf_wrapper(self, climdown, gcm_file, obs_file, varname):
         return climdown.ca_netcdf_wrapper(gcm_file, obs_file, varname)
 
+    def r_valid_name(self, robj_name):
+        """The R function 'make.names' will change a name if it
+        is not syntactically correct and leave it if it is
+        """
+        base = get_package("base")
+        if base.make_names(robj_name)[0] != robj_name:
+            raise ProcessError(msg="RRuntimeError: Your vector name is not a valid R name")
+
     def _handler(self, request, response):
         args = collect_args(request, self.workdir)
         (
@@ -177,6 +185,7 @@ class CA(Process):
             log_level=loglevel,
             process_step="write_files",
         )
+        self.r_valid_name(vector_name)
         save_python_to_rdata(vector_name, analogues, output_file)
 
         log_handler(
