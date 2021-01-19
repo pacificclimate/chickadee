@@ -11,8 +11,8 @@ from chickadee.processes.wps_QDM import QDM
     ("gcm_file", "obs_file", "var", "num_cores"),
     [
         (
-            local_path("tiny_obs.nc"),
             local_path("CI_expected_output.nc"),
+            local_path("tiny_obs.nc"),
             "tasmax",
             4,
         ),

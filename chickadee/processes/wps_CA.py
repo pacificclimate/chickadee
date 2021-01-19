@@ -14,7 +14,7 @@ from chickadee.utils import (
     set_general_options,
     set_ca_options,
     select_args_from_input_list,
-    run_wps_climdown
+    run_wps_climdown,
 )
 from chickadee.io import (
     gcm_file,
@@ -99,7 +99,7 @@ class CA(Process):
         """
         base = get_package("base")
         if base.make_names(robj_name)[0] != robj_name:
-            raise ProcessError(msg="RRuntimeError: Your vector name is not a valid R name")
+            raise ProcessError(msg="Your vector name is not a valid R name")
 
     def _handler(self, request, response):
         args = collect_args(request, self.workdir)
@@ -174,7 +174,7 @@ class CA(Process):
         )
 
         analogues = self.ca_netcdf_wrapper(climdown, gcm_file, obs_file, varname)
-       # Stop parallelization
+        # Stop parallelization
         doPar.stopImplicitCluster()
 
         log_handler(

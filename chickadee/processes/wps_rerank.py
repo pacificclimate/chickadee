@@ -1,4 +1,6 @@
 from rpy2 import robjects
+from rpy2.rinterface_lib.embedded import RRuntimeError
+from pywps.app.exceptions import ProcessError
 from pywps import Process, ComplexInput, LiteralInput, FORMATS, Format
 from pywps.app.Common import Metadata
 
@@ -9,7 +11,7 @@ from chickadee.utils import (
     logger,
     set_general_options,
     select_args_from_input_list,
-    run_wps_climdown
+    run_wps_climdown,
 )
 from chickadee.io import (
     gcm_file,
@@ -91,7 +93,9 @@ class Rerank(Process):
         )
 
     @run_wps_climdown
-    def rerank_netcdf_wrapper(self, climdown, qdm_file, obs_file, analogues, out_file, varname):
+    def rerank_netcdf_wrapper(
+        self, climdown, qdm_file, obs_file, analogues, out_file, varname
+    ):
         climdown.rerank_netcdf_wrapper(qdm_file, obs_file, analogues, out_file, varname)
 
     def _handler(self, request, response):
@@ -158,12 +162,14 @@ class Rerank(Process):
 
         try:
             analogues = load_rdata_to_python(analogues_object, analogues_name)
-        except RRuntimeError:
+        except RRuntimeError as e:
             raise ProcessError(
-                msg="RRuntimeError: Either your file is not a valid Rdata file or there is no object of that name is not found in this rda file"
+                msg=f"{type(e).__name__}: There is no object of that name found in this rda file"
             )
 
-        self.rerank_netcdf_wrapper(climdown, qdm_file, obs_file, analogues, out_file, varname)
+        self.rerank_netcdf_wrapper(
+            climdown, qdm_file, obs_file, analogues, out_file, varname
+        )
         # Stop parallelization
         doPar.stopImplicitCluster()
 

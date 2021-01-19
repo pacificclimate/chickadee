@@ -1,5 +1,4 @@
-import logging
-import os
+import pytest, logging, os, io
 from rpy2 import robjects
 from tempfile import NamedTemporaryFile
 from urllib.request import urlretrieve
@@ -8,6 +7,9 @@ from rpy2.robjects.packages import isinstalled, importr
 from rpy2.rinterface_lib.embedded import RRuntimeError
 from pywps.app.exceptions import ProcessError
 from collections import OrderedDict
+from contextlib import redirect_stderr
+
+from wps_tools.testing import run_wps_process
 
 
 logger = logging.getLogger("PYWPS")
@@ -31,16 +33,50 @@ def run_wps_climdown(func):
             return func(*args, **kwargs)
         except RRuntimeError as e:
             err_msg = str(e)
+            err_type = type(e).__name__
             if "Variable not found" in err_msg:
-                raise ProcessError("RRuntimeError: Requested varname not in file")
-            elif "ensure that the GCM time covers the range and extends beyond it into the future" in err_msg:
-                raise ProcessError("RRuntimeError: Check your configuration options start-date and end-date and ensure that the GCM time covers the range and extends beyond")
-            elif "Observation domain must be a proper spatial subset of the GCM domain" in err_msg:
-                raise ProcessError("RRuntimeError: Invalid obs-file or gcm-file, observation domain must be a proper spatial subset of the GCM domain")
+                raise ProcessError(f"{err_type}: Requested varname not in nc file")
+            elif (
+                "ensure that the GCM time covers the range and extends beyond it into the future"
+                in err_msg
+            ):
+                raise ProcessError(
+                    f"{err_type}: Check your configuration options start-date and end-date and ensure that the GCM time covers the range and extends beyond"
+                )
+            elif "does not overlap with the GCM time period" in err_msg:
+                raise ProcessError(
+                    f"{err_type}: The configured calibration period does not overlap with the GCM time period"
+                )
+            elif (
+                "Observation domain must be a proper spatial subset of the GCM domain"
+                in err_msg
+            ):
+                raise ProcessError(
+                    f"{err_type}: Invalid obs-file or gcm-file, observation domain must be a proper spatial subset of the GCM domain"
+                )
             else:
-                raise ProcessError(msg=err_msg)
+                raise ProcessError(msg=f"{err_type}: {err_msg}")
 
     return error_wrapper
+
+
+def process_err_test(process, datainputs, err_type):
+    err = io.StringIO()
+    with redirect_stderr(err):
+        with pytest.raises(Exception):
+            run_wps_process(process(), datainputs)
+
+    if err_type == "unknown var":
+        msg = "Requested varname not in nc file"
+    elif err_type == "invalid file":
+        msg = "Invalid obs-file or gcm-file, observation domain must be a proper spatial subset of the GCM domain"
+    elif err_type == "invalid date":
+        msg = "The configured calibration period does not overlap with the GCM time period"
+    elif err_type == "invalid vector":
+        msg = "Your vector name is not a valid R name"
+    elif err_type == "unknown object":
+        msg = "There is no object of that name found in this rda file"
+    assert msg in err.getvalue()
 
 
 def set_general_options(

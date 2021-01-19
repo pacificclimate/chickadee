@@ -10,7 +10,7 @@ from chickadee.utils import (
     set_general_options,
     set_qdm_options,
     select_args_from_input_list,
-    run_wps_climdown
+    run_wps_climdown,
 )
 from chickadee.io import (
     gcm_file,
