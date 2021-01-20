@@ -33,18 +33,17 @@ def test_wps_CI(gcm_file, obs_file, varname, monkeypatch):
 
 
 @pytest.mark.parametrize(
-    ("gcm_file", "obs_file", "varname", "err_type"),
+    ("gcm_file", "obs_file", "varname"),
     [
-        (local_path("tiny_gcm.nc"), local_path("tiny_obs.nc"), "tx", "unknown var"),
+        (local_path("tiny_gcm.nc"), local_path("tiny_obs.nc"), "tx"),
         (
             local_path("tiny_gcm.nc"),
             local_path("tiny_gcm.nc"),
             "tasmax",
-            "invalid file",
         ),
     ],
 )
-def test_wps_CI_err(gcm_file, obs_file, varname, monkeypatch, err_type):
+def test_wps_CI_err(gcm_file, obs_file, varname, monkeypatch):
     with NamedTemporaryFile(
         suffix=".nc", prefix="output_", dir="/tmp", delete=True
     ) as out_file:
@@ -55,4 +54,4 @@ def test_wps_CI_err(gcm_file, obs_file, varname, monkeypatch, err_type):
             f"out_file={out_file.name};"
         )
         monkeypatch.setattr("sys.stdin", io.StringIO("No"))
-        process_err_test(CI, datainputs, err_type)
+        process_err_test(CI, datainputs)

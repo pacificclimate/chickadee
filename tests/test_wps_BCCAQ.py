@@ -36,32 +36,29 @@ def test_wps_bccaq(gcm_file, obs_file, var, end_date, num_cores):
 
 
 @pytest.mark.parametrize(
-    ("gcm_file", "obs_file", "var", "end_date", "err_type"),
+    ("gcm_file", "obs_file", "var", "end_date"),
     [
         (
             local_path("tiny_gcm.nc"),
             local_path("tiny_obs.nc"),
             "tx",
             date(1972, 12, 31),
-            "unknown var",
         ),
         (
             local_path("tiny_gcm.nc"),
             local_path("tiny_gcm.nc"),
             "tasmax",
             date(1972, 12, 31),
-            "invalid file",
         ),
         (
             local_path("tiny_gcm.nc"),
             local_path("tiny_obs.nc"),
             "tasmax",
             date(1, 1, 1),
-            "invalid date",
         ),
     ],
 )
-def test_wps_bccaq_err(gcm_file, obs_file, var, end_date, err_type):
+def test_wps_bccaq_err(gcm_file, obs_file, var, end_date):
     with NamedTemporaryFile(
         suffix=".nc", prefix="output_", dir="/tmp", delete=True
     ) as out_file:
@@ -72,4 +69,4 @@ def test_wps_bccaq_err(gcm_file, obs_file, var, end_date, err_type):
             f"end_date={end_date};"
             f"out_file={out_file.name};"
         )
-        process_err_test(BCCAQ, datainputs, err_type)
+        process_err_test(BCCAQ, datainputs)

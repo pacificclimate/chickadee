@@ -39,7 +39,7 @@ def test_wps_ca(gcm_file, obs_file, var, end_date):
 
 
 @pytest.mark.parametrize(
-    ("gcm_file", "obs_file", "var", "end_date", "vector_name", "err_type"),
+    ("gcm_file", "obs_file", "var", "end_date", "vector_name"),
     [
         (
             local_path("tiny_gcm.nc"),
@@ -47,7 +47,6 @@ def test_wps_ca(gcm_file, obs_file, var, end_date):
             "tx",
             date(1972, 12, 31),
             "vector_name",
-            "unknown var",
         ),
         (
             local_path("tiny_gcm.nc"),
@@ -55,7 +54,6 @@ def test_wps_ca(gcm_file, obs_file, var, end_date):
             "tasmax",
             date(1, 1, 1),
             "vector_name",
-            "invalid date",
         ),
         (
             local_path("tiny_gcm.nc"),
@@ -63,11 +61,10 @@ def test_wps_ca(gcm_file, obs_file, var, end_date):
             "tasmax",
             date(1972, 12, 31),
             "vector name",
-            "invalid vector",
         ),
     ],
 )
-def test_wps_ca_err(gcm_file, obs_file, var, end_date, vector_name, err_type):
+def test_wps_ca_err(gcm_file, obs_file, var, end_date, vector_name):
     with NamedTemporaryFile(
         suffix=".txt", prefix="indices_", dir="/tmp", delete=True
     ) as output_file:
@@ -79,4 +76,4 @@ def test_wps_ca_err(gcm_file, obs_file, var, end_date, vector_name, err_type):
             f"vector_name={vector_name};"
             f"output_file={output_file.name};"
         )
-    process_err_test(CA, datainputs, err_type)
+    process_err_test(CA, datainputs)

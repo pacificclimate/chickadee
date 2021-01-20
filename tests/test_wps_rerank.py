@@ -33,7 +33,7 @@ def test_wps_rerank(obs_file, var, qdm_file, analogues_object):
 
 
 @pytest.mark.parametrize(
-    ("obs_file", "var", "qdm_file", "analogues_object", "analogues_name", "err_type"),
+    ("obs_file", "var", "qdm_file", "analogues_object", "analogues_name"),
     [
         (
             local_path("tiny_obs.nc"),
@@ -41,7 +41,6 @@ def test_wps_rerank(obs_file, var, qdm_file, analogues_object):
             local_path("QDM_expected_output.nc"),
             local_path("analogues.rda"),
             "not_analogues",
-            "unknown object",
         ),
         (
             local_path("tiny_obs.nc"),
@@ -49,13 +48,10 @@ def test_wps_rerank(obs_file, var, qdm_file, analogues_object):
             local_path("QDM_expected_output.nc"),
             local_path("analogues.rda"),
             "analogues",
-            "unknown var",
         ),
     ],
 )
-def test_wps_rerank_err(
-    obs_file, var, qdm_file, analogues_object, analogues_name, err_type
-):
+def test_wps_rerank_err(obs_file, var, qdm_file, analogues_object, analogues_name):
     with NamedTemporaryFile(
         suffix=".nc", prefix="output_", dir="/tmp", delete=True
     ) as out_file:
@@ -67,4 +63,4 @@ def test_wps_rerank_err(
             f"analogues_name={analogues_name};"
             f"analogues_object=@xlink:href={analogues_object};"
         )
-        process_err_test(Rerank, datainputs, err_type)
+        process_err_test(Rerank, datainputs)
