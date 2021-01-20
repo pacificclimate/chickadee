@@ -1,10 +1,9 @@
-import pytest, logging, os, io
+import pytest, logging, os, io, re
 from rpy2 import robjects
 from tempfile import NamedTemporaryFile
 from urllib.request import urlretrieve
 from pkg_resources import resource_filename
 from rpy2.robjects.packages import isinstalled, importr
-from rpy2.rinterface_lib.embedded import RRuntimeError
 from pywps.app.exceptions import ProcessError
 from collections import OrderedDict
 from contextlib import redirect_stderr
@@ -27,56 +26,26 @@ def select_args_from_input_list(args, inputs):
     return (args[input_.identifier][0] for input_ in inputs)
 
 
-def run_wps_climdown(func):
-    def error_wrapper(*args, **kwargs):
-        try:
-            return func(*args, **kwargs)
-        except RRuntimeError as e:
-            err_msg = str(e)
-            err_type = type(e).__name__
-            if "Variable not found" in err_msg:
-                raise ProcessError(f"{err_type}: Requested varname not in nc file")
-            elif (
-                "ensure that the GCM time covers the range and extends beyond it into the future"
-                in err_msg
-            ):
-                raise ProcessError(
-                    f"{err_type}: Check your configuration options start-date and end-date and ensure that the GCM time covers the range and extends beyond"
-                )
-            elif "does not overlap with the GCM time period" in err_msg:
-                raise ProcessError(
-                    f"{err_type}: The configured calibration period does not overlap with the GCM time period"
-                )
-            elif (
-                "Observation domain must be a proper spatial subset of the GCM domain"
-                in err_msg
-            ):
-                raise ProcessError(
-                    f"{err_type}: Invalid obs-file or gcm-file, observation domain must be a proper spatial subset of the GCM domain"
-                )
-            else:
-                raise ProcessError(msg=f"{err_type}: {err_msg}")
-
-    return error_wrapper
+def custom_process_error(err):
+    """ProcessError from pywps only allows a limited list of valid chars
+    in custom msgs or it reverts to it's default msg. By matching the end
+    of a msg only and removing the '()' brackets and ' quote we can show
+    some of the original error message to the user"""
+    err_match = re.compile(r"[^:\n].*$").findall(str(err))
+    err_msg = err_match[0].replace("(", "").replace(")","").replace("'","")
+    raise ProcessError(f"{type(err).__name__}: {err_msg}")
 
 
-def process_err_test(process, datainputs, err_type):
+def process_err_test(process, datainputs):
     err = io.StringIO()
     with redirect_stderr(err):
         with pytest.raises(Exception):
             run_wps_process(process(), datainputs)
+    print("!!!!")
+    print(err.getvalue())
+    assert "pywps.app.exceptions.ProcessError" in err.getvalue()
 
-    if err_type == "unknown var":
-        msg = "Requested varname not in nc file"
-    elif err_type == "invalid file":
-        msg = "Invalid obs-file or gcm-file, observation domain must be a proper spatial subset of the GCM domain"
-    elif err_type == "invalid date":
-        msg = "The configured calibration period does not overlap with the GCM time period"
-    elif err_type == "invalid vector":
-        msg = "Your vector name is not a valid R name"
-    elif err_type == "unknown object":
-        msg = "There is no object of that name found in this rda file"
-    assert msg in err.getvalue()
+
 
 
 def set_general_options(

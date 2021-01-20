@@ -14,7 +14,7 @@ from chickadee.utils import (
     set_general_options,
     set_ca_options,
     select_args_from_input_list,
-    run_wps_climdown,
+    custom_process_error
 )
 from chickadee.io import (
     gcm_file,
@@ -88,10 +88,6 @@ class CA(Process):
             store_supported=True,
             status_supported=True,
         )
-
-    @run_wps_climdown
-    def ca_netcdf_wrapper(self, climdown, gcm_file, obs_file, varname):
-        return climdown.ca_netcdf_wrapper(gcm_file, obs_file, varname)
 
     def r_valid_name(self, robj_name):
         """The R function 'make.names' will change a name if it
@@ -173,7 +169,10 @@ class CA(Process):
             process_step="process",
         )
 
-        analogues = self.ca_netcdf_wrapper(climdown, gcm_file, obs_file, varname)
+        try:
+            analogues = climdown.ca_netcdf_wrapper(gcm_file, obs_file, varname)
+        except RRuntimeError as e:
+            custom_process_error(e)
         # Stop parallelization
         doPar.stopImplicitCluster()
 

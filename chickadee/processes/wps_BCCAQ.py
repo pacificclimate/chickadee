@@ -14,7 +14,7 @@ from chickadee.utils import (
     set_ca_options,
     set_qdm_options,
     select_args_from_input_list,
-    run_wps_climdown,
+    custom_process_error,
 )
 from chickadee.io import (
     gcm_file,
@@ -76,10 +76,6 @@ class BCCAQ(Process):
             store_supported=True,
             status_supported=True,
         )
-
-    @run_wps_climdown
-    def bccaq_netcdf_wrapper(self, climdown, gcm_file, obs_file, out_file, varname):
-        climdown.bccaq_netcdf_wrapper(gcm_file, obs_file, out_file, varname)
 
     def _handler(self, request, response):
         args = collect_args(request, self.workdir)
@@ -143,7 +139,11 @@ class BCCAQ(Process):
             process_step="process",
         )
 
-        self.bccaq_netcdf_wrapper(climdown, gcm_file, obs_file, out_file, varname)
+        try:
+            climdown.bccaq_netcdf_wrapper(gcm_file, obs_file, out_file, varname)
+        except RRuntimeError as e:
+            custom_process_error(e)
+            
         doPar.stopImplicitCluster()
 
         log_handler(

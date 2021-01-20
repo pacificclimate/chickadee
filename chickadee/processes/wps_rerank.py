@@ -11,7 +11,7 @@ from chickadee.utils import (
     logger,
     set_general_options,
     select_args_from_input_list,
-    run_wps_climdown,
+    custom_process_error
 )
 from chickadee.io import (
     gcm_file,
@@ -91,13 +91,7 @@ class Rerank(Process):
             store_supported=True,
             status_supported=True,
         )
-
-    @run_wps_climdown
-    def rerank_netcdf_wrapper(
-        self, climdown, qdm_file, obs_file, analogues, out_file, varname
-    ):
-        climdown.rerank_netcdf_wrapper(qdm_file, obs_file, analogues, out_file, varname)
-
+        
     def _handler(self, request, response):
         args = collect_args(request, self.workdir)
         (
@@ -167,9 +161,10 @@ class Rerank(Process):
                 msg=f"{type(e).__name__}: There is no object of that name found in this rda file"
             )
 
-        self.rerank_netcdf_wrapper(
-            climdown, qdm_file, obs_file, analogues, out_file, varname
-        )
+        try:
+            climdown.rerank_netcdf_wrapper(qdm_file, obs_file, analogues, out_file, varname)
+        except RRuntimeError as e:
+            custom_process_error(e)
         # Stop parallelization
         doPar.stopImplicitCluster()
 
