@@ -1,7 +1,6 @@
 from pywps import LiteralInput, ComplexInput, FORMATS
+from pywps.inout.literaltypes import AllowedValue
 from datetime import date
-
-import logging
 
 
 gcm_file = ComplexInput(
@@ -140,6 +139,7 @@ ca_options_input = [
         "Trimmed Mean",
         abstract="The fraction (0 to 0.5) of observations to be trimmed from each extreme of the distribution before the mean is computed - Not recommended to change",
         max_occurs=1,
+        allowed_values=AllowedValue(minval=0.0, maxval=0.5),
         default=0.0,
         data_type="float",
     ),

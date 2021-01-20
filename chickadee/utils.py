@@ -1,12 +1,13 @@
-import logging
-import os
+import pytest, logging, io, re
 from rpy2 import robjects
 from tempfile import NamedTemporaryFile
 from urllib.request import urlretrieve
 from pkg_resources import resource_filename
-from rpy2.robjects.packages import isinstalled, importr
 from pywps.app.exceptions import ProcessError
-from collections import OrderedDict
+from contextlib import redirect_stderr
+
+from wps_tools.testing import run_wps_process
+
 
 logger = logging.getLogger("PYWPS")
 logger.setLevel(logging.NOTSET)
@@ -21,6 +22,24 @@ logger.addHandler(handler)
 
 def select_args_from_input_list(args, inputs):
     return (args[input_.identifier][0] for input_ in inputs)
+
+
+def custom_process_error(err):
+    """ProcessError from pywps only allows a limited list of valid chars
+    in custom msgs or it reverts to it's default msg. By matching the end
+    of a msg only and removing the '()' brackets and ' quote we can show
+    some of the original error message to the user"""
+    err_match = re.compile(r"[^:\n].*$").findall(str(err))
+    err_msg = err_match[0].replace("(", "").replace(")", "").replace("'", "")
+    raise ProcessError(f"{type(err).__name__}: {err_msg}")
+
+
+def process_err_test(process, datainputs):
+    err = io.StringIO()
+    with redirect_stderr(err):
+        with pytest.raises(Exception):
+            run_wps_process(process(), datainputs)
+    assert "pywps.app.exceptions.ProcessError" in err.getvalue()
 
 
 def set_general_options(

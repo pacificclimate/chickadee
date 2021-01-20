@@ -1,8 +1,8 @@
-import os
-from pywps import Process, ComplexOutput, LiteralInput, Format
+from pywps import Process, LiteralInput
 from pywps.app.Common import Metadata
-from netCDF4 import Dataset
 from rpy2 import robjects
+from rpy2.rinterface_lib.embedded import RRuntimeError
+from pywps.app.exceptions import ProcessError
 
 from wps_tools.logging import log_handler, common_status_percentages
 from wps_tools.io import log_level, vector_name, rda_output, collect_args
@@ -12,6 +12,7 @@ from chickadee.utils import (
     set_general_options,
     set_ca_options,
     select_args_from_input_list,
+    custom_process_error,
 )
 from chickadee.io import (
     gcm_file,
@@ -86,6 +87,14 @@ class CA(Process):
             status_supported=True,
         )
 
+    def r_valid_name(self, robj_name):
+        """The R function 'make.names' will change a name if it
+        is not syntactically correct and leave it if it is
+        """
+        base = get_package("base")
+        if base.make_names(robj_name)[0] != robj_name:
+            raise ProcessError(msg="Your vector name is not a valid R name")
+
     def _handler(self, request, response):
         args = collect_args(request, self.workdir)
         (
@@ -157,8 +166,11 @@ class CA(Process):
             log_level=loglevel,
             process_step="process",
         )
-        analogues = climdown.ca_netcdf_wrapper(gcm_file, obs_file, varname)
 
+        try:
+            analogues = climdown.ca_netcdf_wrapper(gcm_file, obs_file, varname)
+        except RRuntimeError as e:
+            custom_process_error(e)
         # Stop parallelization
         doPar.stopImplicitCluster()
 
@@ -170,6 +182,7 @@ class CA(Process):
             log_level=loglevel,
             process_step="write_files",
         )
+        self.r_valid_name(vector_name)
         save_python_to_rdata(vector_name, analogues, output_file)
 
         log_handler(

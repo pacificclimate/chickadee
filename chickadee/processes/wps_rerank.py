@@ -1,4 +1,6 @@
 from rpy2 import robjects
+from rpy2.rinterface_lib.embedded import RRuntimeError
+from pywps.app.exceptions import ProcessError
 from pywps import Process, ComplexInput, LiteralInput, FORMATS, Format
 from pywps.app.Common import Metadata
 
@@ -9,9 +11,9 @@ from chickadee.utils import (
     logger,
     set_general_options,
     select_args_from_input_list,
+    custom_process_error,
 )
 from chickadee.io import (
-    gcm_file,
     obs_file,
     varname,
     out_file,
@@ -151,10 +153,19 @@ class Rerank(Process):
             process_step="process",
         )
 
-        analogues = load_rdata_to_python(analogues_object, analogues_name)
+        try:
+            analogues = load_rdata_to_python(analogues_object, analogues_name)
+        except RRuntimeError as e:
+            raise ProcessError(
+                msg=f"{type(e).__name__}: There is no object of that name found in this rda file"
+            )
 
-        climdown.rerank_netcdf_wrapper(qdm_file, obs_file, analogues, out_file, varname)
-
+        try:
+            climdown.rerank_netcdf_wrapper(
+                qdm_file, obs_file, analogues, out_file, varname
+            )
+        except RRuntimeError as e:
+            custom_process_error(e)
         # Stop parallelization
         doPar.stopImplicitCluster()
 

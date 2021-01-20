@@ -1,8 +1,6 @@
 import pytest
 from collections import OrderedDict
 from pywps import LiteralInput
-from pywps.app.exceptions import ProcessError
-from pkg_resources import resource_filename
 from chickadee.utils import (
     set_general_options,
     set_ca_options,
@@ -11,7 +9,6 @@ from chickadee.utils import (
 )
 from datetime import date
 from rpy2.robjects.packages import importr
-from wps_tools.testing import run_wps_process
 
 base = importr("base")
 
@@ -20,13 +17,14 @@ base = importr("base")
     ("args", "inputs"),
     [
         (
-            OrderedDict({"input1": 1, "input2": 2, "input3": 3}),
+            OrderedDict({"input1": "1", "input2": "2", "input3": "3"}),
             [LiteralInput("input1"), LiteralInput("input2")],
         )
     ],
 )
-def select_args_from_input_list(args, inputs):
-    assert select_args_from_input_list(args, inputs) == (1, 2)
+def test_select_args_from_input_list(args, inputs):
+    args = select_args_from_input_list(args, inputs)
+    assert list(args) == ["1", "2"]
 
 
 @pytest.mark.parametrize(

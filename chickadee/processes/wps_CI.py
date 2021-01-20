@@ -1,5 +1,7 @@
 from pywps import Process
 from pywps.app.Common import Metadata
+from rpy2 import robjects
+from rpy2.rinterface_lib.embedded import RRuntimeError
 
 from wps_tools.logging import log_handler, common_status_percentages
 from wps_tools.R import get_package
@@ -8,6 +10,7 @@ from chickadee.utils import (
     logger,
     set_general_options,
     select_args_from_input_list,
+    custom_process_error,
 )
 from chickadee.io import (
     gcm_file,
@@ -116,8 +119,11 @@ class CI(Process):
             log_level=loglevel,
             process_step="process",
         )
-        climdown.ci_netcdf_wrapper(gcm_file, obs_file, output_file, varname)
 
+        try:
+            climdown.ci_netcdf_wrapper(gcm_file, obs_file, output_file, varname)
+        except RRuntimeError as e:
+            custom_process_error(e)
         # stop parallelization
         doPar.stopImplicitCluster()
 
@@ -131,6 +137,9 @@ class CI(Process):
         )
 
         response.outputs["output"].file = output_file
+
+        # Clear R global env
+        robjects.r("rm(list=ls())")
 
         log_handler(
             self,
