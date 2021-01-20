@@ -39,8 +39,6 @@ def process_err_test(process, datainputs):
     with redirect_stderr(err):
         with pytest.raises(Exception):
             run_wps_process(process(), datainputs)
-    print("!!!!")
-    print(err.getvalue())
     assert "pywps.app.exceptions.ProcessError" in err.getvalue()
 
 
