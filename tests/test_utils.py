@@ -17,14 +17,14 @@ base = importr("base")
     ("args", "inputs"),
     [
         (
-            OrderedDict({"input1": "one", "input2": "two", "input3": "three"}),
+            OrderedDict({"input1": "1", "input2": "2", "input3": "3"}),
             [LiteralInput("input1"), LiteralInput("input2")],
         )
     ],
 )
 def test_select_args_from_input_list(args, inputs):
     args = select_args_from_input_list(args, inputs)
-    assert list(args) == ["one","two"]
+    assert list(args) == ["1", "2"]
 
 
 @pytest.mark.parametrize(
