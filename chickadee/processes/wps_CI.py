@@ -1,6 +1,5 @@
 from pywps import Process
 from pywps.app.Common import Metadata
-from pywps.app.exceptions import ProcessError
 from rpy2 import robjects
 from rpy2.rinterface_lib.embedded import RRuntimeError
 
@@ -11,7 +10,7 @@ from chickadee.utils import (
     logger,
     set_general_options,
     select_args_from_input_list,
-    custom_process_error
+    custom_process_error,
 )
 from chickadee.io import (
     gcm_file,

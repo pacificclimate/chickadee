@@ -11,7 +11,7 @@ from chickadee.utils import (
     set_general_options,
     set_qdm_options,
     select_args_from_input_list,
-    custom_process_error
+    custom_process_error,
 )
 from chickadee.io import (
     gcm_file,

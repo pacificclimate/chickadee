@@ -11,10 +11,9 @@ from chickadee.utils import (
     logger,
     set_general_options,
     select_args_from_input_list,
-    custom_process_error
+    custom_process_error,
 )
 from chickadee.io import (
-    gcm_file,
     obs_file,
     varname,
     out_file,
@@ -91,7 +90,7 @@ class Rerank(Process):
             store_supported=True,
             status_supported=True,
         )
-        
+
     def _handler(self, request, response):
         args = collect_args(request, self.workdir)
         (
@@ -162,7 +161,9 @@ class Rerank(Process):
             )
 
         try:
-            climdown.rerank_netcdf_wrapper(qdm_file, obs_file, analogues, out_file, varname)
+            climdown.rerank_netcdf_wrapper(
+                qdm_file, obs_file, analogues, out_file, varname
+            )
         except RRuntimeError as e:
             custom_process_error(e)
         # Stop parallelization

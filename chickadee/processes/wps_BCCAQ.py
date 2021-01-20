@@ -1,7 +1,5 @@
 from pywps import Process
 from pywps.app.Common import Metadata
-from netCDF4 import Dataset
-from pywps.app.exceptions import ProcessError
 from rpy2.rinterface_lib.embedded import RRuntimeError
 from rpy2 import robjects
 
@@ -143,7 +141,7 @@ class BCCAQ(Process):
             climdown.bccaq_netcdf_wrapper(gcm_file, obs_file, out_file, varname)
         except RRuntimeError as e:
             custom_process_error(e)
-            
+
         doPar.stopImplicitCluster()
 
         log_handler(

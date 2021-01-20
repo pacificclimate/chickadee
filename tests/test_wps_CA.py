@@ -1,5 +1,4 @@
 import pytest
-from pkg_resources import resource_filename
 from tempfile import NamedTemporaryFile
 from datetime import date
 

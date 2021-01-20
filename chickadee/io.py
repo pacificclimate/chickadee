@@ -2,8 +2,6 @@ from pywps import LiteralInput, ComplexInput, FORMATS
 from pywps.inout.literaltypes import AllowedValue
 from datetime import date
 
-import logging
-
 
 gcm_file = ComplexInput(
     "gcm_file",

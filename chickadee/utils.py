@@ -1,11 +1,9 @@
-import pytest, logging, os, io, re
+import pytest, logging, io, re
 from rpy2 import robjects
 from tempfile import NamedTemporaryFile
 from urllib.request import urlretrieve
 from pkg_resources import resource_filename
-from rpy2.robjects.packages import isinstalled, importr
 from pywps.app.exceptions import ProcessError
-from collections import OrderedDict
 from contextlib import redirect_stderr
 
 from wps_tools.testing import run_wps_process
@@ -32,7 +30,7 @@ def custom_process_error(err):
     of a msg only and removing the '()' brackets and ' quote we can show
     some of the original error message to the user"""
     err_match = re.compile(r"[^:\n].*$").findall(str(err))
-    err_msg = err_match[0].replace("(", "").replace(")","").replace("'","")
+    err_msg = err_match[0].replace("(", "").replace(")", "").replace("'", "")
     raise ProcessError(f"{type(err).__name__}: {err_msg}")
 
 
@@ -44,8 +42,6 @@ def process_err_test(process, datainputs):
     print("!!!!")
     print(err.getvalue())
     assert "pywps.app.exceptions.ProcessError" in err.getvalue()
-
-
 
 
 def set_general_options(

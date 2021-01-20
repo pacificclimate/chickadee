@@ -1,10 +1,8 @@
-import os
-from pywps import Process, ComplexOutput, LiteralInput, Format
+from pywps import Process, LiteralInput
 from pywps.app.Common import Metadata
-from netCDF4 import Dataset
 from rpy2 import robjects
-from pywps.app.exceptions import ProcessError
 from rpy2.rinterface_lib.embedded import RRuntimeError
+from pywps.app.exceptions import ProcessError
 
 from wps_tools.logging import log_handler, common_status_percentages
 from wps_tools.io import log_level, vector_name, rda_output, collect_args
@@ -14,7 +12,7 @@ from chickadee.utils import (
     set_general_options,
     set_ca_options,
     select_args_from_input_list,
-    custom_process_error
+    custom_process_error,
 )
 from chickadee.io import (
     gcm_file,

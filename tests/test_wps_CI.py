@@ -1,6 +1,5 @@
 import pytest
 import io
-from pkg_resources import resource_filename
 from tempfile import NamedTemporaryFile
 
 from wps_tools.testing import run_wps_process, local_path
