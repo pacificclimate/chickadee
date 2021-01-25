@@ -141,7 +141,7 @@ test-all: venv
 .PHONY: notebook-sanitizer
 notebook-sanitizer:
 	@echo "Copying notebook output sanitizer ..."
-	@-bash -c "curl -L $(SANITIZE_FILE) -o $(CURDIR)/output-sanitize.cfg --silent"
+	@-bash -c "curl -L $(SANITIZE_FILE) -o $(CURDIR)/docs/output-sanitize.cfg --silent"
 
 .PHONY: test-notebooks
 test-notebooks: notebook-sanitizer
