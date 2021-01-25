@@ -1,4 +1,4 @@
-# Thunderbird
+# Chicakdee
 ![Docker Publishing](https://github.com/pacificclimate/chickadee/workflows/Docker%20Publishing/badge.svg)
 ![Python CI](https://github.com/pacificclimate/chickadee/workflows/Python%20CI/badge.svg)
 
