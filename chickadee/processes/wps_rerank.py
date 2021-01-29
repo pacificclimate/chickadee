@@ -153,12 +153,7 @@ class Rerank(Process):
             process_step="process",
         )
 
-        try:
-            analogues = load_rdata_to_python(analogues_object, analogues_name)
-        except RRuntimeError as e:
-            raise ProcessError(
-                msg=f"{type(e).__name__}: There is no object of that name found in this rda file"
-            )
+        analogues = load_rdata_to_python(analogues_object, analogues_name)
 
         try:
             climdown.rerank_netcdf_wrapper(
