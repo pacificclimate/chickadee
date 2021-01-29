@@ -7,7 +7,12 @@ from chickadee.processes.wps_CA import CA
 
 
 @pytest.mark.parametrize(
-    ("gcm_file", "obs_file", "var", "end_date",),
+    (
+        "gcm_file",
+        "obs_file",
+        "var",
+        "end_date",
+    ),
     [
         (
             local_path("tiny_gcm.nc"),

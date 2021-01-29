@@ -8,7 +8,13 @@ from chickadee.processes.wps_CI import CI
 
 @pytest.mark.parametrize(
     ("gcm_file", "obs_file", "varname"),
-    [(local_path("tiny_gcm.nc"), local_path("tiny_obs.nc"), "tasmax",),],
+    [
+        (
+            local_path("tiny_gcm.nc"),
+            local_path("tiny_obs.nc"),
+            "tasmax",
+        ),
+    ],
 )
 def test_wps_CI(gcm_file, obs_file, varname, monkeypatch):
     with NamedTemporaryFile(
@@ -28,7 +34,11 @@ def test_wps_CI(gcm_file, obs_file, varname, monkeypatch):
     ("gcm_file", "obs_file", "varname"),
     [
         (local_path("tiny_gcm.nc"), local_path("tiny_obs.nc"), "tx"),
-        (local_path("tiny_gcm.nc"), local_path("tiny_gcm.nc"), "tasmax",),
+        (
+            local_path("tiny_gcm.nc"),
+            local_path("tiny_gcm.nc"),
+            "tasmax",
+        ),
     ],
 )
 def test_wps_CI_err(gcm_file, obs_file, varname, monkeypatch):
