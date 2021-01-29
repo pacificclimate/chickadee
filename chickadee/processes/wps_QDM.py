@@ -6,12 +6,12 @@ from rpy2.rinterface_lib.embedded import RRuntimeError
 from wps_tools.logging import log_handler, common_status_percentages
 from wps_tools.R import get_package
 from wps_tools.io import log_level, nc_output, collect_args
+from wps_tools.error_handling import custom_process_error
 from chickadee.utils import (
     logger,
     set_general_options,
     set_qdm_options,
     select_args_from_input_list,
-    custom_process_error,
 )
 from chickadee.io import (
     gcm_file,

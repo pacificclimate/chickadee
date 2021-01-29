@@ -7,12 +7,12 @@ from pywps.app.exceptions import ProcessError
 from wps_tools.logging import log_handler, common_status_percentages
 from wps_tools.io import log_level, vector_name, rda_output, collect_args
 from wps_tools.R import save_python_to_rdata, get_package
+from wps_tools.error_handling import custom_process_error
 from chickadee.utils import (
     logger,
     set_general_options,
     set_ca_options,
     select_args_from_input_list,
-    custom_process_error,
 )
 from chickadee.io import (
     gcm_file,

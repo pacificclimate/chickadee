@@ -1,9 +1,8 @@
 import pytest
 from tempfile import NamedTemporaryFile
 
-from wps_tools.testing import run_wps_process, local_path
+from wps_tools.testing import run_wps_process, local_path, process_err_test
 from chickadee.processes.wps_rerank import Rerank
-from chickadee.utils import process_err_test
 
 
 @pytest.mark.parametrize(
