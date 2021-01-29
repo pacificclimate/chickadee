@@ -6,7 +6,7 @@ from pywps.app.exceptions import ProcessError
 
 from wps_tools.logging import log_handler, common_status_percentages
 from wps_tools.io import log_level, vector_name, rda_output, collect_args
-from wps_tools.R import save_python_to_rdata, get_package
+from wps_tools.R import save_python_to_rdata, get_package, r_valid_name
 from wps_tools.error_handling import custom_process_error
 from chickadee.utils import (
     logger,
@@ -86,14 +86,6 @@ class CA(Process):
             store_supported=True,
             status_supported=True,
         )
-
-    def r_valid_name(self, robj_name):
-        """The R function 'make.names' will change a name if it
-        is not syntactically correct and leave it if it is
-        """
-        base = get_package("base")
-        if base.make_names(robj_name)[0] != robj_name:
-            raise ProcessError(msg="Your vector name is not a valid R name")
 
     def _handler(self, request, response):
         args = collect_args(request, self.workdir)
@@ -182,7 +174,7 @@ class CA(Process):
             log_level=loglevel,
             process_step="write_files",
         )
-        self.r_valid_name(vector_name)
+        r_valid_name(vector_name)
         save_python_to_rdata(vector_name, analogues, output_file)
 
         log_handler(
