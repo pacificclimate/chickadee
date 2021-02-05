@@ -50,19 +50,18 @@ class Rerank(Process):
             ComplexInput(
                 "analogues_object",
                 "Analogues R object",
-                abstract="R object containing the analogues produced from the CA step (suffix .rda)",
+                abstract="Rdata or RDS file containing the analogues produced from the CA step",
                 min_occurs=1,
                 max_occurs=1,
-                supported_formats=[
-                    Format("application/x-gzip", extension=".rda", encoding="base64")
-                ],
+                supported_formats=[Format("application/x-gzip", encoding="base64")],
             ),
             LiteralInput(
                 "analogues_name",
                 "Name of analogues R object",
-                abstract="Name of the R object containing the analogues",
+                abstract="Name of the R object containing the analogues. You may leave as "
+                "defualt for RDS files.",
                 default="analogues",
-                min_occurs=0,
+                min_occurs=1,
                 max_occurs=1,
                 data_type="string",
             ),
@@ -90,6 +89,20 @@ class Rerank(Process):
             store_supported=True,
             status_supported=True,
         )
+
+    def read_analogues_file(sef, analogues, analogues_name):
+        try:
+            return load_rdata_to_python(analogues, analogues_name)
+        except (RRuntimeError, ProcessError, IndexError):
+            pass
+
+        try:
+            return robjects.r(f"readRDS('{analogues}')")
+        except (RRuntimeError, ProcessError) as e:
+            raise ProcessError(
+                f"{type(e).__name__}: Analogues file must be a RDS file or "
+                "a Rdata file containing an object of the given name"
+            )
 
     def _handler(self, request, response):
         args = collect_args(request, self.workdir)
@@ -153,7 +166,7 @@ class Rerank(Process):
             process_step="process",
         )
 
-        analogues = load_rdata_to_python(analogues_object, analogues_name)
+        analogues = self.read_analogues_file(analogues_object, analogues_name)
 
         try:
             climdown.rerank_netcdf_wrapper(
