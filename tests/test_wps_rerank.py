@@ -14,6 +14,12 @@ from chickadee.processes.wps_rerank import Rerank
             local_path("QDM_expected_output.nc"),
             local_path("analogues.rda"),
         ),
+        (
+            local_path("tiny_obs.nc"),
+            "tasmax",
+            local_path("QDM_expected_output.nc"),
+            local_path("analogues.rds"),
+        ),
     ],
 )
 def test_wps_rerank(obs_file, var, qdm_file, analogues_object):
