@@ -1,5 +1,13 @@
 # Changes
 
+## 0.5.0
+*2021-02-08*
+
+* Add `wps_tools.output_handling` to demos
+* Add `ProcessErrors`s
+* Build documentation
+* Add `RDS` input handling
+
 ## 0.4.1
 *2020-12-24*
 
