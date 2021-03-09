@@ -33,7 +33,7 @@ def test_wps_ca_local(gcm_file, obs_file, var, end_date):
     ) as output_file:
         datainputs = build_params(gcm_file, obs_file, var, end_date, output_file.name)
 
-    run_wps_process(CA(), datainputs)
+        run_wps_process(CA(), datainputs)
 
 
 @pytest.mark.online
@@ -54,7 +54,7 @@ def test_wps_ca_online(gcm_file, obs_file, var, end_date):
     ) as output_file:
         datainputs = build_params(gcm_file, obs_file, var, end_date, output_file.name)
 
-    run_wps_process(CA(), datainputs)
+        run_wps_process(CA(), datainputs)
 
 
 @pytest.mark.parametrize(
@@ -74,4 +74,4 @@ def test_wps_ca_err(gcm_file, obs_file, var, end_date, vector_name):
     ) as output_file:
         datainputs = build_params(gcm_file, obs_file, var, end_date, output_file.name)
 
-    process_err_test(CA, datainputs)
+        process_err_test(CA, datainputs)
