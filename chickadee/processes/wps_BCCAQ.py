@@ -85,8 +85,6 @@ class BCCAQ(Process):
             num_cores,
             loglevel,
         ) = select_args_from_input_list(args, self.handler_inputs)
-        print(gcm_file)
-        print(obs_file)
 
         log_handler(
             self,
