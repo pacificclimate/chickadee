@@ -17,7 +17,13 @@ def build_params(gcm_file, obs_file, var, out_file):
 
 @pytest.mark.parametrize(
     ("gcm_file", "obs_file", "varname"),
-    [(local_path("tiny_gcm.nc"), local_path("tiny_obs.nc"), "tasmax",),],
+    [
+        (
+            local_path("tiny_gcm.nc"),
+            local_path("tiny_obs.nc"),
+            "tasmax",
+        ),
+    ],
 )
 def test_wps_CI_local(gcm_file, obs_file, varname, monkeypatch):
     with NamedTemporaryFile(
@@ -31,7 +37,13 @@ def test_wps_CI_local(gcm_file, obs_file, varname, monkeypatch):
 @pytest.mark.online
 @pytest.mark.parametrize(
     ("gcm_file", "obs_file", "varname"),
-    [(local_path("tiny_gcm.nc"), url_path("tiny_obs.nc", "opendap"), "tasmax",),],
+    [
+        (
+            local_path("tiny_gcm.nc"),
+            url_path("tiny_obs.nc", "opendap"),
+            "tasmax",
+        ),
+    ],
 )
 def test_wps_CI_online(gcm_file, obs_file, varname, monkeypatch):
     with NamedTemporaryFile(
@@ -46,7 +58,11 @@ def test_wps_CI_online(gcm_file, obs_file, varname, monkeypatch):
     ("gcm_file", "obs_file", "varname"),
     [
         (local_path("tiny_gcm.nc"), local_path("tiny_obs.nc"), "tx"),
-        (local_path("tiny_gcm.nc"), local_path("tiny_gcm.nc"), "tasmax",),
+        (
+            local_path("tiny_gcm.nc"),
+            local_path("tiny_gcm.nc"),
+            "tasmax",
+        ),
     ],
 )
 def test_wps_CI_err(gcm_file, obs_file, varname, monkeypatch):

@@ -17,7 +17,12 @@ def build_params(gcm_file, obs_file, var, end_date, out_file):
 
 
 @pytest.mark.parametrize(
-    ("gcm_file", "obs_file", "var", "end_date",),
+    (
+        "gcm_file",
+        "obs_file",
+        "var",
+        "end_date",
+    ),
     [
         (
             local_path("tiny_gcm.nc"),
@@ -38,7 +43,12 @@ def test_wps_ca_local(gcm_file, obs_file, var, end_date):
 
 @pytest.mark.online
 @pytest.mark.parametrize(
-    ("gcm_file", "obs_file", "var", "end_date",),
+    (
+        "gcm_file",
+        "obs_file",
+        "var",
+        "end_date",
+    ),
     [
         (
             local_path("tiny_gcm.nc"),
@@ -60,18 +70,35 @@ def test_wps_ca_online(gcm_file, obs_file, var, end_date):
 @pytest.mark.parametrize(
     ("var", "end_date", "vector_name"),
     [
-        ("tx", date(1972, 12, 31), "vector_name",),
-        ("tasmax", date(1, 1, 1), "vector_name",),
-        ("tasmax", date(1972, 12, 31), "vector name",),
+        (
+            "tx",
+            date(1972, 12, 31),
+            "vector_name",
+        ),
+        (
+            "tasmax",
+            date(1, 1, 1),
+            "vector_name",
+        ),
+        (
+            "tasmax",
+            date(1972, 12, 31),
+            "vector name",
+        ),
     ],
 )
 @pytest.mark.parametrize(
-    ("gcm_file", "obs_file"), [(local_path("tiny_gcm.nc"), local_path("tiny_obs.nc")),],
+    ("gcm_file", "obs_file"),
+    [
+        (local_path("tiny_gcm.nc"), local_path("tiny_obs.nc")),
+    ],
 )
 def test_wps_ca_err(gcm_file, obs_file, var, end_date, vector_name):
     with NamedTemporaryFile(
         suffix=".txt", prefix="indices_", dir="/tmp", delete=True
     ) as output_file:
-        datainputs = build_params(gcm_file, obs_file, var, end_date, output_file.name)
-
+        datainputs = (
+            build_params(gcm_file, obs_file, var, end_date, output_file.name)
+            + f"vector_name={vector_name};"
+        )
         process_err_test(CA, datainputs)
