@@ -89,25 +89,13 @@ def test_set_general_options(
 
 
 @pytest.mark.parametrize(
-    (
-        "num_analogues",
-        "delta_days",
-        "trimmed_mean",
-        "tol",
-    ),
-    [(25, 40.0, 0.5, 0.2)],
+    ("num_analogues", "delta_days", "trimmed_mean", "tol",), [(25, 40.0, 0.5, 0.2)],
 )
 def test_set_ca_options(
-    num_analogues,
-    delta_days,
-    trimmed_mean,
-    tol,
+    num_analogues, delta_days, trimmed_mean, tol,
 ):
     set_ca_options(
-        num_analogues,
-        delta_days,
-        trimmed_mean,
-        tol,
+        num_analogues, delta_days, trimmed_mean, tol,
     )
 
     assert base.getOption("n.analogues")[0] == num_analogues

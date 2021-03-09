@@ -60,10 +60,7 @@ def set_general_options(
 
 
 def set_ca_options(
-    num_analogues,
-    delta_days,
-    trimmed_mean,
-    tol,
+    num_analogues, delta_days, trimmed_mean, tol,
 ):
     robjects.r(
         """
@@ -77,10 +74,7 @@ def set_ca_options(
     }
     """
     )(
-        trimmed_mean,
-        delta_days,
-        num_analogues,
-        tol,
+        trimmed_mean, delta_days, num_analogues, tol,
     )
 
 
