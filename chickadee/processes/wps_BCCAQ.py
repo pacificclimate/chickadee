@@ -104,7 +104,6 @@ class BCCAQ(Process):
             process_step="get_ClimDown",
         )
         climdown = get_package("ClimDown")
-        utils = get_package("utils")
 
         log_handler(
             self,
