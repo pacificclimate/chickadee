@@ -3,45 +3,34 @@ from pywps.app.Common import Metadata
 from rpy2 import robjects
 from rpy2.rinterface_lib.embedded import RRuntimeError
 
-from wps_tools.logging import log_handler, common_status_percentages
-from wps_tools.R import get_package
-from wps_tools.io import log_level, nc_output, collect_args
-from wps_tools.error_handling import custom_process_error
-from chickadee.utils import (
-    logger,
-    set_general_options,
-    set_qdm_options,
-    select_args_from_input_list,
-)
-from chickadee.io import (
-    gcm_file,
-    obs_file,
-    varname,
-    out_file,
-    num_cores,
-    general_options_input,
-    qdm_options_input,
-)
+# PCIC libraries
+from wps_tools import logging, R, io, error_handling
+import chickadee.utils as util
+import chickadee.io as chick_io
 
 
 class QDM(Process):
     def __init__(self):
         self.status_percentage_steps = dict(
-            common_status_percentages,
+            logging.common_status_percentages,
             **{"get_ClimDown": 5, "set_R_options": 10, "parallelization": 15},
         )
         self.handler_inputs = [
-            gcm_file,
-            obs_file,
-            varname,
-            out_file,
-            num_cores,
-            log_level,
+            chick_io.gcm_file,
+            chick_io.obs_file,
+            chick_io.varname,
+            chick_io.out_file,
+            chick_io.num_cores,
+            io.log_level,
         ]
 
-        inputs = self.handler_inputs + general_options_input + qdm_options_input
+        inputs = (
+            self.handler_inputs
+            + chick_io.general_options_input
+            + chick_io.qdm_options_input
+        )
 
-        outputs = [nc_output]
+        outputs = [io.nc_output]
 
         super(QDM, self).__init__(
             self._handler,
@@ -62,7 +51,7 @@ class QDM(Process):
         )
 
     def _handler(self, request, response):
-        args = collect_args(request, self.workdir)
+        args = io.collect_args(request, self.workdir)
         (
             gcm_file,
             obs_file,
@@ -70,71 +59,75 @@ class QDM(Process):
             output_file,
             num_cores,
             loglevel,
-        ) = select_args_from_input_list(args, self.handler_inputs)
+        ) = util.select_args_from_input_list(args, self.handler_inputs)
 
-        log_handler(
+        logging.log_handler(
             self,
             response,
             "Starting Process",
-            logger,
+            util.logger,
             log_level=loglevel,
             process_step="start",
         )
 
-        log_handler(
+        logging.log_handler(
             self,
             response,
             "Importing R package 'ClimDown'",
-            logger,
+            util.logger,
             log_level=loglevel,
             process_step="get_ClimDown",
         )
-        climdown = get_package("ClimDown")
+        climdown = R.get_package("ClimDown")
 
-        log_handler(
+        logging.log_handler(
             self,
             response,
             "Setting R options",
-            logger,
+            util.logger,
             log_level=loglevel,
             process_step="set_R_options",
         )
-        set_general_options(*select_args_from_input_list(args, general_options_input))
-        set_qdm_options(*select_args_from_input_list(args, qdm_options_input))
+        util.set_general_options(
+            *util.select_args_from_input_list(args, chick_io.general_options_input)
+        )
+        util.set_qdm_options(
+            *util.select_args_from_input_list(args, chick_io.qdm_options_input)
+        )
 
         # Set parallelization
-        log_handler(
+        logging.log_handler(
             self,
             response,
             "Setting parallelization",
-            logger,
+            util.logger,
             log_level=loglevel,
             process_step="parallelization",
         )
-        doPar = get_package("doParallel")
+        doPar = R.get_package("doParallel")
         doPar.registerDoParallel(cores=num_cores)
 
-        log_handler(
+        logging.log_handler(
             self,
             response,
             "Processing QDM",
-            logger,
+            util.logger,
             log_level=loglevel,
             process_step="process",
         )
         try:
             climdown.qdm_netcdf_wrapper(obs_file, gcm_file, output_file, varname)
         except RRuntimeError as e:
-            custom_process_error(e)
+            error_handling.custom_process_error(e)
 
         # stop parallelization
         doPar.stopImplicitCluster()
 
-        log_handler(
+        logging.log_handler(
             self,
             response,
             "Building final output",
-            logger,
+            util.logger,
             log_level=loglevel,
             process_step="build_output",
         )
@@ -143,11 +136,11 @@ class QDM(Process):
         # Clear R global env
         robjects.r("rm(list=ls())")
 
-        log_handler(
+        logging.log_handler(
             self,
             response,
             "Process Complete",
-            logger,
+            util.logger,
             log_level=loglevel,
             process_step="complete",
         )
