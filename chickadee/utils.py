@@ -24,6 +24,11 @@ def select_args_from_input_list(args, inputs):
     return (args[input_.identifier][0] for input_ in inputs)
 
 
+def r_boolean(python_bool):
+    bool_string = "TRUE" if python_bool else "FALSE"
+    return bool_string
+
+
 def set_general_options(
     units_bool,
     n_pr_bool,
@@ -35,27 +40,16 @@ def set_general_options(
     end_date,
 ):
     robjects.r(
-        """
-    function(max_gb, units_bool, n_pr_bool, tasmax_units, tasmin_units, pr_units, start_date, end_date){
+        f"""
         options(
-            max.GB=max_gb,
-            check.units=units_bool,
-            check.neg.precip=n_pr_bool,
-            target.units=c(tasmax=tasmax_units, tasmin=tasmin_units, pr=pr_units),
-            calibration.start=as.POSIXct(start_date, tz='GMT'),
-            calibration.end=as.POSIXct(end_date, tz='GMT')
+            max.GB={max_gb},
+            check.units={r_boolean(units_bool)},
+            check.neg.precip={r_boolean(n_pr_bool)},
+            target.units=c(tasmax='{tasmax_units}', tasmin='{tasmin_units}', pr='{pr_units}'),
+            calibration.start=as.POSIXct('{start_date}', tz='GMT'),
+            calibration.end=as.POSIXct('{end_date}', tz='GMT')
         )
-    }
-    """
-    )(
-        max_gb,
-        units_bool,
-        n_pr_bool,
-        tasmax_units,
-        tasmin_units,
-        pr_units,
-        str(start_date),
-        str(end_date),
+        """
     )
 
 
@@ -66,21 +60,14 @@ def set_ca_options(
     tol,
 ):
     robjects.r(
-        """
-    function(trimmed_mean, delta_days, num_analogues, tol){
+        f"""
         options(
-            trimmed.mean=trimmed_mean,
-            delta.days=delta_days,
-            n.analogues=num_analogues,
-            tol=tol
+            trimmed.mean={trimmed_mean},
+            delta.days={delta_days},
+            n.analogues={num_analogues},
+            tol={tol}
         )
-    }
-    """
-    )(
-        trimmed_mean,
-        delta_days,
-        num_analogues,
-        tol,
+        """
     )
 
 
@@ -101,50 +88,18 @@ def set_qdm_options(
     tasmin_ratio,
 ):
     robjects.r(
-        """
-    function(
-        multiyear,
-        expand_multiyear,
-        multiyear_window_length,
-        trace,
-        jitter_factor,
-        pr_tau,
-        tasmax_tau,
-        tasmin_tau,
-        pr_seasonal,
-        tasmax_seasonal,
-        tasmin_seasonal,
-        pr_ratio,
-        tasmax_ratio,
-        tasmin_ratio
-    ){
+        f"""
         options(
-            multiyear=multiyear,
-            expand.multiyear=expand_multiyear,
-            multiyear.window.length=multiyear_window_length,
-            trace=trace,
-            jitter.factor=jitter_factor,
-            tau=list(pr=pr_tau, tasmax=tasmax_tau, tasmin=tasmin_tau),
-            seasonal=list(pr=pr_seasonal, tasmax=tasmax_seasonal, tasmin=tasmin_seasonal),
-            ratio=list(pr=pr_ratio, tasmax=tasmax_ratio, tasmin=tasmin_ratio)
+            multiyear={r_boolean(multiyear)},
+            expand.multiyear={r_boolean(expand_multiyear)},
+            multiyear.window.length={multiyear_window_length},
+            trace={trace},
+            jitter.factor={jitter_factor},
+            tau=list(pr={pr_tau}, tasmax={tasmax_tau}, tasmin={tasmin_tau}),
+            seasonal=list(pr={r_boolean(pr_seasonal)}, tasmax={r_boolean(tasmax_seasonal)}, tasmin={r_boolean(tasmin_seasonal)}),
+            ratio=list(pr={r_boolean(pr_ratio)}, tasmax={r_boolean(tasmax_ratio)}, tasmin={r_boolean(tasmin_ratio)})
         )
-    }
-    """
-    )(
-        multiyear,
-        expand_multiyear,
-        multiyear_window_length,
-        trace,
-        jitter_factor,
-        pr_tau,
-        tasmax_tau,
-        tasmin_tau,
-        pr_seasonal,
-        tasmax_seasonal,
-        tasmin_seasonal,
-        pr_ratio,
-        tasmax_ratio,
-        tasmin_ratio,
+        """
     )
 
 
