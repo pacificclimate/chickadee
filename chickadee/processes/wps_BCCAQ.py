@@ -4,7 +4,7 @@ from rpy2.rinterface_lib.embedded import RRuntimeError
 from rpy2 import robjects
 
 # PCIC libraries
-import wps_tools as wpst
+from wps_tools import logging, R, io, error_handling
 import chickadee.utils as util
 import chickadee.io as chick_io
 
@@ -16,7 +16,7 @@ class BCCAQ(Process):
 
     def __init__(self):
         self.status_percentage_steps = dict(
-            wpst.logging.common_status_percentages,
+            logging.common_status_percentages,
             **{"get_ClimDown": 5, "set_R_options": 10, "parallelization": 15},
         )
 
@@ -26,7 +26,7 @@ class BCCAQ(Process):
             chick_io.varname,
             chick_io.out_file,
             chick_io.num_cores,
-            wpst.io.log_level,
+            io.log_level,
         ]
 
         inputs = (
@@ -36,7 +36,7 @@ class BCCAQ(Process):
             + chick_io.qdm_options_input
         )
 
-        outputs = [wpst.io.nc_output]
+        outputs = [io.nc_output]
 
         super(BCCAQ, self).__init__(
             self._handler,
@@ -59,7 +59,7 @@ class BCCAQ(Process):
         )
 
     def _handler(self, request, response):
-        args = wpst.io.collect_args(request, self.workdir)
+        args = io.collect_args(request, self.workdir)
         (
             gcm_file,
             obs_file,
@@ -69,7 +69,7 @@ class BCCAQ(Process):
             loglevel,
         ) = util.select_args_from_input_list(args, self.handler_inputs)
 
-        wpst.logging.log_handler(
+        logging.log_handler(
             self,
             response,
             "Starting Process",
@@ -78,7 +78,7 @@ class BCCAQ(Process):
             process_step="start",
         )
 
-        wpst.logging.log_handler(
+        logging.log_handler(
             self,
             response,
             "Importing R package 'ClimDown'",
@@ -86,9 +86,9 @@ class BCCAQ(Process):
             log_level=loglevel,
             process_step="get_ClimDown",
         )
-        climdown = wpst.R.get_package("ClimDown")
+        climdown = R.get_package("ClimDown")
 
-        wpst.logging.log_handler(
+        logging.log_handler(
             self,
             response,
             "Setting R options",
@@ -106,7 +106,7 @@ class BCCAQ(Process):
             *util.select_args_from_input_list(args, chick_io.qdm_options_input)
         )
 
-        wpst.logging.log_handler(
+        logging.log_handler(
             self,
             response,
             "Setting parallelization",
@@ -114,10 +114,10 @@ class BCCAQ(Process):
             log_level=loglevel,
             process_step="parallelization",
         )
-        doPar = wpst.R.get_package("doParallel")
+        doPar = R.get_package("doParallel")
         doPar.registerDoParallel(cores=num_cores)
 
-        wpst.logging.log_handler(
+        logging.log_handler(
             self,
             response,
             "Downscaling GCM",
@@ -129,11 +129,11 @@ class BCCAQ(Process):
         try:
             climdown.bccaq_netcdf_wrapper(gcm_file, obs_file, out_file, varname)
         except RRuntimeError as e:
-            wpst.error_handling.custom_process_error(e)
+            error_handling.custom_process_error(e)
 
         doPar.stopImplicitCluster()
 
-        wpst.logging.log_handler(
+        logging.log_handler(
             self,
             response,
             "Building final output",
@@ -147,7 +147,7 @@ class BCCAQ(Process):
         # Clear R global env
         robjects.r("rm(list=ls())")
 
-        wpst.logging.log_handler(
+        logging.log_handler(
             self,
             response,
             "Process Complete",
