@@ -64,6 +64,9 @@ install-ci:
 	@-bash -c 'pip install -r requirements.txt'
 	@-bash -c 'pip install -e ".[dev]"'
 
+.PHONY: install-all
+install-all: apt install-r-pkg develop
+
 .PHONY: develop
 develop: venv
 	@echo "Installing development requirements for tests and docs ..."

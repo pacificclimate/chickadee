@@ -2,8 +2,19 @@ import pytest
 from tempfile import NamedTemporaryFile
 from datetime import date
 
-from wps_tools.testing import run_wps_process, local_path, process_err_test
+from wps_tools.testing import run_wps_process, local_path, process_err_test, url_path
 from chickadee.processes.wps_BCCAQ import BCCAQ
+
+
+def build_params(gcm_file, obs_file, var, end_date, num_cores, out_file):
+    return (
+        f"gcm_file=@xlink:href={gcm_file};"
+        f"obs_file=@xlink:href={obs_file};"
+        f"varname={var};"
+        f"end_date={end_date};"
+        f"out_file={out_file};"
+        f"num_cores={num_cores};"
+    )
 
 
 @pytest.mark.parametrize(
@@ -18,17 +29,12 @@ from chickadee.processes.wps_BCCAQ import BCCAQ
         ),
     ],
 )
-def test_wps_bccaq(gcm_file, obs_file, var, end_date, num_cores):
+def test_wps_bccaq_local(gcm_file, obs_file, var, end_date, num_cores):
     with NamedTemporaryFile(
         suffix=".nc", prefix="output_", dir="/tmp", delete=True
     ) as out_file:
-        datainputs = (
-            f"gcm_file=@xlink:href={gcm_file};"
-            f"obs_file=@xlink:href={obs_file};"
-            f"varname={var};"
-            f"end_date={end_date};"
-            f"out_file={out_file.name};"
-            f"num_cores={num_cores};"
+        datainputs = build_params(
+            gcm_file, obs_file, var, end_date, num_cores, out_file.name
         )
         run_wps_process(BCCAQ(), datainputs)
 
@@ -56,15 +62,12 @@ def test_wps_bccaq(gcm_file, obs_file, var, end_date, num_cores):
         ),
     ],
 )
-def test_wps_bccaq_err(gcm_file, obs_file, var, end_date):
+@pytest.mark.parametrize(("num_cores"), [4])
+def test_wps_bccaq_err(gcm_file, obs_file, var, end_date, num_cores):
     with NamedTemporaryFile(
         suffix=".nc", prefix="output_", dir="/tmp", delete=True
     ) as out_file:
-        datainputs = (
-            f"gcm_file=@xlink:href={gcm_file};"
-            f"obs_file=@xlink:href={obs_file};"
-            f"varname={var};"
-            f"end_date={end_date};"
-            f"out_file={out_file.name};"
+        datainputs = build_params(
+            gcm_file, obs_file, var, end_date, num_cores, out_file.name
         )
         process_err_test(BCCAQ, datainputs)
