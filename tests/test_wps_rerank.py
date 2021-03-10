@@ -5,6 +5,16 @@ from wps_tools.testing import run_wps_process, local_path, process_err_test
 from chickadee.processes.wps_rerank import Rerank
 
 
+def build_params(obs_file, qdm_file, var, analogues_object, out_file):
+    return (
+        f"obs_file=@xlink:href={obs_file};"
+        f"varname={var};"
+        f"out_file={out_file};"
+        f"qdm_file=@xlink:href={qdm_file};"
+        f"analogues_object=@xlink:href={analogues_object};"
+    )
+
+
 @pytest.mark.parametrize(
     ("obs_file", "var", "qdm_file", "analogues_object"),
     [
@@ -22,16 +32,12 @@ from chickadee.processes.wps_rerank import Rerank
         ),
     ],
 )
-def test_wps_rerank(obs_file, var, qdm_file, analogues_object):
+def test_wps_rerank_local(obs_file, var, qdm_file, analogues_object):
     with NamedTemporaryFile(
         suffix=".nc", prefix="output_", dir="/tmp", delete=True
     ) as out_file:
-        datainputs = (
-            f"obs_file=@xlink:href={obs_file};"
-            f"varname={var};"
-            f"out_file={out_file.name};"
-            f"qdm_file=@xlink:href={qdm_file};"
-            f"analogues_object=@xlink:href={analogues_object};"
+        datainputs = build_params(
+            obs_file, qdm_file, var, analogues_object, out_file.name
         )
         run_wps_process(Rerank(), datainputs)
 
@@ -60,11 +66,7 @@ def test_wps_rerank_err(obs_file, var, qdm_file, analogues_object, analogues_nam
         suffix=".nc", prefix="output_", dir="/tmp", delete=True
     ) as out_file:
         datainputs = (
-            f"obs_file=@xlink:href={obs_file};"
-            f"varname={var};"
-            f"out_file={out_file.name};"
-            f"qdm_file=@xlink:href={qdm_file};"
-            f"analogues_name={analogues_name};"
-            f"analogues_object=@xlink:href={analogues_object};"
+            build_params(obs_file, qdm_file, var, analogues_object, out_file.name)
+            + f"analogues_name={analogues_name};"
         )
         process_err_test(Rerank, datainputs)
