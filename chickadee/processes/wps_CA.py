@@ -1,28 +1,13 @@
 from pywps import Process, LiteralInput
 from pywps.app.Common import Metadata
-from rpy2 import robjects
-from rpy2.rinterface_lib.embedded import RRuntimeError
 from pywps.app.exceptions import ProcessError
+from rpy2.rinterface_lib.embedded import RRuntimeError
+from rpy2 import robjects
 
-from wps_tools.logging import log_handler, common_status_percentages
-from wps_tools.io import log_level, vector_name, rda_output, collect_args
-from wps_tools.R import save_python_to_rdata, get_package, r_valid_name
-from wps_tools.error_handling import custom_process_error
-from chickadee.utils import (
-    logger,
-    set_general_options,
-    set_ca_options,
-    select_args_from_input_list,
-)
-from chickadee.io import (
-    gcm_file,
-    obs_file,
-    varname,
-    out_file,
-    num_cores,
-    general_options_input,
-    ca_options_input,
-)
+# PCIC libraries
+import wps_tools as wpst
+import chickadee.utils as util
+import chickadee.io as chick_io
 
 
 class CA(Process):
@@ -37,7 +22,7 @@ class CA(Process):
 
     def __init__(self):
         self.status_percentage_steps = dict(
-            common_status_percentages,
+            wpst.logging.common_status_percentages,
             **{
                 "get_ClimDown": 5,
                 "set_R_options": 10,
@@ -47,18 +32,22 @@ class CA(Process):
         )
 
         self.handler_inputs = [
-            gcm_file,
-            obs_file,
-            varname,
-            num_cores,
-            out_file,
-            vector_name,
-            log_level,
+            chick_io.gcm_file,
+            chick_io.obs_file,
+            chick_io.varname,
+            chick_io.num_cores,
+            chick_io.out_file,
+            wpst.io.vector_name,
+            wpst.io.log_level,
         ]
 
-        inputs = self.handler_inputs + general_options_input + ca_options_input
+        inputs = (
+            self.handler_inputs
+            + chick_io.general_options_input
+            + chick_io.ca_options_input
+        )
 
-        outputs = [rda_output]
+        outputs = [wpst.io.rda_output]
 
         super(CA, self).__init__(
             self._handler,
@@ -81,7 +70,7 @@ class CA(Process):
         )
 
     def _handler(self, request, response):
-        args = collect_args(request, self.workdir)
+        args = wpst.io.collect_args(request, self.workdir)
         (
             gcm_file,
             obs_file,
@@ -90,64 +79,68 @@ class CA(Process):
             output_file,
             vector_name,
             loglevel,
-        ) = select_args_from_input_list(args, self.handler_inputs)
+        ) = util.select_args_from_input_list(args, self.handler_inputs)
 
-        log_handler(
+        wpst.logging.log_handler(
             self,
             response,
             "Starting Process",
-            logger,
+            util.logger,
             log_level=loglevel,
             process_step="start",
         )
 
-        log_handler(
+        wpst.logging.log_handler(
             self,
             response,
             "Importing R package 'ClimDown'",
-            logger,
+            util.logger,
             log_level=loglevel,
             process_step="get_ClimDown",
         )
-        climdown = get_package("ClimDown")
+        climdown = wpst.R.get_package("ClimDown")
 
-        log_handler(
+        wpst.logging.log_handler(
             self,
             response,
             "Setting R options",
-            logger,
+            util.logger,
             log_level=loglevel,
             process_step="set_R_options",
         )
-        set_general_options(*select_args_from_input_list(args, general_options_input))
-        set_ca_options(*select_args_from_input_list(args, ca_options_input))
+        util.set_general_options(
+            *util.select_args_from_input_list(args, chick_io.general_options_input)
+        )
+        util.set_ca_options(
+            *util.select_args_from_input_list(args, chick_io.ca_options_input)
+        )
 
-        log_handler(
+        wpst.logging.log_handler(
             self,
             response,
             "Setting parallelization",
-            logger,
+            util.logger,
             log_level=loglevel,
             process_step="parallelization",
         )
-        doPar = get_package("doParallel")
+        doPar = wpst.R.get_package("doParallel")
         doPar.registerDoParallel(cores=num_cores)
 
-        log_handler(
+        wpst.logging.log_handler(
             self,
             response,
             "Calculating weights",
-            logger,
+            util.logger,
             log_level=loglevel,
             process_step="process",
         )
 
         # Run Constructed Analogue Step (CA)
-        log_handler(
+        wpst.logging.log_handler(
             self,
             response,
             "Calculating weights",
-            logger,
+            util.logger,
             log_level=loglevel,
             process_step="process",
         )
@@ -155,26 +148,27 @@ class CA(Process):
         try:
             analogues = climdown.ca_netcdf_wrapper(gcm_file, obs_file, varname)
         except RRuntimeError as e:
-            custom_process_error(e)
+            wpst.error_handling.custom_process_error(e)
+
         # Stop parallelization
         doPar.stopImplicitCluster()
 
-        log_handler(
+        wpst.logging.log_handler(
             self,
             response,
             "Writing indices and weights lists to files",
-            logger,
+            util.logger,
             log_level=loglevel,
             process_step="write_files",
         )
-        r_valid_name(vector_name)
-        save_python_to_rdata(vector_name, analogues, output_file)
+        wpst.R.r_valid_name(vector_name)
+        wpst.R.save_python_to_rdata(vector_name, analogues, output_file)
 
-        log_handler(
+        wpst.logging.log_handler(
             self,
             response,
             "Building final output",
-            logger,
+            util.logger,
             log_level=loglevel,
             process_step="build_output",
         )
@@ -184,11 +178,11 @@ class CA(Process):
         # Clear R global env
         robjects.r("rm(list=ls())")
 
-        log_handler(
+        wpst.logging.log_handler(
             self,
             response,
             "Process Complete",
-            logger,
+            util.logger,
             log_level=loglevel,
             process_step="complete",
         )

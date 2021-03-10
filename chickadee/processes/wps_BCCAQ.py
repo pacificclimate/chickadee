@@ -3,6 +3,7 @@ from pywps.app.Common import Metadata
 from rpy2.rinterface_lib.embedded import RRuntimeError
 from rpy2 import robjects
 
+# PCIC libraries
 import wps_tools as wpst
 import chickadee.utils as util
 import chickadee.io as chick_io
