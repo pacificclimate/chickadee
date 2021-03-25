@@ -1,5 +1,12 @@
 # Changes
 
+## 0.5.1
+*2021-03-25*
+
+* Clean up package imports
+* Separate local/online tests
+
+
 ## 0.5.0
 *2021-02-08*
 
