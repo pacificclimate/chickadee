@@ -1,5 +1,10 @@
 # Changes
 
+## 0.5.2
+*2021-05-04*
+
+* Pin stable version of `wps-tools`
+
 ## 0.5.1
 *2021-03-25*
 

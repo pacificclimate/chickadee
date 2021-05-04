@@ -25,7 +25,7 @@ RUN apt-get update && \
 
 FROM rocker/r-ver:4.0.3 AS prod
 MAINTAINER https://github.com/pacificclimate/chickadee
-LABEL Description="chickadee WPS" Vendor="pacificclimate" Version="0.5.1"
+LABEL Description="chickadee WPS" Vendor="pacificclimate" Version="0.5.2"
 
 # Install Python
 RUN apt-get update && \
