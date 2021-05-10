@@ -93,7 +93,7 @@ class Rerank(Process):
             )
 
     def _handler(self, request, response):
-        args = io.collect_args(request, self.workdir)
+        args = io.collect_args(request.inputs, self.workdir)
         (
             obs_file,
             varname,
