@@ -4,4 +4,5 @@ click
 psutil
 nchelpers==5.5.7
 rpy2==3.3.6
+werkzeug==1.0.1
 wps-tools[r]==2.0.0
