@@ -21,7 +21,7 @@ logger.addHandler(handler)
 
 
 def select_args_from_input_list(args, inputs):
-    return (args[input_.identifier][0] for input_ in inputs)
+    return (args[input_.identifier] for input_ in inputs)
 
 
 def r_boolean(python_bool):
