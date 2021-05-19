@@ -1,5 +1,10 @@
 # Changes
 
+## 0.6.0
+*2021-05-19*
+
+* Update to version `2.0.0` of `wps-tools`
+
 ## 0.5.2
 *2021-05-04*
 
