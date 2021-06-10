@@ -11,7 +11,7 @@ FROM rocker/r-ver:4.0.3
 LABEL Maintainer="https://github.com/pacificclimate/chickadee" \
   Description="chickadee WPS" \
   Vendor="pacificclimate" \
-  Version="0.6.0"
+  Version="0.6.1"
 
 WORKDIR /tmp
 
