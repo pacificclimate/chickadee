@@ -21,7 +21,7 @@ jobs:
         PIP_INDEX_URL: https://pypi.pacificclimate.org/simple
       run: |
         sudo apt-get update
-        sudo apt-get install libgit2-dev libudunits2-dev libnetcdf-dev libcurl14-openssl-dev libssl-dev
+        sudo apt-get install libgit2-dev libudunits2-dev libnetcdf-dev libcurl4-openssl-dev libssl-dev
         pip install -r requirements.txt
         pip install -e .[dev]
         Rscript install_pkgs.R r_requirements.txt
