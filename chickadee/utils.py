@@ -71,6 +71,19 @@ def set_ca_options(
     )
 
 
+def set_ci_options(
+    gcm_varname,
+    obs_varname,
+):
+    robjects.r(
+        f"""
+        options(
+            gcm.varname='{gcm_varname}',
+            obs.varname='{obs_varname}'
+        )
+        """
+    )
+
 def set_qdm_options(
     multiyear,
     expand_multiyear,

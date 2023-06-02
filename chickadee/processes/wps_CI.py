@@ -18,12 +18,11 @@ class CI(Process):
         self.handler_inputs = [
             chick_io.gcm_file,
             chick_io.obs_file,
-            chick_io.varname,
             chick_io.out_file,
             chick_io.num_cores,
             io.log_level,
         ]
-        inputs = self.handler_inputs + chick_io.general_options_input
+        inputs = self.handler_inputs + chick_io.general_options_input + chick_io.ci_options_input
 
         outputs = [io.nc_output]
 
@@ -50,7 +49,6 @@ class CI(Process):
         (
             gcm_file,
             obs_file,
-            varname,
             output_file,
             num_cores,
             loglevel,
@@ -88,6 +86,11 @@ class CI(Process):
             *util.select_args_from_input_list(args, chick_io.general_options_input)
         )
 
+        # Uses ci_options_input
+        util.set_ci_options(
+            *util.select_args_from_input_list(args, chick_io.ci_options_input)
+        )
+
         # Set parallelization
         logging.log_handler(
             self,
@@ -110,7 +113,7 @@ class CI(Process):
         )
 
         try:
-            climdown.ci_netcdf_wrapper(gcm_file, obs_file, output_file, varname)
+            climdown.ci_netcdf_wrapper(gcm_file, obs_file, output_file)
         except RRuntimeError as e:
             error_handling.custom_process_error(e)
 
