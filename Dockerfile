@@ -59,4 +59,4 @@ RUN apt-get update && \
   pip install gunicorn
 
 EXPOSE 5000
-CMD gunicorn --bind=0.0.0.0:5000 --timeout 300 chickadee.wsgi:application
+CMD gunicorn --bind=0.0.0.0:5000 --timeout 0 chickadee.wsgi:application
