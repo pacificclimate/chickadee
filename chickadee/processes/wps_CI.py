@@ -22,7 +22,11 @@ class CI(Process):
             chick_io.num_cores,
             io.log_level,
         ]
-        inputs = self.handler_inputs + chick_io.general_options_input + chick_io.ci_options_input
+        inputs = (
+            self.handler_inputs
+            + chick_io.general_options_input
+            + chick_io.ci_options_input
+        )
 
         outputs = [io.nc_output]
 
