@@ -25,3 +25,10 @@ for (i in 1:length(data)){
     }
 }
 close(requirements_file)
+
+# Install githubinstall
+install.packages('githubinstall')
+
+# Install Climdown from GitHub branch
+library(githubinstall)
+gh_install_packages('ClimDown', ref = 'ci-climatex')
