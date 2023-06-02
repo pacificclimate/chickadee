@@ -15,6 +15,9 @@ req_filename <- args[1]
 requirements_file <- file(req_filename,open="r")
 data <-readLines(requirements_file)
 for (i in 1:length(data)){
+    if (grepl('#', data[i])){
+        next
+    }
     pkg_ver_pair <- unlist(stringr::str_split(data[i], "=="))
     pkg<-pkg_ver_pair[1]
     ver<-pkg_ver_pair[2]
