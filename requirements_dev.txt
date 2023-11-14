@@ -2,6 +2,8 @@ pytest>=6.0
 flake8
 pytest-flake8
 ipython
+matplotlib
+requests_html
 pytest-notebook
 nbsphinx
 nbval>=0.9.6
