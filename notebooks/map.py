@@ -27,6 +27,7 @@ thredds_catalog = (
     "https://docker-dev03.pcic.uvic.ca/twitcher/ows/proxy/thredds/catalog/datasets"
 )
 
+
 def in_bc(point):
     bc = f"{thredds_base}/storage/data/climate/PRISM/dataportal/pr_monClim_PRISM_historical_run1_197101-200012.nc"
     bc_data = Dataset(bc)
@@ -233,6 +234,7 @@ def handle_run_chickadee(arg):
     global chickadee_outputs
     chickadee_outputs[gcm_var].append(chickadee.ci(**chickadee_params))
 
+
 def get_index_range(arr, min_val, max_val):
     """Compute the indices in an array that correspond to the array's values
     closest to desired min/max values."""
@@ -257,11 +259,12 @@ def bird_output_to_dataset(resp):
     ds = Dataset(thredds_url)
     return ds
 
+
 class DefaultResponse:
     def __init__(self, url):
         self.url = url
         self.status = "ProcessSucceeded"
-        
+
     def get(self):
         return (self.url,)
 
@@ -271,11 +274,25 @@ class DefaultResponse:
     def isNotComplete(self):
         return False
 
+
 def use_default_chickadee_outputs():
     global chickadee_outputs
-    chickadee_outputs["pr"].append(DefaultResponse("https://docker-dev03.pcic.uvic.ca/wpsoutputs/ef45dbfc-dcac-11ee-a97c-0242ac12000c/pr_PNWNAmet_target_198101-201012_on-demand.nc"))
-    chickadee_outputs["tasmax"].append(DefaultResponse("https://docker-dev03.pcic.uvic.ca/wpsoutputs/f099db66-dcac-11ee-a97c-0242ac12000c/tasmax_PNWNAmet_target_198101-201012_on-demand.nc"))
-    chickadee_outputs["tasmin"].append(DefaultResponse("https://docker-dev03.pcic.uvic.ca/wpsoutputs/f18f8138-dcac-11ee-a97c-0242ac12000c/tasmin_PNWNAmet_target_198101-201012_on-demand.nc"))
+    chickadee_outputs["pr"].append(
+        DefaultResponse(
+            "https://docker-dev03.pcic.uvic.ca/wpsoutputs/ef45dbfc-dcac-11ee-a97c-0242ac12000c/pr_PNWNAmet_target_198101-201012_on-demand.nc"
+        )
+    )
+    chickadee_outputs["tasmax"].append(
+        DefaultResponse(
+            "https://docker-dev03.pcic.uvic.ca/wpsoutputs/f099db66-dcac-11ee-a97c-0242ac12000c/tasmax_PNWNAmet_target_198101-201012_on-demand.nc"
+        )
+    )
+    chickadee_outputs["tasmin"].append(
+        DefaultResponse(
+            "https://docker-dev03.pcic.uvic.ca/wpsoutputs/f18f8138-dcac-11ee-a97c-0242ac12000c/tasmin_PNWNAmet_target_198101-201012_on-demand.nc"
+        )
+    )
+
 
 def display_chickadee_outputs():
     global chickadee_output_box
@@ -285,15 +302,22 @@ def display_chickadee_outputs():
         chickadee_display.append(header)
         for chickadee_output in chickadee_outputs[var]:
             if chickadee_output.isComplete():
-                output_checkbox = Checkbox(description=chickadee_output.get()[0], style=description_style)
+                output_checkbox = Checkbox(
+                    description=chickadee_output.get()[0], style=description_style
+                )
                 output_checkbox.observe(handle_enable_indices)
                 chickadee_display.append(output_checkbox)
     chickadee_output_box = VBox(children=chickadee_display)
-                                           
+
 
 def handle_enable_indices(change):
     enable = []
-    disable = [pr_checkboxes, tasmax_checkboxes, tasmin_checkboxes, tas_multi_checkboxes]
+    disable = [
+        pr_checkboxes,
+        tasmax_checkboxes,
+        tasmin_checkboxes,
+        tas_multi_checkboxes,
+    ]
     global chickadee_output_selected
     for elem in chickadee_output_box.children:
         if type(elem) != Checkbox:
@@ -317,26 +341,31 @@ def handle_enable_indices(change):
     if tasmax_checkboxes in enable and tasmin_checkboxes in enable:
         enable.append(tas_multi_checkboxes)
         disable.remove(tas_multi_checkboxes)
-        
+
     for boxes in enable:
         for box in boxes:
             box.children[0].disabled = False
     for boxes in disable:
         for box in boxes:
             box.children[0].disabled = True
-    
+
+
 output_widget_finch = Output()
+
 
 @output_widget_finch.capture()
 def compute_indices(chickadee_outputs_thredds, indices, checkboxes):
     global finch_outputs
-    for (process, box) in zip(indices.values(), checkboxes):
+    for process, box in zip(indices.values(), checkboxes):
         (selected, res) = (box.children[0].value, box.children[1].value)
         if selected:
             params = setup_params(process, res)
-            print(f"Running Finch on {(' and ').join(chickadee_outputs_thredds)}. Computing {box.children[0].description}.")
+            print(
+                f"Running Finch on {(' and ').join(chickadee_outputs_thredds)}. Computing {box.children[0].description}."
+            )
             finch_output = process(*chickadee_outputs_thredds, **params)
             finch_outputs.append(finch_output)
+
 
 def setup_params(process, res):
     params = {}
@@ -357,48 +386,114 @@ def setup_params(process, res):
         else:
             end = "annual"
 
-    finch_output_names = {finch.sdii: "sdii", finch.cdd: "cdd", finch.cwd: "cwd", finch.wet_prcptot: "prcptot",
-                         finch.ice_days: "ice_days", finch.tx_max: "tx_max", finch.tx_min: "tx_min",
-                         finch.frost_days: "frost_days", finch.tn_max: "tn_max", finch.tn_min: "tn_min",
-                         finch.dtr: "dtr", finch.tg: "tg"}
+    finch_output_names = {
+        finch.sdii: "sdii",
+        finch.cdd: "cdd",
+        finch.cwd: "cwd",
+        finch.wet_prcptot: "prcptot",
+        finch.ice_days: "ice_days",
+        finch.tx_max: "tx_max",
+        finch.tx_min: "tx_min",
+        finch.frost_days: "frost_days",
+        finch.tn_max: "tn_max",
+        finch.tn_min: "tn_min",
+        finch.dtr: "dtr",
+        finch.tg: "tg",
+    }
     if process in finch_output_names.keys():
         params.update({"output_name": finch_output_names[process]})
     elif process == finch.max_n_day_precipitation_amount:
-        params.update({"window": rxnday.value, "output_name": "rx" + str(rxnday.value) + "day"})
+        params.update(
+            {"window": rxnday.value, "output_name": "rx" + str(rxnday.value) + "day"}
+        )
     elif process == finch.wetdays:
-        params.update({"thresh": str(rnnmm.value) + " mm/day", "output_name": "r" + str(rnnmm.value) + "mm"})
+        params.update(
+            {
+                "thresh": str(rnnmm.value) + " mm/day",
+                "output_name": "r" + str(rnnmm.value) + "mm",
+            }
+        )
     elif process == finch.tx_days_above:
-        params.update({"thresh": str(summer_days.value) + " degC", "output_name": "summer_days_" + str(summer_days.value) + "C"})
+        params.update(
+            {
+                "thresh": str(summer_days.value) + " degC",
+                "output_name": "summer_days_" + str(summer_days.value) + "C",
+            }
+        )
     else:
-        params.update({"thresh": str(tropical_nights.value) + " degC", "output_name": "tropical_nights_" + str(tropical_nights.value) + "C"})
+        params.update(
+            {
+                "thresh": str(tropical_nights.value) + " degC",
+                "output_name": "tropical_nights_" + str(tropical_nights.value) + "C",
+            }
+        )
 
     params["output_name"] += "_" + end
     return params
-        
+
+
 def handle_run_finch(arg):
     # Get THREDDS location of Chickadee output to pass to Finch
     for var in chickadee_output_selected.keys():
         for chickadee_output_checkbox in chickadee_output_selected[var]:
-            chickadee_output_thredds = thredds_base + "/birdhouse_wps_outputs" + chickadee_output_checkbox.description.split("wpsoutputs")[1]
+            chickadee_output_thredds = (
+                thredds_base
+                + "/birdhouse_wps_outputs"
+                + chickadee_output_checkbox.description.split("wpsoutputs")[1]
+            )
             if var == "pr":
                 compute_indices([chickadee_output_thredds], pr_indices, pr_checkboxes)
             elif var == "tasmax":
-                compute_indices([chickadee_output_thredds], tasmax_indices, tasmax_checkboxes)
+                compute_indices(
+                    [chickadee_output_thredds], tasmax_indices, tasmax_checkboxes
+                )
             else:
-                compute_indices([chickadee_output_thredds], tasmin_indices, tasmin_checkboxes)
+                compute_indices(
+                    [chickadee_output_thredds], tasmin_indices, tasmin_checkboxes
+                )
 
     for tasmax_selected in chickadee_output_selected["tasmax"]:
-        tasmax_output_thredds = thredds_base + "/birdhouse_wps_outputs" + tasmax_selected.description.split("wpsoutputs")[1]
+        tasmax_output_thredds = (
+            thredds_base
+            + "/birdhouse_wps_outputs"
+            + tasmax_selected.description.split("wpsoutputs")[1]
+        )
         for tasmin_selected in chickadee_output_selected["tasmin"]:
-            tasmin_output_thredds = thredds_base + "/birdhouse_wps_outputs" + tasmin_selected.description.split("wpsoutputs")[1]
-            compute_indices([tasmin_output_thredds, tasmax_output_thredds], tas_multi_indices, tas_multi_checkboxes)
+            tasmin_output_thredds = (
+                thredds_base
+                + "/birdhouse_wps_outputs"
+                + tasmin_selected.description.split("wpsoutputs")[1]
+            )
+            compute_indices(
+                [tasmin_output_thredds, tasmax_output_thredds],
+                tas_multi_indices,
+                tas_multi_checkboxes,
+            )
+
 
 def use_default_finch_outputs():
     global finch_outputs
-    finch_outputs.append(DefaultResponse("https://docker-dev03.pcic.uvic.ca/wpsoutputs/finch/bace93a2-dcaf-11ee-a719-0242ac120014/rx1day.nc"))
-    finch_outputs.append(DefaultResponse("https://docker-dev03.pcic.uvic.ca/wpsoutputs/finch/c0c8a48c-dcaf-11ee-a719-0242ac120014/ice_days.nc"))
-    finch_outputs.append(DefaultResponse("https://docker-dev03.pcic.uvic.ca/wpsoutputs/finch/c295054e-dcaf-11ee-a719-0242ac120014/tn_max.nc"))
-    finch_outputs.append(DefaultResponse("https://docker-dev03.pcic.uvic.ca/wpsoutputs/finch/c44c0fe0-dcaf-11ee-a719-0242ac120014/tg.nc"))    
+    finch_outputs.append(
+        DefaultResponse(
+            "https://docker-dev03.pcic.uvic.ca/wpsoutputs/finch/bace93a2-dcaf-11ee-a719-0242ac120014/rx1day.nc"
+        )
+    )
+    finch_outputs.append(
+        DefaultResponse(
+            "https://docker-dev03.pcic.uvic.ca/wpsoutputs/finch/c0c8a48c-dcaf-11ee-a719-0242ac120014/ice_days.nc"
+        )
+    )
+    finch_outputs.append(
+        DefaultResponse(
+            "https://docker-dev03.pcic.uvic.ca/wpsoutputs/finch/c295054e-dcaf-11ee-a719-0242ac120014/tn_max.nc"
+        )
+    )
+    finch_outputs.append(
+        DefaultResponse(
+            "https://docker-dev03.pcic.uvic.ca/wpsoutputs/finch/c44c0fe0-dcaf-11ee-a719-0242ac120014/tg.nc"
+        )
+    )
+
 
 # Initialize interactive map and associated widgets
 mapnik = basemap_to_tiles(basemaps.OpenStreetMap.Mapnik)
@@ -477,53 +572,124 @@ control_box_chickadee = Box(
 )
 
 # Initialize widgets for computing climate indices
-description_style = {'description_width': 'initial'}
+description_style = {"description_width": "initial"}
 
 chickadee_output_box = None
 chickadee_output_selected = {"pr": [], "tasmax": [], "tasmin": []}
 
 all = ["Annual", "Monthly", "Seasonal"]
-months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
+months = [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+]
 seasons = ["Winter-DJF", "Spring-MAM", "Summer-JJA", "Fall-SON"]
 
-rxnday = IntSlider(value = 5, min = 1, max = 10)
-rnnmm = IntSlider(value = 10, min = 1, max = 30, step = 1)
-pr_indices = {"Rxnday": finch.max_n_day_precipitation_amount,
-              "Simple Precipitation Intensity Index": finch.sdii,
-              "Rnnmm": finch.wetdays,
-              "Maximum Length of Dry Spell": finch.cdd,
-              "Maximum Length of Wet Spell": finch.cwd,
-              "PRCPTOT": finch.wet_prcptot,
-             }
+rxnday = IntSlider(value=5, min=1, max=10)
+rnnmm = IntSlider(value=10, min=1, max=30, step=1)
+pr_indices = {
+    "Rxnday": finch.max_n_day_precipitation_amount,
+    "Simple Precipitation Intensity Index": finch.sdii,
+    "Rnnmm": finch.wetdays,
+    "Maximum Length of Dry Spell": finch.cdd,
+    "Maximum Length of Wet Spell": finch.cwd,
+    "PRCPTOT": finch.wet_prcptot,
+}
 pr_header = HTML(value="<b>Precipitation Indices</b>", style=description_style)
-pr_checkboxes = [HBox(children=[Checkbox(description=index, style=description_style, disabled=True), Dropdown(options=[*all, *months, *seasons])]) for index in pr_indices.keys()]
-pr_box = VBox(children=[pr_header, pr_checkboxes[0], rxnday, *pr_checkboxes[1:3], rnnmm, *pr_checkboxes[3:]])
+pr_checkboxes = [
+    HBox(
+        children=[
+            Checkbox(description=index, style=description_style, disabled=True),
+            Dropdown(options=[*all, *months, *seasons]),
+        ]
+    )
+    for index in pr_indices.keys()
+]
+pr_box = VBox(
+    children=[
+        pr_header,
+        pr_checkboxes[0],
+        rxnday,
+        *pr_checkboxes[1:3],
+        rnnmm,
+        *pr_checkboxes[3:],
+    ]
+)
 
-summer_days = IntSlider(value = 25, min = 20, max = 30, step = 1)
-tasmax_indices = {"Summer Days": finch.tx_days_above,
-                  "Ice Days": finch.ice_days,
-                  "TX{}".format("\N{LATIN SUBSCRIPT SMALL LETTER X}"): finch.tx_max,
-                  "TX{}".format("\N{LATIN SUBSCRIPT SMALL LETTER N}"): finch.tx_min,
-                 }
-tasmax_header = HTML(value="<b>Maximum Temperature Indices</b>", style=description_style)
-tasmax_checkboxes = [HBox(children=[Checkbox(description=index, style=description_style, disabled=True), Dropdown(options=[*all, *months, *seasons])]) for index in tasmax_indices.keys()]
-tasmax_box = VBox(children=[tasmax_header, tasmax_checkboxes[0], summer_days, *tasmax_checkboxes[1:]])
+summer_days = IntSlider(value=25, min=20, max=30, step=1)
+tasmax_indices = {
+    "Summer Days": finch.tx_days_above,
+    "Ice Days": finch.ice_days,
+    "TX{}".format("\N{LATIN SUBSCRIPT SMALL LETTER X}"): finch.tx_max,
+    "TX{}".format("\N{LATIN SUBSCRIPT SMALL LETTER N}"): finch.tx_min,
+}
+tasmax_header = HTML(
+    value="<b>Maximum Temperature Indices</b>", style=description_style
+)
+tasmax_checkboxes = [
+    HBox(
+        children=[
+            Checkbox(description=index, style=description_style, disabled=True),
+            Dropdown(options=[*all, *months, *seasons]),
+        ]
+    )
+    for index in tasmax_indices.keys()
+]
+tasmax_box = VBox(
+    children=[tasmax_header, tasmax_checkboxes[0], summer_days, *tasmax_checkboxes[1:]]
+)
 
-tropical_nights = IntSlider(value = 20, min = 10, max = 30, step = 1)
-tasmin_indices = {"Frost Days": finch.frost_days,
-                  "Tropical Nights": finch.tropical_nights,
-                  "TN{}".format("\N{LATIN SUBSCRIPT SMALL LETTER X}"): finch.tn_max,
-                  "TN{}".format("\N{LATIN SUBSCRIPT SMALL LETTER N}"): finch.tn_min,
-                 }
-tasmin_header = HTML(value="<b>Minimum Temperature Indices</b>", style=description_style)
-tasmin_checkboxes = [HBox(children=[Checkbox(description=index, style=description_style, disabled=True), Dropdown(options=[*all, *months, *seasons])]) for index in tasmin_indices.keys()]
-tasmin_box = VBox(children=[tasmin_header, *tasmin_checkboxes[:2], tropical_nights, *tasmin_checkboxes[2:]])
+tropical_nights = IntSlider(value=20, min=10, max=30, step=1)
+tasmin_indices = {
+    "Frost Days": finch.frost_days,
+    "Tropical Nights": finch.tropical_nights,
+    "TN{}".format("\N{LATIN SUBSCRIPT SMALL LETTER X}"): finch.tn_max,
+    "TN{}".format("\N{LATIN SUBSCRIPT SMALL LETTER N}"): finch.tn_min,
+}
+tasmin_header = HTML(
+    value="<b>Minimum Temperature Indices</b>", style=description_style
+)
+tasmin_checkboxes = [
+    HBox(
+        children=[
+            Checkbox(description=index, style=description_style, disabled=True),
+            Dropdown(options=[*all, *months, *seasons]),
+        ]
+    )
+    for index in tasmin_indices.keys()
+]
+tasmin_box = VBox(
+    children=[
+        tasmin_header,
+        *tasmin_checkboxes[:2],
+        tropical_nights,
+        *tasmin_checkboxes[2:],
+    ]
+)
 
-tas_multi_indices = {"Daily Temperature Range": finch.dtr,
-                    "Mean Temperature": finch.tg,
-                    }
+tas_multi_indices = {
+    "Daily Temperature Range": finch.dtr,
+    "Mean Temperature": finch.tg,
+}
 tas_multi_header = HTML(value="<b>Multivariate Indices</b>", style=description_style)
-tas_multi_checkboxes = [HBox(children=[Checkbox(description=index, style=description_style, disabled=True), Dropdown(options=[*all, *months, *seasons])]) for index in tas_multi_indices.keys()]
+tas_multi_checkboxes = [
+    HBox(
+        children=[
+            Checkbox(description=index, style=description_style, disabled=True),
+            Dropdown(options=[*all, *months, *seasons]),
+        ]
+    )
+    for index in tas_multi_indices.keys()
+]
 tas_multi_box = VBox(children=[tas_multi_header, *tas_multi_checkboxes])
 
 finch_indices = HBox(children=[pr_box, tasmax_box, tasmin_box, tas_multi_box])
