@@ -217,18 +217,18 @@ def handle_run_chickadee(arg):
         chickadee_params["units_bool"] = False
         chickadee_params["pr_units"] = "mm/day"
     if dataset.value == "PNWNAmet":
-        chickadee_params[
-            "out_file"
-        ] = f"{gcm_var}_{dataset.value}_target_{period.value}_on-demand.nc"
+        chickadee_params["out_file"] = (
+            f"{gcm_var}_{dataset.value}_target_{period.value}_on-demand.nc"
+        )
     else:
         if not canesm5_run.disabled:
-            chickadee_params[
-                "out_file"
-            ] = f"{gcm_var}_{dataset.value}_{technique.value}_{model.value}_{canesm5_run.value}_{scenario.value}_target_{period.value}_on-demand.nc"
+            chickadee_params["out_file"] = (
+                f"{gcm_var}_{dataset.value}_{technique.value}_{model.value}_{canesm5_run.value}_{scenario.value}_target_{period.value}_on-demand.nc"
+            )
         else:
-            chickadee_params[
-                "out_file"
-            ] = f"{gcm_var}_{dataset.value}_{technique.value}_{model.value}_{scenario.value}_target_{period.value}_on-demand.nc"
+            chickadee_params["out_file"] = (
+                f"{gcm_var}_{dataset.value}_{technique.value}_{model.value}_{scenario.value}_target_{period.value}_on-demand.nc"
+            )
 
     print("Running Chickadee on " + gcm_file)
     global chickadee_outputs

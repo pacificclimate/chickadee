@@ -12,7 +12,7 @@ twine
 cruft
 # Changing dependencies above this comment will create merge conflicts when updating the cookiecutter template with cruft. Add extra requirements below this line.
 
-black==20.8b1
+black==24.3.0
 birdhouse-birdy
 jupyterlab
 shapely
