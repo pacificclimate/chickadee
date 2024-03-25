@@ -23,3 +23,4 @@ ipywidgets
 ipyleaflet
 pyproj
 xarray
+xclim
