@@ -34,7 +34,6 @@ def set_general_options(
     n_pr_bool,
     tasmax_units,
     tasmin_units,
-    tasmean_units,
     pr_units,
     max_gb,
     start_date,
@@ -46,7 +45,7 @@ def set_general_options(
             max.GB={max_gb},
             check.units={r_boolean(units_bool)},
             check.neg.precip={r_boolean(n_pr_bool)},
-            target.units=c(tasmax='{tasmax_units}', tasmin='{tasmin_units}', tasmean='{tasmean_units}', pr='{pr_units}'),
+            target.units=c(tasmax='{tasmax_units}', tasmin='{tasmin_units}', pr='{pr_units}'),
             calibration.start=as.POSIXct('{start_date}', tz='GMT'),
             calibration.end=as.POSIXct('{end_date}', tz='GMT')
         )
