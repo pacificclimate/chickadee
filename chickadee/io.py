@@ -83,9 +83,9 @@ general_options_input = [
         data_type="string",
     ),
     LiteralInput(
-        "tasmean_units",
+        "tg_units",
         "Tasmean Units",
-        abstract="Units used for tasmean in output file",
+        abstract="Units used for tg (tasmean) in output file",
         max_occurs=1,
         default="celsius",
         data_type="string",
