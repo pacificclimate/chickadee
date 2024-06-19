@@ -2,6 +2,7 @@ from pywps import Process
 from pywps.app.Common import Metadata
 from rpy2 import robjects
 from rpy2.rinterface_lib.embedded import RRuntimeError
+from tempfile import TemporaryDirectory
 
 # PCIC libraries
 from wps_tools import logging, R, io, error_handling
@@ -116,35 +117,37 @@ class CI(Process):
             process_step="process",
         )
 
-        try:
-            climdown.ci_netcdf_wrapper(gcm_file, obs_file, output_file)
-        except RRuntimeError as e:
-            error_handling.custom_process_error(e)
+        with TemporaryDirectory() as td:
+            try:
+                output_path = td + "/" + output_file
+                climdown.ci_netcdf_wrapper(gcm_file, obs_file, output_path)
+            except RRuntimeError as e:
+                error_handling.custom_process_error(e)
 
-        # stop parallelization
-        doPar.stopImplicitCluster()
+            # stop parallelization
+            doPar.stopImplicitCluster()
 
-        logging.log_handler(
-            self,
-            response,
-            "Building final output",
-            util.logger,
-            log_level=loglevel,
-            process_step="build_output",
-        )
+            logging.log_handler(
+                self,
+                response,
+                "Building final output",
+                util.logger,
+                log_level=loglevel,
+                process_step="build_output",
+            )
 
-        response.outputs["output"].file = output_file
+            response.outputs["output"].file = output_path
 
-        # Clear R global env
-        robjects.r("rm(list=ls())")
+            # Clear R global env
+            robjects.r("rm(list=ls())")
 
-        logging.log_handler(
-            self,
-            response,
-            "Process Complete",
-            util.logger,
-            log_level=loglevel,
-            process_step="complete",
-        )
+            logging.log_handler(
+                self,
+                response,
+                "Process Complete",
+                util.logger,
+                log_level=loglevel,
+                process_step="complete",
+            )
 
-        return response
+            return response
