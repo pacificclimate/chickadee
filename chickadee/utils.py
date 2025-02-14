@@ -21,7 +21,19 @@ logger.addHandler(handler)
 
 
 def select_args_from_input_list(args, inputs):
-    return (args[input_.identifier] for input_ in inputs)
+    selected_args = []
+    for input_ in inputs:
+        # OPeNDAP URLs
+        if input_.identifier in ["gcm_file", "obs_file"]:
+            value = args[input_.identifier][0].reference
+        else:
+            value = (
+                args[input_.identifier][0].data
+                if hasattr(args[input_.identifier][0], "data")
+                else args[input_.identifier]
+            )
+        selected_args.append(value)
+    return tuple(selected_args)
 
 
 def r_boolean(python_bool):
