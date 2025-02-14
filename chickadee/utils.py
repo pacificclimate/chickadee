@@ -23,16 +23,15 @@ logger.addHandler(handler)
 def select_args_from_input_list(args, inputs):
     selected_args = []
     for input_ in inputs:
+        obj = args[input_.identifier][0]
         # OPeNDAP URLs
-        if input_.identifier in ["gcm_file", "obs_file"]:
-            value = args[input_.identifier][0].reference
+        if input_.identifier in ["gcm_file", "obs_file"] and hasattr(obj, "reference"):
+            selected_args.append(obj.reference)
         else:
-            value = (
-                args[input_.identifier][0].data
-                if hasattr(args[input_.identifier][0], "data")
-                else args[input_.identifier]
-            )
-        selected_args.append(value)
+            if hasattr(obj, "data"):
+                selected_args.append(obj.data)
+            else:
+                selected_args.append(obj)
     return tuple(selected_args)
 
 
