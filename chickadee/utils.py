@@ -21,7 +21,12 @@ logger.addHandler(handler)
 
 
 def select_args_from_input_list(args, inputs):
-    return (args[input_.identifier] for input_ in inputs)
+    def get_value(arg):
+        if hasattr(arg, "data"):
+            return arg.data
+        return arg
+
+    return (get_value(args[input_.identifier]) for input_ in inputs)
 
 
 def r_boolean(python_bool):
