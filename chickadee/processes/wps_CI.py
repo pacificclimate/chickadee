@@ -116,7 +116,20 @@ class CI(Process):
             log_level=loglevel,
             process_step="process",
         )
-
+        logging.log_handler(
+            self,
+            response,
+            f"GCM File Path: {gcm_file}",
+            util.logger,
+            log_level=loglevel,
+        )
+        logging.log_handler(
+            self,
+            response,
+            f"Obs File Path: {obs_file}",
+            util.logger,
+            log_level=loglevel,
+        )
         with TemporaryDirectory() as td:
             try:
                 output_path = td + "/" + output_file
