@@ -10,7 +10,7 @@ gcm_file = ComplexInput(
     min_occurs=1,
     max_occurs=1,
     supported_formats=[FORMATS.NETCDF, FORMATS.DODS],
-    as_reference=True
+    as_reference=True,
 )
 
 obs_file = ComplexInput(
@@ -20,7 +20,7 @@ obs_file = ComplexInput(
     min_occurs=1,
     max_occurs=1,
     supported_formats=[FORMATS.NETCDF, FORMATS.DODS],
-    as_reference=True
+    as_reference=True,
 )
 
 varname = LiteralInput(
