@@ -21,21 +21,7 @@ logger.addHandler(handler)
 
 
 def select_args_from_input_list(args, inputs):
-    def get_val(v):
-        for attr in ("reference", "file", "data"):
-            val = getattr(v, attr, None)
-            if val:
-                return val
-        return v
-
-    return [
-        get_val(
-            args[input_.identifier][0]
-            if isinstance(args[input_.identifier], list)
-            else args[input_.identifier]
-        )
-        for input_ in inputs
-    ]
+    return (args[input_.identifier] for input_ in inputs)
 
 
 def r_boolean(python_bool):
