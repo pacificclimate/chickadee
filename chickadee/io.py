@@ -9,6 +9,7 @@ gcm_file = ComplexInput(
     abstract="Filename of GCM simulations",
     min_occurs=1,
     max_occurs=1,
+    as_reference=True,
     supported_formats=[FORMATS.NETCDF, FORMATS.DODS],
 )
 
@@ -18,6 +19,7 @@ obs_file = ComplexInput(
     abstract="Filename of high-res gridded historical observations",
     min_occurs=1,
     max_occurs=1,
+    as_reference=True,
     supported_formats=[FORMATS.NETCDF, FORMATS.DODS],
 )
 
