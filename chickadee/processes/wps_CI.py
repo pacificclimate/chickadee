@@ -50,6 +50,36 @@ class CI(Process):
         )
 
     def _handler(self, request, response):
+        for identifier, input_list in request.inputs.items():
+            for i, input_obj in enumerate(input_list):
+                attrs = [attr for attr in dir(input_obj) if not attr.startswith("__")]
+                logging.log_handler(
+                    self,
+                    response,
+                    f"Raw input {identifier}[{i}] has these attributes: {attrs}",
+                    util.logger,
+                    log_level="INFO",
+                )
+
+                if hasattr(input_obj, "data_format"):  # ComplexInput
+                    logging.log_handler(
+                        self,
+                        response,
+                        f"Raw input {identifier}[{i}]: type={input_obj.data_format.mime_type}, "
+                        f"href={getattr(input_obj, 'href', None)}, "
+                        f"file={getattr(input_obj, 'file', None)}",
+                        util.logger,
+                        log_level="INFO",
+                    )
+                else:  # LiteralInput
+                    logging.log_handler(
+                        self,
+                        response,
+                        f"Raw input {identifier}[{i}]: value={getattr(input_obj, 'data', None)}",
+                        util.logger,
+                        log_level="INFO",
+                    )
+
         args = io.collect_args(request.inputs, self.workdir)
         (
             gcm_file,
