@@ -80,18 +80,27 @@ class CI(Process):
                         log_level="INFO",
                     )
 
-        args = io.collect_args(request.inputs, self.workdir)
-        (
-            gcm_file,
-            obs_file,
-            output_file,
-            num_cores,
-            loglevel,
-        ) = util.select_args_from_input_list(args, self.handler_inputs)
-        if getattr(request.inputs["gcm_file"][0], "href", None) is not None:
-            gcm_file = request.inputs["gcm_file"][0].href
-        if getattr(request.inputs["obs_file"][0], "href", None) is not None:
-            obs_file = request.inputs["obs_file"][0].href
+        inputs_for_collect = {
+            key: value
+            for key, value in request.inputs.items()
+            if key not in ["gcm_file", "obs_file"]
+        }
+        args = io.collect_args(inputs_for_collect, self.workdir)
+
+        remaining_inputs = [
+            inp
+            for inp in self.handler_inputs
+            if inp.identifier not in ["gcm_file", "obs_file"]
+        ]
+        (output_file, num_cores, loglevel) = util.select_args_from_input_list(
+            args, remaining_inputs
+        )
+
+        gcm_input = request.inputs["gcm_file"][0]
+        obs_input = request.inputs["obs_file"][0]
+        gcm_file = getattr(gcm_input, "href", None) or getattr(gcm_input, "file", None)
+        obs_file = getattr(obs_input, "href", None) or getattr(obs_input, "file", None)
+
         logging.log_handler(
             self,
             response,
