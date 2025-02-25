@@ -88,7 +88,10 @@ class CI(Process):
             num_cores,
             loglevel,
         ) = util.select_args_from_input_list(args, self.handler_inputs)
-
+        if getattr(request.inputs["gcm_file"][0], "href", None) is not None:
+            gcm_file = request.inputs["gcm_file"][0].href
+        if getattr(request.inputs["obs_file"][0], "href", None) is not None:
+            obs_file = request.inputs["obs_file"][0].href
         logging.log_handler(
             self,
             response,
