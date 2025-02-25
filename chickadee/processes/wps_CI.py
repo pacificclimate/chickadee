@@ -67,7 +67,8 @@ class CI(Process):
                         response,
                         f"Raw input {identifier}[{i}]: type={input_obj.data_format.mime_type}, "
                         f"href={getattr(input_obj, 'href', None)}, "
-                        f"file={getattr(input_obj, 'file', None)}",
+                        f"file={getattr(input_obj, 'file', None)}, "
+                        f"url={getattr(input_obj, 'url', None)}",
                         util.logger,
                         log_level="INFO",
                     )
@@ -80,26 +81,19 @@ class CI(Process):
                         log_level="INFO",
                     )
 
-        inputs_for_collect = {
-            key: value
-            for key, value in request.inputs.items()
-            if key not in ["gcm_file", "obs_file"]
-        }
-        args = io.collect_args(inputs_for_collect, self.workdir)
-
-        remaining_inputs = [
-            inp
-            for inp in self.handler_inputs
-            if inp.identifier not in ["gcm_file", "obs_file"]
-        ]
-        (output_file, num_cores, loglevel) = util.select_args_from_input_list(
-            args, remaining_inputs
-        )
+        args = io.collect_args(request.inputs, self.workdir)
+        (
+            gcm_file,
+            obs_file,
+            output_file,
+            num_cores,
+            loglevel,
+        ) = util.select_args_from_input_list(args, self.handler_inputs)
 
         gcm_input = request.inputs["gcm_file"][0]
         obs_input = request.inputs["obs_file"][0]
-        gcm_file = getattr(gcm_input, "href", None) or getattr(gcm_input, "file", None)
-        obs_file = getattr(obs_input, "href", None) or getattr(obs_input, "file", None)
+        gcm_file = getattr(gcm_input, "url", None) or getattr(gcm_input, "file", None)
+        obs_file = getattr(obs_input, "url", None) or getattr(obs_input, "file", None)
 
         logging.log_handler(
             self,
