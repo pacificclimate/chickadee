@@ -50,36 +50,6 @@ class CI(Process):
         )
 
     def _handler(self, request, response):
-        for identifier, input_list in request.inputs.items():
-            for i, input_obj in enumerate(input_list):
-                attrs = [attr for attr in dir(input_obj) if not attr.startswith("__")]
-                logging.log_handler(
-                    self,
-                    response,
-                    f"Raw input {identifier}[{i}] has these attributes: {attrs}",
-                    util.logger,
-                    log_level="INFO",
-                )
-
-                if hasattr(input_obj, "data_format"):  # ComplexInput
-                    logging.log_handler(
-                        self,
-                        response,
-                        f"Raw input {identifier}[{i}]: type={input_obj.data_format.mime_type}, "
-                        f"href={getattr(input_obj, 'href', None)}, "
-                        f"file={getattr(input_obj, 'file', None)}, "
-                        f"url={getattr(input_obj, 'url', None)}",
-                        util.logger,
-                        log_level="INFO",
-                    )
-                else:  # LiteralInput
-                    logging.log_handler(
-                        self,
-                        response,
-                        f"Raw input {identifier}[{i}]: value={getattr(input_obj, 'data', None)}",
-                        util.logger,
-                        log_level="INFO",
-                    )
 
         args = io.collect_args(request.inputs, self.workdir)
         (
@@ -89,11 +59,6 @@ class CI(Process):
             num_cores,
             loglevel,
         ) = util.select_args_from_input_list(args, self.handler_inputs)
-
-        gcm_input = request.inputs["gcm_file"][0]
-        obs_input = request.inputs["obs_file"][0]
-        gcm_file = getattr(gcm_input, "url", None) or getattr(gcm_input, "file", None)
-        obs_file = getattr(obs_input, "url", None) or getattr(obs_input, "file", None)
 
         logging.log_handler(
             self,
@@ -152,20 +117,7 @@ class CI(Process):
             log_level=loglevel,
             process_step="process",
         )
-        logging.log_handler(
-            self,
-            response,
-            f"GCM File Path: {gcm_file}",
-            util.logger,
-            log_level=loglevel,
-        )
-        logging.log_handler(
-            self,
-            response,
-            f"Obs File Path: {obs_file}",
-            util.logger,
-            log_level=loglevel,
-        )
+
         with TemporaryDirectory() as td:
             try:
                 output_path = td + "/" + output_file
