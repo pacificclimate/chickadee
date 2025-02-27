@@ -53,7 +53,7 @@ COPY . /tmp
 COPY requirements.txt ./
 
 RUN apt-get update && \
-  apt-get install -y --no-install-recommends python3.8 python3-pip && \
+  apt-get install -y --no-install-recommends python3.8 python3-pip git && \
   pip install -U pip && \
   pip install -r requirements.txt && \
   pip install gunicorn

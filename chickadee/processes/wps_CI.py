@@ -50,7 +50,6 @@ class CI(Process):
         )
 
     def _handler(self, request, response):
-
         args = io.collect_args(request.inputs, self.workdir)
         (
             gcm_file,
