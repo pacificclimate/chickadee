@@ -117,11 +117,18 @@ class CI(Process):
             process_step="process",
         )
 
+        set_r_monitor, remove_r_monitor = util.create_r_progress_monitor(
+            self, response, util.logger, loglevel
+        )
+
         with TemporaryDirectory() as td:
             try:
                 output_path = td + "/" + output_file
+                set_r_monitor()
                 climdown.ci_netcdf_wrapper(gcm_file, obs_file, output_path)
+                remove_r_monitor()
             except RRuntimeError as e:
+                remove_r_monitor()
                 error_handling.custom_process_error(e)
 
             # stop parallelization

@@ -1,5 +1,6 @@
 import pytest, logging, io, re
 from rpy2 import robjects
+from rpy2.rinterface_lib import callbacks
 from tempfile import NamedTemporaryFile
 from urllib.request import urlretrieve
 from pkg_resources import resource_filename
@@ -142,3 +143,69 @@ def test_analogues(url, analogues_name, expected_file, expected_analogues):
 
     # Clear R global env
     robjects.r("rm(list=ls())")
+
+
+# Using Rpy2 callbacks to monitor process progress.
+# See https://rpy2.github.io/doc/latest/html/callbacks.html#write-console
+def create_r_progress_monitor(process_instance, response, logger, log_level):
+    original_console_write = callbacks.consolewrite_print
+
+    progress_markers = {
+        "Calculating daily anomalies on the GCM": 23,
+        "Creating cache file for the interpolated GCM": 26,
+        "Interpolating the GCM daily anomalies to observation grid": 29,
+        "Check observations file": 58,
+        "Reading the monthly climatologies from the observations": 61,
+        "Calculating the monthly factor across the GCM time series": 64,
+        "Adding the monthly climatologies to the interpolated GCM": 67,
+    }
+
+    # Callback to capture R console output and update progress
+    def custom_console_write(text):
+        original_console_write(text)
+
+        # Check for fixed progress markers
+        for marker, percentage in progress_markers.items():
+            if marker in text:
+                response.update_status(marker, percentage)
+                logger.info(marker)
+                return
+
+        # 29% to 55%
+        if "Interpolating timesteps" in text:
+            match = re.search(r"Interpolating timesteps (\d+) - (\d+) / (\d+)", text)
+            if match:
+                start, end, total = map(int, match.groups())
+                progress = end / int(total)
+                percentage = 29 + (progress * 26)  # 26 = (55 - 29)
+                message = f"Interpolating timesteps {start}-{end} of {total}"
+                response.update_status(message, int(percentage))
+                logger.info(message)
+                return
+
+        # 67% to 95%
+        if "Applying climatologies to file" in text:
+            match = re.search(
+                r"Applying climatologies to file .* steps (\d+) : (\d+) / (\d+)",
+                text,
+            )
+            if match:
+                start, end, total = map(int, match.groups())
+                progress = end / int(total)
+                percentage = 67 + (progress * 28)  # 28 = (95 - 67)
+                message = (
+                    f"Applying climatologies to timesteps {start}-{end} of {total}"
+                )
+                response.update_status(message, int(percentage))
+                logger.info(message)
+                return
+
+    def set_monitor():
+        # Set the R console monitoring callback
+        callbacks.consolewrite_print = custom_console_write
+
+    def remove_monitor():
+        # Restore the original R console callback
+        callbacks.consolewrite_print = original_console_write
+
+    return set_monitor, remove_monitor
