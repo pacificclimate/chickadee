@@ -5,6 +5,6 @@ psutil
 nchelpers==5.5.11
 rpy2==3.3.6
 werkzeug==1.0.1
-wps-tools @ git+https://github.com/pacificclimate/wps-tools.git@i58-fix-process-complex-url#egg=wps-tools
+wps-tools[r]==2.1.2
 
 
