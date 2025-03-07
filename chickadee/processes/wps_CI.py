@@ -67,7 +67,7 @@ class CI(Process):
             log_level=loglevel,
             process_step="start",
         )
-
+        util.raise_if_failed(response)
         logging.log_handler(
             self,
             response,
@@ -77,7 +77,7 @@ class CI(Process):
             process_step="get_ClimDown",
         )
         climdown = R.get_package("ClimDown")
-
+        util.raise_if_failed(response)
         logging.log_handler(
             self,
             response,
@@ -105,6 +105,7 @@ class CI(Process):
             log_level=loglevel,
             process_step="parallelization",
         )
+        util.raise_if_failed(response)
         doPar = R.get_package("doParallel")
         doPar.registerDoParallel(cores=num_cores)
 
@@ -116,7 +117,7 @@ class CI(Process):
             log_level=loglevel,
             process_step="process",
         )
-
+        util.raise_if_failed(response)
         set_r_monitor, remove_r_monitor = util.create_r_progress_monitor(
             self, response, util.logger, loglevel
         )
@@ -133,7 +134,7 @@ class CI(Process):
 
             # stop parallelization
             doPar.stopImplicitCluster()
-
+            util.raise_if_failed(response)
             logging.log_handler(
                 self,
                 response,

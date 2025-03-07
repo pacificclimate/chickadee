@@ -4,9 +4,10 @@ from rpy2.rinterface_lib import callbacks
 from tempfile import NamedTemporaryFile
 from urllib.request import urlretrieve
 from pkg_resources import resource_filename
+from pywps.response.status import WPS_STATUS
 from pywps.app.exceptions import ProcessError
 from contextlib import redirect_stderr
-
+from pywps.dblog import get_session, ProcessInstance
 from wps_tools.testing import run_wps_process
 
 
@@ -145,6 +146,23 @@ def test_analogues(url, analogues_name, expected_file, expected_analogues):
     robjects.r("rm(list=ls())")
 
 
+def raise_if_failed(response):
+    # Check in-memory response status
+    if response.status == WPS_STATUS.FAILED:
+        raise ProcessError("Process failed.")
+
+    uuid = response.uuid
+
+    session = get_session()
+    try:
+        process = session.query(ProcessInstance).filter_by(uuid=uuid).first()
+        if process and process.status == WPS_STATUS.FAILED:
+            error_message = process.message or "Process canceled"
+            raise ProcessError(error_message)
+    finally:
+        session.close()
+
+
 # Using Rpy2 callbacks to monitor process progress.
 # See https://rpy2.github.io/doc/latest/html/callbacks.html#write-console
 def create_r_progress_monitor(process_instance, response, logger, log_level):
@@ -164,6 +182,7 @@ def create_r_progress_monitor(process_instance, response, logger, log_level):
     def custom_console_write(text):
         original_console_write(text)
 
+        raise_if_failed(response)
         # Check for fixed progress markers
         for marker, percentage in progress_markers.items():
             if marker in text:
