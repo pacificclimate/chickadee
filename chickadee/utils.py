@@ -157,8 +157,7 @@ def raise_if_failed(response):
     try:
         process = session.query(ProcessInstance).filter_by(uuid=uuid).first()
         if process and process.status == WPS_STATUS.FAILED:
-            error_message = process.message or "Process canceled"
-            raise ProcessError(error_message)
+            raise ProcessError("Process failed.")
     finally:
         session.close()
 
@@ -182,7 +181,18 @@ def create_r_progress_monitor(process_instance, response, logger, log_level):
     def custom_console_write(text):
         original_console_write(text)
 
-        raise_if_failed(response)
+        session = get_session()
+        try:
+            process = (
+                session.query(ProcessInstance).filter_by(uuid=response.uuid).first()
+            )
+            if process and process.status == WPS_STATUS.FAILED:
+                logger.info("Process was cancelled. Sending interrupt to R.")
+                robjects.r("stop('Process cancelled by user')")  # Send interrupt to R
+                raise ProcessError("Process failed.")
+                return
+        finally:
+            session.close()
         # Check for fixed progress markers
         for marker, percentage in progress_markers.items():
             if marker in text:
