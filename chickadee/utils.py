@@ -188,9 +188,8 @@ def create_r_progress_monitor(process_instance, response, logger, log_level):
             )
             if process and process.status == WPS_STATUS.FAILED:
                 logger.info("Process was cancelled. Sending interrupt to R.")
-                robjects.r("stop('Process cancelled by user')")  # Send interrupt to R
+                robjects.r("stop('Process cancelled by user')")
                 raise ProcessError("Process failed.")
-                return
         finally:
             session.close()
         # Check for fixed progress markers
@@ -208,6 +207,7 @@ def create_r_progress_monitor(process_instance, response, logger, log_level):
                 progress = end / int(total)
                 percentage = 29 + (progress * 26)  # 26 = (55 - 29)
                 message = f"Interpolating timesteps {start}-{end} of {total}"
+                raise_if_failed(response)
                 response.update_status(message, int(percentage))
                 logger.info(message)
                 return
@@ -225,6 +225,7 @@ def create_r_progress_monitor(process_instance, response, logger, log_level):
                 message = (
                     f"Applying climatologies to timesteps {start}-{end} of {total}"
                 )
+                raise_if_failed(response)
                 response.update_status(message, int(percentage))
                 logger.info(message)
                 return
