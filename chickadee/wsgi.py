@@ -1,7 +1,11 @@
 import os
+import logging
 from pywps.app.Service import Service
 from .processes import processes
-import cancel_process
+from .cancel_process import handle_cancel
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 
 
 def create_app(cfgfiles=None):
@@ -11,15 +15,27 @@ def create_app(cfgfiles=None):
     if "PYWPS_CFG" in os.environ:
         config_files.append(os.environ["PYWPS_CFG"])
 
-    wps_service = Service(processes=processes, cfgfiles=config_files)
+    try:
+        wps_service = Service(processes=processes, cfgfiles=config_files)
+    except Exception as e:
+        logger.error(f"Service initialization failed: {str(e)}")
+        raise
 
     def application(environ, start_response):
-        path_info = environ.get("PATH_INFO", "")
+        try:
+            path_info = environ.get("PATH_INFO", "")
+            logger.debug(f"Request to path: {path_info}")
 
-        if path_info == "/wps/cancel-process":
-            return cancel_process.handle_cancel(environ, start_response)
-        else:
+            if path_info == "/wps/cancel-process":
+                return handle_cancel(environ, start_response)
             return wps_service(environ, start_response)
+
+        except Exception as e:
+            logger.error(f"Request failed: {str(e)}", exc_info=True)
+            start_response(
+                "500 Internal Server Error", [("Content-type", "text/plain")]
+            )
+            return [b"Internal server error"]
 
     return application
 
