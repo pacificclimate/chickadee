@@ -162,6 +162,19 @@ def raise_if_failed(response):
         session.close()
 
 
+def update_status_with_check(response, message, percentage):
+    session = get_session()
+    try:
+        process = session.query(ProcessInstance).filter_by(uuid=response.uuid).first()
+        if process and process.status == WPS_STATUS.FAILED:
+            return False
+    finally:
+        session.close()
+
+    response.update_status(message, percentage)
+    return True
+
+
 # Using Rpy2 callbacks to monitor process progress.
 # See https://rpy2.github.io/doc/latest/html/callbacks.html#write-console
 def create_r_progress_monitor(process_instance, response, logger, log_level):
@@ -195,7 +208,7 @@ def create_r_progress_monitor(process_instance, response, logger, log_level):
         # Check for fixed progress markers
         for marker, percentage in progress_markers.items():
             if marker in text:
-                response.update_status(marker, percentage)
+                update_status_with_check(response, marker, percentage)
                 logger.info(marker)
                 return
 
@@ -207,8 +220,7 @@ def create_r_progress_monitor(process_instance, response, logger, log_level):
                 progress = end / int(total)
                 percentage = 29 + (progress * 26)  # 26 = (55 - 29)
                 message = f"Interpolating timesteps {start}-{end} of {total}"
-                raise_if_failed(response)
-                response.update_status(message, int(percentage))
+                update_status_with_check(response, message, int(percentage))
                 logger.info(message)
                 return
 
@@ -225,8 +237,7 @@ def create_r_progress_monitor(process_instance, response, logger, log_level):
                 message = (
                     f"Applying climatologies to timesteps {start}-{end} of {total}"
                 )
-                raise_if_failed(response)
-                response.update_status(message, int(percentage))
+                update_status_with_check(response, message, int(percentage))
                 logger.info(message)
                 return
 
