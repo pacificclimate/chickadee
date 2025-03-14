@@ -53,7 +53,7 @@ COPY . /tmp
 COPY requirements.txt ./
 
 RUN apt-get update && \
-  apt-get install -y --no-install-recommends python3.9 python3-pip git && \
+  apt-get install -y --no-install-recommends python3.9 python3-pip sqlite3 git && \
   # Use Python 3.9 explicitly
   update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.9 1 && \
   update-alternatives --set python3 /usr/bin/python3.9 && \
