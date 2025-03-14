@@ -34,12 +34,16 @@ def handle_cancel(environ, start_response):
 
     session = get_session()
     try:
-        store_status(process_uuid, WPS_STATUS.FAILED, "Process cancelled by user", 100)
         process = session.query(ProcessInstance).filter_by(uuid=process_uuid).first()
         if process and process.pid:
             pid = process.pid
             try:
-                os.kill(pid, signal.SIGINT)  # Graceful termination
+                if process.status in [WPS_STATUS.STARTED, WPS_STATUS.PAUSED]:
+                    os.kill(pid, signal.SIGINT)  # Graceful termination
+
+                store_status(
+                    process_uuid, WPS_STATUS.FAILED, "Process cancelled by user", 100
+                )
                 return _simple_json_response(
                     start_response,
                     {"message": f"Process {process_uuid} (PID {pid}) cancelled."},
