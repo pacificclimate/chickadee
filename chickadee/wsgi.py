@@ -27,7 +27,7 @@ def create_app(cfgfiles=None):
             logger.debug(f"Request to path: {path_info}")
 
             if path_info == "/wps/cancel-process":
-                return handle_cancel(environ, start_response)
+                return handle_cancel(environ, start_response, wps_service)
             return wps_service(environ, start_response)
 
         except Exception as e:

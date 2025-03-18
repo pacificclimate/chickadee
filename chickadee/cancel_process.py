@@ -6,7 +6,7 @@ from pywps.dblog import store_status, get_session, ProcessInstance
 from pywps.response.status import WPS_STATUS
 
 
-def handle_cancel(environ, start_response):
+def handle_cancel(environ, start_response, wps_service):
     if environ["REQUEST_METHOD"].upper() != "POST":
         return _simple_json_response(
             start_response,
@@ -34,16 +34,22 @@ def handle_cancel(environ, start_response):
 
     session = get_session()
     try:
-        process = session.query(ProcessInstance).filter_by(uuid=process_uuid).first()
-        if process and process.pid:
-            pid = process.pid
+        process_record = (
+            session.query(ProcessInstance).filter_by(uuid=process_uuid).first()
+        )
+        process_instance = wps_service.processes.get(process_record.identifier)
+        if process_record and process_record.pid:
+            pid = process_record.pid
             try:
-                if process.status in [WPS_STATUS.STARTED, WPS_STATUS.PAUSED]:
+                if process_record.status in [WPS_STATUS.STARTED, WPS_STATUS.PAUSED]:
                     os.kill(pid, signal.SIGINT)  # Graceful termination
+                    if process_instance:
+                        process_instance.launch_next_process()
 
                 store_status(
                     process_uuid, WPS_STATUS.FAILED, "Process cancelled by user", 100
                 )
+
                 return _simple_json_response(
                     start_response,
                     {"message": f"Process {process_uuid} (PID {pid}) cancelled."},
