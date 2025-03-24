@@ -35,13 +35,6 @@ def handle_cancel(environ, start_response):
                 proc = psutil.Process(pid)
                 if "chickadee.wsgi:application" in proc.cmdline():
                     proc.send_signal(signal.SIGINT)
-                    try:
-                        proc.wait(timeout=10)
-                    except psutil.TimeoutExpired:
-                        return error(
-                            f"Process {pid} did not terminate within timeout.",
-                            "500 Internal Server Error",
-                        )
 
             store_status(
                 process_uuid, WPS_STATUS.FAILED, "Process cancelled by user", 100
