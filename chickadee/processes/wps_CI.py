@@ -3,6 +3,8 @@ from pywps.app.Common import Metadata
 from rpy2 import robjects
 from rpy2.rinterface_lib.embedded import RRuntimeError
 from tempfile import TemporaryDirectory
+import signal
+import sys
 
 # PCIC libraries
 from wps_tools import logging, R, io, error_handling
@@ -16,6 +18,7 @@ class CI(Process):
             logging.common_status_percentages,
             **{"get_ClimDown": 5, "set_R_options": 10, "parallelization": 15},
         )
+
         self.handler_inputs = [
             chick_io.gcm_file,
             chick_io.obs_file,
@@ -50,6 +53,21 @@ class CI(Process):
         )
 
     def _handler(self, request, response):
+
+        def graceful_exit(signum, frame):
+            try:
+                response.update_status(WPS_STATUS.FAILED, "Process interrupted", 100)
+                response.clean()
+                util.logger.warning("Process interrupted — cleaned up temp files.")
+            except Exception as e:
+                util.logger.error(f"Failed cleanup on interrupt: {str(e)}")
+            finally:
+                sys.exit(0)
+
+        # Register handlers for SIGINT and SIGTERM
+        signal.signal(signal.SIGINT, graceful_exit)
+        signal.signal(signal.SIGTERM, graceful_exit)
+
         args = io.collect_args(request.inputs, self.workdir)
         (
             gcm_file,
@@ -58,7 +76,7 @@ class CI(Process):
             num_cores,
             loglevel,
         ) = util.select_args_from_input_list(args, self.handler_inputs)
-
+        util.raise_if_failed(response)
         logging.log_handler(
             self,
             response,
