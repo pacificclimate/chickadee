@@ -1,4 +1,4 @@
-import pytest, logging, io, re
+import pytest, logging, io, re, os, signal
 from rpy2 import robjects
 from rpy2.rinterface_lib import callbacks
 from tempfile import NamedTemporaryFile
@@ -9,7 +9,6 @@ from pywps.app.exceptions import ProcessError
 from contextlib import redirect_stderr
 from pywps.dblog import get_session, ProcessInstance
 from wps_tools.testing import run_wps_process
-
 
 logger = logging.getLogger("PYWPS")
 logger.setLevel(logging.NOTSET)
@@ -158,6 +157,10 @@ def raise_if_failed(response):
         process = session.query(ProcessInstance).filter_by(uuid=uuid).first()
         if process and process.status == WPS_STATUS.FAILED:
             response.update_status(WPS_STATUS.FAILED, "Process failed.", 100)
+            try:
+                response.clean()
+            except Exception as e:
+                logger.error("Cleanup error: %s", str(e))
             raise ProcessError("Process failed.")
     finally:
         session.close()
@@ -195,19 +198,23 @@ def create_r_progress_monitor(process_instance, response, logger, log_level):
     # Callback to capture R console output and update progress
     def custom_console_write(text):
         original_console_write(text)
-
         session = get_session()
         try:
-            if response.status == WPS_STATUS.FAILED:
-                robjects.r("stop('Process cancelled by user')")
-                raise ProcessError("Process failed.")
             process = (
                 session.query(ProcessInstance).filter_by(uuid=response.uuid).first()
             )
+
             if process and process.status == WPS_STATUS.FAILED:
-                logger.info("Process was cancelled. Sending interrupt to R.")
-                robjects.r("stop('Process cancelled by user')")
-                raise ProcessError("Process failed.")
+                logger.info(
+                    "Cancellation detected in R callback. Cleaning up and terminating."
+                )
+                try:
+                    response.clean()
+                except Exception as e:
+                    logger.error("Cleanup error: %s", str(e))
+
+                os.kill(os.getpid(), signal.SIGTERM)
+                return
         finally:
             session.close()
         # Check for fixed progress markers
