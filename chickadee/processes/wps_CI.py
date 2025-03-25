@@ -1,11 +1,8 @@
 from pywps import Process
 from pywps.app.Common import Metadata
-from pywps.app.exceptions import ProcessError
 from rpy2 import robjects
 from rpy2.rinterface_lib.embedded import RRuntimeError
 from tempfile import TemporaryDirectory
-import signal
-import sys
 
 # PCIC libraries
 from wps_tools import logging, R, io, error_handling
@@ -19,7 +16,6 @@ class CI(Process):
             logging.common_status_percentages,
             **{"get_ClimDown": 5, "set_R_options": 10, "parallelization": 15},
         )
-
         self.handler_inputs = [
             chick_io.gcm_file,
             chick_io.obs_file,
@@ -54,128 +50,112 @@ class CI(Process):
         )
 
     def _handler(self, request, response):
-        try:
-            args = io.collect_args(request.inputs, self.workdir)
-            (
-                gcm_file,
-                obs_file,
-                output_file,
-                num_cores,
-                loglevel,
-            ) = util.select_args_from_input_list(args, self.handler_inputs)
+        args = io.collect_args(request.inputs, self.workdir)
+        (
+            gcm_file,
+            obs_file,
+            output_file,
+            num_cores,
+            loglevel,
+        ) = util.select_args_from_input_list(args, self.handler_inputs)
+        util.raise_if_failed(response)
+        logging.log_handler(
+            self,
+            response,
+            "Starting Process",
+            util.logger,
+            log_level=loglevel,
+            process_step="start",
+        )
+        util.raise_if_failed(response)
+        logging.log_handler(
+            self,
+            response,
+            "Importing R package 'ClimDown'",
+            util.logger,
+            log_level=loglevel,
+            process_step="get_ClimDown",
+        )
+        climdown = R.get_package("ClimDown")
+        util.raise_if_failed(response)
+        logging.log_handler(
+            self,
+            response,
+            "Setting R options",
+            util.logger,
+            log_level=loglevel,
+            process_step="set_R_options",
+        )
+        # Uses general_options_input
+        util.set_general_options(
+            *util.select_args_from_input_list(args, chick_io.general_options_input)
+        )
+
+        # Uses ci_options_input
+        util.set_ci_options(
+            *util.select_args_from_input_list(args, chick_io.ci_options_input)
+        )
+
+        # Set parallelization
+        logging.log_handler(
+            self,
+            response,
+            "Setting parallelization",
+            util.logger,
+            log_level=loglevel,
+            process_step="parallelization",
+        )
+        util.raise_if_failed(response)
+        doPar = R.get_package("doParallel")
+        doPar.registerDoParallel(cores=num_cores)
+
+        logging.log_handler(
+            self,
+            response,
+            "Processing CI downscaling",
+            util.logger,
+            log_level=loglevel,
+            process_step="process",
+        )
+        util.raise_if_failed(response)
+        set_r_monitor, remove_r_monitor = util.create_r_progress_monitor(
+            self, response, util.logger, loglevel
+        )
+
+        with TemporaryDirectory() as td:
+            try:
+                output_path = td + "/" + output_file
+                set_r_monitor()
+                climdown.ci_netcdf_wrapper(gcm_file, obs_file, output_path)
+                remove_r_monitor()
+            except RRuntimeError as e:
+                remove_r_monitor()
+                error_handling.custom_process_error(e)
+
+            # stop parallelization
+            doPar.stopImplicitCluster()
             util.raise_if_failed(response)
             logging.log_handler(
                 self,
                 response,
-                "Starting Process",
+                "Building final output",
                 util.logger,
                 log_level=loglevel,
-                process_step="start",
-            )
-            util.raise_if_failed(response)
-            logging.log_handler(
-                self,
-                response,
-                "Importing R package 'ClimDown'",
-                util.logger,
-                log_level=loglevel,
-                process_step="get_ClimDown",
-            )
-            climdown = R.get_package("ClimDown")
-            util.raise_if_failed(response)
-            logging.log_handler(
-                self,
-                response,
-                "Setting R options",
-                util.logger,
-                log_level=loglevel,
-                process_step="set_R_options",
-            )
-            # Uses general_options_input
-            util.set_general_options(
-                *util.select_args_from_input_list(args, chick_io.general_options_input)
+                process_step="build_output",
             )
 
-            # Uses ci_options_input
-            util.set_ci_options(
-                *util.select_args_from_input_list(args, chick_io.ci_options_input)
-            )
+            response.outputs["output"].file = output_path
 
-            # Set parallelization
-            logging.log_handler(
-                self,
-                response,
-                "Setting parallelization",
-                util.logger,
-                log_level=loglevel,
-                process_step="parallelization",
-            )
-            util.raise_if_failed(response)
-            doPar = R.get_package("doParallel")
-            doPar.registerDoParallel(cores=num_cores)
+            # Clear R global env
+            robjects.r("rm(list=ls())")
 
             logging.log_handler(
                 self,
                 response,
-                "Processing CI downscaling",
+                "Process Complete",
                 util.logger,
                 log_level=loglevel,
-                process_step="process",
-            )
-            util.raise_if_failed(response)
-            set_r_monitor, remove_r_monitor = util.create_r_progress_monitor(
-                self, response, util.logger, loglevel
+                process_step="complete",
             )
 
-            with TemporaryDirectory() as td:
-                try:
-                    output_path = td + "/" + output_file
-                    set_r_monitor()
-                    climdown.ci_netcdf_wrapper(gcm_file, obs_file, output_path)
-                    remove_r_monitor()
-                except RRuntimeError as e:
-                    remove_r_monitor()
-                    error_handling.custom_process_error(e)
-
-                # stop parallelization
-                doPar.stopImplicitCluster()
-                util.raise_if_failed(response)
-                logging.log_handler(
-                    self,
-                    response,
-                    "Building final output",
-                    util.logger,
-                    log_level=loglevel,
-                    process_step="build_output",
-                )
-
-                response.outputs["output"].file = output_path
-
-                # Clear R global env
-                robjects.r("rm(list=ls())")
-
-                logging.log_handler(
-                    self,
-                    response,
-                    "Process Complete",
-                    util.logger,
-                    log_level=loglevel,
-                    process_step="complete",
-                )
-
-                return response
-
-        except ProcessError as e:
-            util.logger.warning(f"Process was cancelled or failed: {e}")
-            response.clean()
-            raise
-
-        except RRuntimeError as e:
-            util.logger.warning(f"R error: {e}")
-            response.clean()
-            raise
-
-        except Exception as e:
-            util.logger.error(f"Unhandled exception: {e}")
-            response.clean()
-            raise
+            return response

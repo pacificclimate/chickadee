@@ -1,4 +1,6 @@
 import json
+import os
+import signal
 from pywps.dblog import store_status, get_session, ProcessInstance
 from pywps.response.status import WPS_STATUS
 
@@ -28,12 +30,23 @@ def handle_cancel(environ, start_response):
             return error("Process UUID not found or no PID recorded.", "404 Not Found")
 
         pid = process.pid
-        store_status(process_uuid, WPS_STATUS.FAILED, "Process cancelled by user", 100)
-        return _simple_json_response(
-            start_response,
-            {"message": f"Process {process_uuid} (PID {pid}) cancelled."},
-            "200 OK",
-        )
+        try:
+            store_status(
+                process_uuid, WPS_STATUS.FAILED, "Process cancelled by user", 100
+            )
+            if process.status in {WPS_STATUS.STARTED, WPS_STATUS.PAUSED}:
+                os.kill(pid, signal.SIGINT)  # Graceful termination
+
+            return _simple_json_response(
+                start_response,
+                {"message": f"Process {process_uuid} (PID {pid}) cancelled."},
+                "200 OK",
+            )
+
+        except ProcessLookupError:
+            return error(f"Process {pid} not found.", "404 Not Found")
+        except PermissionError:
+            return error(f"Permission denied to stop process {pid}.", "403 Forbidden")
 
     except Exception as e:
         return error(f"Failed to update status: {str(e)}", "500 Internal Server Error")

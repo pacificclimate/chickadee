@@ -1,4 +1,4 @@
-import pytest, logging, io, re, os, signal
+import pytest, logging, io, re
 from rpy2 import robjects
 from rpy2.rinterface_lib import callbacks
 from tempfile import NamedTemporaryFile
@@ -9,6 +9,7 @@ from pywps.app.exceptions import ProcessError
 from contextlib import redirect_stderr
 from pywps.dblog import get_session, ProcessInstance
 from wps_tools.testing import run_wps_process
+
 
 logger = logging.getLogger("PYWPS")
 logger.setLevel(logging.NOTSET)
@@ -157,10 +158,7 @@ def raise_if_failed(response):
         process = session.query(ProcessInstance).filter_by(uuid=uuid).first()
         if process and process.status == WPS_STATUS.FAILED:
             response.update_status(WPS_STATUS.FAILED, "Process failed.", 100)
-            try:
-                response.clean()
-            except Exception as e:
-                logger.error("Cleanup error: %s", str(e))
+            response.clean()
             raise ProcessError("Process failed.")
     finally:
         session.close()
@@ -170,14 +168,11 @@ def update_status_with_check(response, message, percentage):
     session = get_session()
     try:
         process = session.query(ProcessInstance).filter_by(uuid=response.uuid).first()
-        if process and process.status == WPS_STATUS.FAILED:
-            response.update_status(WPS_STATUS.FAILED, message, percentage)
-            return False
+        if process and process.status != WPS_STATUS.FAILED:
+            response.update_status(message, percentage)
     finally:
         session.close()
-
-    response.update_status(message, percentage)
-    return True
+    return
 
 
 # Using Rpy2 callbacks to monitor process progress.
@@ -198,23 +193,17 @@ def create_r_progress_monitor(process_instance, response, logger, log_level):
     # Callback to capture R console output and update progress
     def custom_console_write(text):
         original_console_write(text)
+
         session = get_session()
         try:
             process = (
                 session.query(ProcessInstance).filter_by(uuid=response.uuid).first()
             )
-
             if process and process.status == WPS_STATUS.FAILED:
-                logger.info(
-                    "Cancellation detected in R callback. Cleaning up and terminating."
-                )
-                try:
-                    response.clean()
-                except Exception as e:
-                    logger.error("Cleanup error: %s", str(e))
-
-                os.kill(os.getpid(), signal.SIGTERM)
-                return
+                logger.info("Process was cancelled. Sending interrupt to R.")
+                response.clean()
+                robjects.r("stop('Process cancelled by user')")
+                raise ProcessError("Process failed.")
         finally:
             session.close()
         # Check for fixed progress markers
