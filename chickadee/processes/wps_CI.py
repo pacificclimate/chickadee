@@ -51,7 +51,7 @@ class CI(Process):
         )
 
     def _handler(self, request, response):
-        track_response(request.uuid, response)
+        track_response(response.uuid, response)
         try:
             args = io.collect_args(request.inputs, self.workdir)
             (
@@ -163,4 +163,4 @@ class CI(Process):
 
                 return response
         finally:
-            untrack_response(request.uuid)
+            untrack_response(response.uuid)
