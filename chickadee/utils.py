@@ -158,6 +158,7 @@ def raise_if_failed(response):
         process = session.query(ProcessInstance).filter_by(uuid=uuid).first()
         if process and process.status == WPS_STATUS.FAILED:
             response.update_status(WPS_STATUS.FAILED, "Process failed.", 100)
+            response.clean()
             raise ProcessError("Process failed.")
     finally:
         session.close()
@@ -201,6 +202,7 @@ def create_r_progress_monitor(process_instance, response, logger, log_level):
             )
             if process and process.status == WPS_STATUS.FAILED:
                 logger.info("Process was cancelled. Sending interrupt to R.")
+                response.clean()
                 robjects.r("stop('Process cancelled by user')")
                 raise ProcessError("Process failed.")
         finally:
