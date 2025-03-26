@@ -149,6 +149,7 @@ def test_analogues(url, analogues_name, expected_file, expected_analogues):
 def raise_if_failed(response):
     # Check in-memory response status
     if response.status == WPS_STATUS.FAILED:
+        response.clean()
         raise ProcessError("Process failed.")
 
     uuid = response.uuid
