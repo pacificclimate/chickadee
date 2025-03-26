@@ -3,6 +3,7 @@ import os
 import signal
 from pywps.dblog import store_status, get_session, ProcessInstance
 from pywps.response.status import WPS_STATUS
+from chickadee.response_tracker import get_response
 
 
 def handle_cancel(environ, start_response):
@@ -31,9 +32,12 @@ def handle_cancel(environ, start_response):
 
         pid = process.pid
         try:
+            response = get_response(process_uuid)
+
             if process.status in {WPS_STATUS.STARTED, WPS_STATUS.PAUSED}:
                 os.kill(pid, signal.SIGINT)  # Graceful termination
-
+            if response:
+                response.clean()
             store_status(
                 process_uuid, WPS_STATUS.FAILED, "Process cancelled by user", 100
             )
