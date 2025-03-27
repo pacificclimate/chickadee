@@ -5,10 +5,10 @@ on: push
 jobs:
   test:
 
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
     strategy:
       matrix:
-        python-version: ['3.8', '3.9', '3.10']
+        python-version: ['3.9', '3.10']
 
     steps:
     - uses: actions/checkout@v2
@@ -24,7 +24,10 @@ jobs:
         sudo apt-get install libgit2-dev libudunits2-dev libnetcdf-dev libcurl4-openssl-dev libssl-dev libfontconfig1-dev libxml2-dev libharfbuzz-dev libfribidi-dev libfreetype6-dev libpng-dev libtiff5-dev libjpeg-dev
         pip install -r requirements.txt
         pip install -e .[dev]
-        Rscript install_pkgs.R r_requirements.txt
+    - name: Set GITHUB_PAT env var for R
+      run: echo "GITHUB_PAT=${{ secrets.GITHUB_TOKEN }}" >> $GITHUB_ENV
+    - name: Install R packages
+      run: Rscript install_pkgs.R r_requirements.txt
     - name: Test with pytest (full)
       if: github.ref == 'refs/heads/master'
       run: |
