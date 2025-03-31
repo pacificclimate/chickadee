@@ -5,6 +5,6 @@ psutil
 nchelpers==5.5.11
 rpy2==3.3.6
 werkzeug==1.0.1
-wps-tools[r]==2.1.2
+wps-tools @ git+https://github.com/pacificclimate/wps-tools.git@i60-file-url-handling#egg=wps-tools
 
 

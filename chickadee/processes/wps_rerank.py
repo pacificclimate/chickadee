@@ -78,7 +78,7 @@ class Rerank(Process):
             status_supported=True,
         )
 
-    def read_analogues_file(sef, analogues, analogues_name):
+    def read_analogues_file(self, analogues, analogues_name):
         try:
             return R.load_rdata_to_python(analogues, analogues_name)
         except (RRuntimeError, ProcessError, IndexError):
