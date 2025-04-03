@@ -1,8 +1,8 @@
-pywps==4.2.6
+pywps==4.6.0
 jinja2
 click
 psutil
-nchelpers==5.5.7
+nchelpers==5.5.11
 rpy2==3.3.6
 werkzeug==1.0.1
-wps-tools[r]==2.0.0
+wps-tools[r]==2.1.3

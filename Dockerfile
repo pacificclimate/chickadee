@@ -53,10 +53,14 @@ COPY . /tmp
 COPY requirements.txt ./
 
 RUN apt-get update && \
-  apt-get install -y --no-install-recommends python3.8 python3-pip && \
-  pip install -U pip && \
-  pip install -r requirements.txt && \
-  pip install gunicorn
+  apt-get install -y --no-install-recommends python3.9 python3-pip sqlite3 git && \
+  # Use Python 3.9 explicitly
+  update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.9 1 && \
+  update-alternatives --set python3 /usr/bin/python3.9 && \
+  # Update pip for Python 3.9
+  python3.9 -m pip install -U pip && \
+  python3.9 -m pip install -r requirements.txt && \
+  python3.9 -m pip install gunicorn
 
 EXPOSE 5000
 CMD gunicorn --bind=0.0.0.0:5000 --timeout 0 chickadee.wsgi:application

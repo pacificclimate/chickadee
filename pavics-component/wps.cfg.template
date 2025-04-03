@@ -2,10 +2,20 @@
 outputurl = https://${PAVICS_FQDN_PUBLIC}/wpsoutputs
 outputpath = /data/wpsoutputs
 maxrequestsize = 65gb
-parallelprocesses = 14
+maxprocesses = 6
+parallelprocesses = 2
+workdir = /tmp
+
+[processing]
+mode = default
+
 
 [logging]
 level = INFO
-db_echo = false
+db_echo = true
+database = sqlite:////tmp/pywps.db
+file = /tmp/pywps.log
+format = %(asctime)s] [%(levelname)s] file=%(pathname)s line=%(lineno)s module=%(module)s function=%(funcName)s %(message)s
+
 
 ${EXTRA_PYWPS_CONFIG}

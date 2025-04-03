@@ -33,6 +33,7 @@ def test_select_args_from_input_list(args, inputs):
         "n_pr_bool",
         "tasmax_units",
         "tasmin_units",
+        "tg_units",
         "pr_units",
         "max_gb",
         "start_date",
@@ -44,6 +45,7 @@ def test_select_args_from_input_list(args, inputs):
             False,
             "farenheit",
             "farenheit",
+            "celsius",
             "mm",
             0.5,
             date(1996, 9, 14),
@@ -56,6 +58,7 @@ def test_set_general_options(
     n_pr_bool,
     tasmax_units,
     tasmin_units,
+    tg_units,
     pr_units,
     max_gb,
     start_date,
@@ -66,6 +69,7 @@ def test_set_general_options(
         n_pr_bool,
         tasmax_units,
         tasmin_units,
+        tg_units,
         pr_units,
         max_gb,
         start_date,
@@ -77,6 +81,7 @@ def test_set_general_options(
     assert list(base.getOption("target.units")) == [
         tasmax_units,
         tasmin_units,
+        tg_units,
         pr_units,
     ]
     assert base.getOption("max.GB")[0] == max_gb

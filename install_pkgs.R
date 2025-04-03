@@ -34,4 +34,4 @@ install.packages('githubinstall')
 
 # Install Climdown from GitHub branch
 library(githubinstall)
-gh_install_packages('ClimDown', ref = 'ci-climatex')
+gh_install_packages('pacificclimate/ClimDown', ref = 'ci-climatex')

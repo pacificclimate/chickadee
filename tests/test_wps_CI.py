@@ -12,6 +12,8 @@ def build_params(gcm_file, obs_file, var, out_file):
         f"obs_file=@xlink:href={obs_file};"
         f"varname={var};"
         f"out_file={out_file};"
+        f"gcm_varname={var};"
+        f"obs_varname={var};"
     )
 
 
