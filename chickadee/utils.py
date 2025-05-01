@@ -3,7 +3,7 @@ from rpy2 import robjects
 from rpy2.rinterface_lib import callbacks
 from tempfile import NamedTemporaryFile
 from urllib.request import urlretrieve
-from pkg_resources import resource_filename
+from importlib.resources import files
 from pywps.response.status import WPS_STATUS
 from pywps.app.exceptions import ProcessError
 from contextlib import redirect_stderr
@@ -128,7 +128,7 @@ def test_analogues(url, analogues_name, expected_file, expected_analogues):
         robjects.r(f"load(file='{tmp_file.name}')")
 
     robjects.r(
-        "load(file='{}')".format(resource_filename("tests", f"data/{expected_file}"))
+        "load(file='{}')".format((files("tests") / "data/{expected_file}").resolve())
     )
 
     for col in ["indices", "weights"]:
