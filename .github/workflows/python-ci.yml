@@ -7,7 +7,7 @@ jobs:
     runs-on: ubuntu-24.04
     strategy:
       matrix:
-        python-version: ["3.9", "3.10"]
+        python-version: ["3.10"]
 
     steps:
       - uses: actions/checkout@v4
@@ -21,17 +21,20 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install r-base libgit2-dev libudunits2-dev libnetcdf-dev libcurl4-openssl-dev libssl-dev libfontconfig1-dev libxml2-dev libharfbuzz-dev libfribidi-dev libfreetype6-dev libpng-dev libtiff5-dev libjpeg-dev
-          pip install -r requirements.txt
-          pip install -e .[dev]
+          curl -sSL https://install.python-poetry.org | python3 -
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
+          poetry install --extras "dev"
+
       - name: Set GITHUB_PAT env var for R
         run: echo "GITHUB_PAT=${{ secrets.GITHUB_TOKEN }}" >> $GITHUB_ENV
       - name: Install R packages
         run: Rscript install_pkgs.R r_requirements.txt
+
       - name: Test with pytest (full)
         if: github.ref == 'refs/heads/master'
         run: |
-          py.test -m "not online" -v
+          poetry run py.test -m "not online" -v
       - name: Test with pytest (fast)
         if: github.ref != 'refs/heads/master'
         run: |
-          py.test -m "not online and not slow" -v
+          poetry run py.test -m "not online and not slow" -v
