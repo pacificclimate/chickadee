@@ -127,9 +127,7 @@ def test_analogues(url, analogues_name, expected_file, expected_analogues):
         urlretrieve(url, tmp_file.name)
         robjects.r(f"load(file='{tmp_file.name}')")
 
-    robjects.r(
-        "load(file='{}')".format((files("tests") / "data/{expected_file}").resolve())
-    )
+    robjects.r(f"load(file='{(files('tests') / 'data' / expected_file).resolve()}')")
 
     for col in ["indices", "weights"]:
         r_expected = f'{expected_analogues}[["{col}"]]'
