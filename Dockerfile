@@ -1,10 +1,10 @@
 FROM rocker/r-ver:4.4 AS build
 
-COPY r_requirements.txt install_pkgs.R ./
+COPY pyproject.toml install_pkgs.R ./
 
 RUN apt-get update && \
   apt-get install -y --no-install-recommends libssl-dev libxml2-dev libudunits2-dev libnetcdf-dev libgit2-dev && \
-  Rscript install_pkgs.R r_requirements.txt
+  Rscript install_pkgs.R
 
 FROM rocker/r-ver:4.4
 
@@ -18,7 +18,7 @@ WORKDIR /tmp
 # Copy compiled library files
 ARG LIB_FILEPATH=/usr/lib/x86_64-linux-gnu/
 
-# Copy R packages in r_requirements.txt and their dependencies
+# Copy R packages
 # Directories cannot be recursively copied
 ARG R_FILEPATH=/root/R/x86_64-pc-linux-gnu-library/4.4
 
@@ -53,8 +53,7 @@ RUN apt-get update && \
 
 RUN poetry config virtualenvs.in-project true && \
   poetry lock && \
-  poetry install && \
-  poetry run pip install gunicorn
+  poetry install
 
 EXPOSE 5000
 CMD ["poetry", "run", "gunicorn", "--bind=0.0.0.0:5000", "--timeout", "0", "chickadee.wsgi:application"]

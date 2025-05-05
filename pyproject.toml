@@ -3,10 +3,11 @@ name = "chickadee"
 version = "0.6.1"
 description = "A Web Processing Service for PCIC's ClimDown package."
 authors = [
-    {name = "Nikola Rados"},
-    {name = "Sangwon Lim"},
-    {name = "Eric Yvorchuk"},
-    {name = "Cairo Sanders"},
+  { name = "Nikola Rados" },
+  { name = "Sangwon Lim" },
+  { name = "Eric Yvorchuk" },
+  { name = "Cairo Sanders" },
+  { name = "Quintin Sparks", email = "quintins@uvic.ca" },
 ]
 classifiers = [
   "Development Status :: 3 - Alpha",
@@ -19,25 +20,25 @@ classifiers = [
   "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.12",
   "Topic :: Scientific/Engineering :: Atmospheric Science",
-  "License :: OSI Approved :: GNU General Public License v3 (GPLv3)"
+  "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
 ]
 
-license = {text = "GNU General Public License v3"}
+license = { text = "GNU General Public License v3" }
 readme = "README.md"
 requires-python = ">=3.10, <4.0"
 dependencies = [
-    "pywps==4.6.0",
-    "poetry >=2.0.0",
-    "jinja2",
-    "click",
-    "psutil",
-    "nchelpers==5.5.11",
-    "rpy2==3.3.6",
-    "werkzeug==1.0.1",
-    "wps-tools[r]==2.1.3",
-    "gunicorn>=20.1.0",
-    "setuptools"
-    
+  "pywps==4.6.0",
+  "poetry >=2.0.0",
+  "jinja2",
+  "click",
+  "psutil",
+  "nchelpers==5.5.11",
+  "rpy2==3.3.6",
+  "werkzeug==1.0.1",
+  "wps-tools[r]==2.1.3",
+  "gunicorn>=20.1.0",
+  "setuptools",
+
 ]
 
 [project.optional-dependencies]
@@ -65,7 +66,7 @@ dev = [
   "ipyleaflet",
   "pyproj",
   "xarray",
-  "xclim"
+  "xclim",
 ]
 
 [project.scripts]
@@ -75,6 +76,19 @@ chickadee = "chickadee.cli:cli"
 requires = ["poetry-core>=2.0.0,<3.0.0"]
 build-backend = "poetry.core.masonry.api"
 
+
+[tool.chickadee.r-dependencies]
+PCICt = "0.5.4.1"
+udunits2 = "0.13"
+ncdf4 = "1.17"
+fields = "11.6"
+foreach = "1.5.1"
+seas = "0.5.2"
+abind = "1.4.5"
+doParallel = "1.0.16"
+# ClimDown = "1.0.2"  # Optional GitHub install
+
+
 [[tool.poetry.source]]
 name = "pcic"
 url = "https://pypi.pacificclimate.org/simple"
@@ -83,5 +97,116 @@ priority = "supplemental"
 [tool.pytest.ini_options]
 markers = [
   "online: marks tests that use online resources (deselect with '-m \"not online\"')",
-  "slow: marks tests that are slow (deselect with '-m \"not slow\"')"
+  "slow: marks tests that are slow (deselect with '-m \"not slow\"')",
 ]
+
+[[tool.poetry.include]]
+path = "*.txt"
+format = ["sdist", "wheel"]
+
+[[tool.poetry.include]]
+path = "*.md"
+format = ["sdist", "wheel"]
+
+[[tool.poetry.include]]
+path = "chickadee"
+format = ["sdist", "wheel"]
+
+[tool.poe.tasks]
+
+# ── System & R deps ─────────────────────────────────────────
+
+[tool.poe.tasks.install-apt]
+cmd = "sudo apt-get install libudunits2-dev libnetcdf-dev"
+help = "Install required system libraries for R packages"
+
+[tool.poe.tasks.install-r-pkgs]
+cmd = "Rscript install_pkgs.R"
+help = "Install required R packages "
+
+# ── Python env via Poetry ────────────────────────────────────
+
+[tool.poe.tasks.install]
+cmd = "poetry install"
+help = "Install Python project dependencies using Poetry"
+
+[tool.poe.tasks.develop]
+cmd = "poetry install --with dev"
+help = "Install development dependencies using Poetry"
+
+[tool.poe.tasks.start]
+cmd = "poetry run chickadee start -d"
+help = "Start the Chickadee service in detached mode"
+
+[tool.poe.tasks.stop]
+cmd = "poetry run chickadee stop"
+help = "Stop the Chickadee service"
+
+[tool.poe.tasks.restart]
+sequence = ["stop", "start"]
+help = "Restart the Chickadee service"
+
+[tool.poe.tasks.status]
+cmd = "poetry run chickadee status"
+help = "Show the status of the Chickadee service"
+
+[tool.poe.tasks.dist]
+cmd = "poetry build"
+help = "Build a distribution package for the project"
+
+# ── Tests & lint ─────────────────────────────────────────────
+
+[tool.poe.tasks.test]
+cmd = "pytest -v -m 'not slow and not online' tests/"
+help = "Run fast, offline unit tests"
+
+[tool.poe.tasks.test-all]
+cmd = "pytest -v tests/"
+help = "Run all tests, including online ones"
+
+[tool.poe.tasks.lint]
+cmd = "black . --check"
+help = "Check code formatting using Black"
+
+# ── Notebook tasks ──────────────────────────────────────────
+
+[tool.poe.tasks.prepare-notebooks]
+cmd = "curl -L https://github.com/Ouranosinc/PAVICS-e2e-workflow-tests/raw/master/notebooks/output-sanitize.cfg -o docs/output-sanitize.cfg --silent"
+help = "Download the output sanitizer config for notebook tests"
+
+[tool.poe.tasks.test-notebooks]
+sequence = ["prepare-notebooks", "test-notebooks-local"]
+help = "Run all local notebook tests with sanitized output"
+
+[tool.poe.tasks.test-notebooks-local]
+cmd = "pytest --nbval --verbose notebooks/ --sanitize-with docs/output-sanitize.cfg --ignore notebooks/.ipynb_checkpoints"
+env = { LOCAL_URL = "http://localhost:5000" }
+help = "Run notebook tests locally using nbval with sanitization"
+
+# [tool.poe.tasks.test-notebooks-prod]
+# sequence = ["prepare-notebooks", "test-notebooks-prod-run"]
+# help = "Run notebook tests against the production environment"
+
+# [tool.poe.tasks.test-notebooks-prod-run]
+# cmd = "pytest --nbval --verbose notebooks/ --sanitize-with docs/output-sanitize.cfg --ignore notebooks/.ipynb_checkpoints"
+
+# [tool.poe.tasks.test-notebooks-dev]
+# sequence = ["prepare-notebooks", "test-notebooks-dev-run"]
+# help = "Run notebook tests against the dev environment"
+
+# [tool.poe.tasks.test-notebooks-dev-run]
+# cmd = "pytest --nbval --verbose notebooks/ --sanitize-with docs/output-sanitize.cfg --ignore notebooks/.ipynb_checkpoints"
+# env = { DEV_URL = "http://docker-dev03.pcic.uvic.ca:30102/wps" }
+
+# [tool.poe.tasks.test-notebooks-custom]
+# sequence = ["prepare-notebooks", "run-custom-port-test"]
+# help = "Run notebook tests against a custom dev server port"
+
+# [tool.poe.tasks.run-custom-port-test]
+# shell = "read -p 'Target port: ' PORT && env DEV_URL=http://docker-dev03.pcic.uvic.ca:$PORT/wps pytest --nbval --verbose notebooks/ --sanitize-with docs/output-sanitize.cfg --ignore notebooks/.ipynb_checkpoints"
+
+# ── Documentation ────────────────────────────────────────────
+
+[tool.poe.tasks.docs]
+cmd = "jupyter nbconvert --to html notebooks/* --output-dir docs/formatted_demos/"
+help = "Convert notebooks to HTML for documentation"
