@@ -1,6 +1,10 @@
+# Create user library
+dir.create(Sys.getenv("R_LIBS_USER"), recursive = TRUE)
+.libPaths(Sys.getenv("R_LIBS_USER"))
+
 # Install and load RcppTOML
-if (!require("RcppTOML")) {
-    install.packages("RcppTOML", repos = "https://cloud.r-project.org")
+if (!requireNamespace("RcppTOML", quietly = TRUE)) {
+  install.packages("RcppTOML", repos = "https://cloud.r-project.org")
 }
 library(RcppTOML)
 
@@ -10,9 +14,6 @@ toml_data <- RcppTOML::parseTOML("pyproject.toml")
 # Extract dependencies
 deps <- toml_data$tool$chickadee$`r-dependencies`
 
-# Create user library
-dir.create(Sys.getenv("R_LIBS_USER"), recursive = TRUE)
-.libPaths(Sys.getenv("R_LIBS_USER"))
 
 # Install devtools
 install.packages("devtools", dependencies = TRUE)
@@ -34,4 +35,5 @@ for (pkg in names(deps)) {
 install.packages("githubinstall")
 library(githubinstall)
 gh_install_packages("pacificclimate/ClimDown", ref = "ci-climatex")
+
 

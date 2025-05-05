@@ -28,7 +28,7 @@ jobs:
       - name: Set GITHUB_PAT env var for R
         run: echo "GITHUB_PAT=${{ secrets.GITHUB_TOKEN }}" >> $GITHUB_ENV
       - name: Install R packages
-        run: Rscript install_pkgs.R r_requirements.txt
+        run: Rscript install_pkgs.R
 
       - name: Test with pytest (full)
         if: github.ref == 'refs/heads/master'
