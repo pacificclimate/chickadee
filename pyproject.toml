@@ -131,7 +131,7 @@ cmd = "poetry install"
 help = "Install Python project dependencies using Poetry"
 
 [tool.poe.tasks.develop]
-cmd = "poetry install --with dev"
+cmd = "poetry install --extras dev"
 help = "Install development dependencies using Poetry"
 
 [tool.poe.tasks.start]
@@ -210,3 +210,26 @@ help = "Run notebook tests locally using nbval with sanitization"
 [tool.poe.tasks.docs]
 cmd = "jupyter nbconvert --to html notebooks/* --output-dir docs/formatted_demos/"
 help = "Convert notebooks to HTML for documentation"
+
+[tool.bumpversion]
+current_version = "0.7.1"
+commit = true
+tag = true
+
+[tool.bumpversion.file_patterns]
+"chickadee/__version__.py" = [
+  "__version__ = '{current_version}'",
+  "__version__ = '{new_version}'"
+]
+"docs/source/conf.py" = [
+  "version|release = {current_version}",
+  "{new_version}"
+]
+"Dockerfile" = [
+  "Version=\"{current_version}\"",
+  "Version=\"{new_version}\""
+]
+".cruft.json" = [
+  "\"version\": \"{current_version}\"",
+  "\"version\": \"{new_version}\""
+]

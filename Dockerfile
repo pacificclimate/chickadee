@@ -15,9 +15,6 @@ LABEL Maintainer="https://github.com/pacificclimate/chickadee" \
 
 WORKDIR /tmp
 
-# Copy compiled library files
-ARG LIB_FILEPATH=/usr/lib/x86_64-linux-gnu/
-
 # Copy R packages
 # Directories cannot be recursively copied
 ARG R_FILEPATH=/root/R/x86_64-pc-linux-gnu-library/4.4
@@ -37,8 +34,7 @@ COPY --from=build ${R_FILEPATH}/dotCall64 ${R_FILEPATH}/dotCall64
 COPY --from=build ${R_FILEPATH}/iterators ${R_FILEPATH}/iterators
 
 # Add path to libR.so to the environment variable LD_LIBRARY_PATH
-ENV LD_LIBRARY_PATH=/usr/local/lib/R/lib
-ENV LD_LIBRARY_PATH=$LD_LIBRARY_PATH
+ENV LD_LIBRARY_PATH="/usr/local/lib/R/lib:${LD_LIBRARY_PATH}"
 ENV PIP_INDEX_URL="https://pypi.pacificclimate.org/simple/"
 
 COPY . /tmp
