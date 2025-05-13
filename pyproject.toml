@@ -38,6 +38,7 @@ dependencies = [
   "wps-tools[r]==2.1.3",
   "gunicorn>=20.1.0",
   "setuptools",
+  "netcdf4",
 
 ]
 
@@ -219,17 +220,11 @@ tag = true
 [tool.bumpversion.file_patterns]
 "chickadee/__version__.py" = [
   "__version__ = '{current_version}'",
-  "__version__ = '{new_version}'"
+  "__version__ = '{new_version}'",
 ]
-"docs/source/conf.py" = [
-  "version|release = {current_version}",
-  "{new_version}"
-]
-"Dockerfile" = [
-  "Version=\"{current_version}\"",
-  "Version=\"{new_version}\""
-]
+"docs/source/conf.py" = ["version|release = {current_version}", "{new_version}"]
+"Dockerfile" = ["Version=\"{current_version}\"", "Version=\"{new_version}\""]
 ".cruft.json" = [
   "\"version\": \"{current_version}\"",
-  "\"version\": \"{new_version}\""
+  "\"version\": \"{new_version}\"",
 ]
