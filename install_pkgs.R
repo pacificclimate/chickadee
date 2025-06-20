@@ -1,37 +1,40 @@
-# Usage:
-# Rscript install_pgks.R r_requirements.txt
-# r_requirements delimited by '==' as in python requirements.txt
-
 # Create user library
-dir.create(Sys.getenv('R_LIBS_USER'), recursive = TRUE);
-.libPaths(Sys.getenv('R_LIBS_USER'));
+dir.create(Sys.getenv("R_LIBS_USER"), recursive = TRUE)
+.libPaths(Sys.getenv("R_LIBS_USER"))
 
-# Install devtools and its dependencies
-install.packages('devtools', dependencies=TRUE);
-
-# Install packages from requirements list
-args <- commandArgs(trailingOnly = TRUE)
-req_filename <- args[1]
-requirements_file <- file(req_filename,open="r")
-data <-readLines(requirements_file)
-for (i in 1:length(data)){
-    if (grepl('#', data[i])){
-        next
-    }
-    pkg_ver_pair <- unlist(stringr::str_split(data[i], "=="))
-    pkg<-pkg_ver_pair[1]
-    ver<-pkg_ver_pair[2]
-    if (is.na(ver)){
-        devtools::install_version(pkg)
-    } else {
-        devtools::install_version(pkg, version = ver);
-    }
+# Install and load RcppTOML
+if (!requireNamespace("RcppTOML", quietly = TRUE)) {
+  install.packages("RcppTOML", repos = "https://cloud.r-project.org")
 }
-close(requirements_file)
+library(RcppTOML)
 
-# Install githubinstall
-install.packages('githubinstall')
+# Read the TOML file
+toml_data <- RcppTOML::parseTOML("pyproject.toml")
 
-# Install Climdown from GitHub branch
-library(githubinstall)
-gh_install_packages('pacificclimate/ClimDown', ref = 'ci-climatex')
+# Extract dependencies
+deps <- toml_data$tool$chickadee$`r-dependencies`
+
+
+# Install devtools
+install.packages("devtools", dependencies = TRUE)
+library(devtools)
+
+# Install packages with versions
+for (pkg in names(deps)) {
+    ver <- deps[[pkg]]
+    if (!(pkg %in% rownames(installed.packages()))) {
+        if (is.null(ver) || ver == "*" || ver == "") {
+            install_version(pkg)
+        } else {
+            install_version(pkg, version = ver)
+        }
+    }
+    
+}
+
+if (!requireNamespace("remotes", quietly = TRUE)) {
+  install.packages("remotes", repos = "https://cloud.r-project.org")
+}
+remotes::install_github("pacificclimate/ClimDown@ci-climatex")
+
+
