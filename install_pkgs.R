@@ -35,6 +35,6 @@ for (pkg in names(deps)) {
 if (!requireNamespace("remotes", quietly = TRUE)) {
   install.packages("remotes", repos = "https://cloud.r-project.org")
 }
-remotes::install_github("pacificclimate/ClimDown@ci-climatex")
+remotes::install_github("pacificclimate/ClimDown@2.0.0")
 
 
