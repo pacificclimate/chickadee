@@ -1,5 +1,6 @@
 # Installation
 - [Install from Github](#install-from-github)
+- [Install poethepoet](#install-poethepoet)
 - [Start `chickadee` PyWPS service](#start-chickadee-pywps-service)
 - [Run `chickadee` as Docker container](#run-chickadee-as-docker-container)
 - [Use Ansible to deploy `chickadee` on your System](#use-ansible-to-deploy-chickadee-on-your-system)
@@ -11,44 +12,35 @@ Check out code from the chickadee GitHub repo and start the installation:
 $ git clone https://github.com/pacificclimate/chickadee.git
 $ cd chickadee
 ```
+## Install poethepoet
+A task runner that works well with Poetry to replace Makefiles. 
 
-Create Python environment named `venv`:
 ```
-$ python3 -m venv venv
-$ source venv/bin/activate
+$ python3 -m pip install --user pipx
+$ python3 -m pipx ensurepath # Ensure directory where pipx stores apps is in your PATH environment variable 
+$ pipx install poethepoet # Install globally
 ```
+Install system libraries and dependencies:
+```
+$ poe install-apt
+$ poe install-r-pkgs
 
+```
 Install requirements:
 ```
-(venv)$ pip install -r requirements.txt
-```
-
-Install chickadee app:
-```
-(venv)$ pip install -e .
-# OR
-$ make install
+poe install
 ```
 
 For development you can use this command:
 ```
-$ pip install -e .[dev]
-# OR
-$ make develop
+poe develop
 ```
 
 ## Start `chickadee` PyWPS service
 After successful installation you can start the service using the `chickadee` command-line.
 
 ```
-(venv)$ chickadee --help # show help
-(venv)$ chickadee start  # start service with default configuration
-
-# OR
-
-(venv)$ chickadee start --daemon # start service as daemon
-loading configuration
-forked process id: 42
+poe start
 ```
 The deployed WPS service is by default available on:
 
@@ -68,12 +60,11 @@ $ tail -f  pywps.log
 ```
 ... or do it the lazy way
 
-You can also use the `Makefile` to start and stop the service:
+You can also use the `Poe` to check the status and stop the service:
 ```
-$ make start
-$ make status
+$ poe status
 $ tail -f pywps.log
-$ make stop
+$ poe stop
 ```
 
 ## Run `chickadee` as Docker container

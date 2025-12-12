@@ -4,32 +4,37 @@ on: push
 
 jobs:
   test:
-
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
     strategy:
       matrix:
-        python-version: [3.7, 3.8]
+        python-version: ["3.11"]
 
     steps:
-    - uses: actions/checkout@v2
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v2
-      with:
-        python-version: ${{ matrix.python-version }}
-    - name: Install dependencies
-      env:
-        PIP_INDEX_URL: https://pypi.pacificclimate.org/simple
-      run: |
-        sudo apt-get update
-        sudo apt-get install libgit2-dev libudunits2-dev libnetcdf-dev
-        pip install -r requirements.txt
-        pip install -e .[dev]
-        Rscript install_pkgs.R r_requirements.txt
-    - name: Test with pytest (full)
-      if: github.ref == 'refs/heads/master'
-      run: |
-        py.test -m "not online" -v
-    - name: Test with pytest (fast)
-      if: github.ref != 'refs/heads/master'
-      run: |
-        py.test -m "not online and not slow" -v
+      - uses: actions/checkout@v4
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install dependencies
+        env:
+          PIP_INDEX_URL: https://pypi.pacificclimate.org/simple
+        run: |
+          sudo apt-get update
+          sudo apt-get install r-base libgit2-dev libudunits2-dev libnetcdf-dev libcurl4-openssl-dev libssl-dev libfontconfig1-dev libxml2-dev libharfbuzz-dev libfribidi-dev libfreetype6-dev libpng-dev libtiff5-dev libjpeg-dev
+          curl -sSL https://install.python-poetry.org | python3 -
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
+          poetry install --extras "dev"
+
+      - name: Set GITHUB_PAT env var for R
+        run: echo "GITHUB_PAT=${{ secrets.GITHUB_TOKEN }}" >> $GITHUB_ENV
+      - name: Install R packages
+        run: Rscript install_pkgs.R
+
+      - name: Test with pytest (full)
+        if: github.ref == 'refs/heads/master'
+        run: |
+          poetry run py.test -m "not online" -v
+      - name: Test with pytest (fast)
+        if: github.ref != 'refs/heads/master'
+        run: |
+          poetry run py.test -m "not online and not slow" -v

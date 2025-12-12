@@ -1,53 +1,55 @@
 # Developer Guide
+- [Install poethepoet](#install-poethepoet)
 - [Building the docs](#building-the-docs)
 - [Running tests](#running-tests)
 - [Run tests the lazy way](#run-tests-the-lazy-way)
 - [Bump a new version](#bump-a-new-version)
 
-## Building the docs
-Most of the documentation is static and does not need to be "built". That being said the jupyter notebooks that serve as demos need to be built whenever they are changed. This can be done with the `Makefile`.
+## Install poethepoet
+A task runner that works well with Poetry to replace Makefiles. 
 
 ```
-$ make docs
+$ python3 -m pip install --user pipx
+$ python3 -m pipx ensurepath # Ensure directory where pipx stores apps is in your PATH environment variable 
+$ pipx install poethepoet # Install globally
+```
+
+## Building the docs
+Most of the documentation is static and does not need to be "built". That being said the jupyter notebooks that serve as demos need to be built whenever they are changed. This can be done using `poe`.
+
+```
+$ poe docs
 ```
 
 ## Running tests
 Run tests using [`pytest`](https://docs.pytest.org/en/latest/).
 
-First activate the `chickadee` Python environment and install `pytest`.
+Install system libraries, R dependencies and package with dev dependencies:
+
 ```
-$ python3 -m venv venv
-$ source venv/bin/activate
-(venv)$ pip install -r requirements_dev.txt  # if not already installed
-# OR
-(venv)$ make install
+$ poe install-apt
+$ poe install-r-pkgs
+$ poe develop
 ```
 
 Run quick tests (skip slow and online):
 ```
-(venv)$ pytest -m 'not slow and not online'"
-```
-Run all tests:
-```
-(venv)$ pytest
+$ poe test"
 ```
 
-You can also run tests on the notebooks using the `Makefile`.
+Run all tests:
 ```
-$ make test-notebooks
+poe test-all
+```
+
+You can also run tests on the notebooks:
+```
+$ poe test-notebooks
 ```
 
 Check `black` formatting:
 ```
-(venv)$ black .
-```
-
-## Run tests the lazy way
-Do the same as above using the `Makefile`
-```
-$ make test
-$ make test-all
-$ make lint
+$ poe lint
 ```
 
 ## Bump a new version

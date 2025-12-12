@@ -83,6 +83,14 @@ general_options_input = [
         data_type="string",
     ),
     LiteralInput(
+        "tg_units",
+        "Tasmean Units",
+        abstract="Units used for tg (tasmean) in output file",
+        max_occurs=1,
+        default="celsius",
+        data_type="string",
+    ),
+    LiteralInput(
         "pr_units",
         "Precipitation Units",
         abstract="Units used for pr in output file",
@@ -266,5 +274,24 @@ qdm_options_input = [
         max_occurs=1,
         default=False,
         data_type="boolean",
+    ),
+]
+
+ci_options_input = [
+    LiteralInput(
+        "gcm_varname",
+        "GCM Variable to Downscale",
+        abstract="Name of the GCM NetCDF variable to downscale (e.g. 'tasmax')",
+        min_occurs=1,
+        max_occurs=1,
+        data_type="string",
+    ),
+    LiteralInput(
+        "obs_varname",
+        "Observations Variable",
+        abstract="Name of the NetCDF variable to downscale given in the observations file (e.g. 'tmax')",
+        min_occurs=1,
+        max_occurs=1,
+        data_type="string",
     ),
 ]
