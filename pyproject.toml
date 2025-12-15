@@ -1,6 +1,6 @@
 [project]
 name = "chickadee"
-version = "0.6.1"
+version = "1.0.0"
 description = "A Web Processing Service for PCIC's ClimDown package."
 authors = [
   { name = "Nikola Rados" },
